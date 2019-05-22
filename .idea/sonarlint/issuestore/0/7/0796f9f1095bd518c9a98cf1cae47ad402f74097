@@ -1,0 +1,12 @@
+
+[
+squid:S106%"9Replace this use of System.out or System.err by a logger.(×€íûÿÿÿÿ8½ŞÇ«-
+psquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Â—Í™8½ŞÇ«-
+[
+squid:S1060"9Replace this use of System.out or System.err by a logger.(×€íûÿÿÿÿ8½ŞÇ«-
+isquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ËÖÃ•8½ŞÇ«-
+[
+squid:S106."9Replace this use of System.out or System.err by a logger.( ¹×ûÿÿÿÿ8½ŞÇ«-
+[
+squid:S106,"9Replace this use of System.out or System.err by a logger.(“£“åÿÿÿÿÿ8½ŞÇ«-
+=squid:S1659$"Declare "k" on a separate line.(öŸƒ˜8½ŞÇ«-
