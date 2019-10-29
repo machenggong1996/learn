@@ -22,6 +22,19 @@ public class DPMaxSequence {
         return maxsum;
     }
 
+    public static int MaxContinueArraySum(int a[]) {
+        int n = a.length;
+        int max = a[0];
+        int sum = a[0];
+        for (int i = 1; i < n; i++) {
+            sum = Math.max(sum + a[i], a[i]);
+            if (sum >= max) {
+                max = sum;
+            }
+        }
+        return max;
+    }
+
     public static void main(String[] args) {
         int[] a = {1, 2, 0, -3, 4, 1};
         int m = maxsequence(a, a.length);
