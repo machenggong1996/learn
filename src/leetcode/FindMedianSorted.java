@@ -21,7 +21,7 @@ public class FindMedianSorted {
          *  A[0], A[1], ..., A[i-1]  |  A[i], A[i+1], ..., A[m-1]
          *  B[0], B[1], ..., B[j-1]  |  B[j], B[j+1], ..., B[n-1]
          */
-        int iMin = 0, iMax = m, halfLen = (m + n + 1) / 2;
+        int iMin = 0, iMax = m, halfLen = (m + n + 1) / 2;//存在计算关系
         while (iMin <= iMax) {
             // 初始从数组A的中间分隔
             int i = (iMin + iMax) / 2;
@@ -60,8 +60,8 @@ public class FindMedianSorted {
     }
 
     public static void main(String[] args) {
-        int nums1[] = {1, 3};
-        int nums2[] = {2};
+        int nums1[] = {1, 3, 5};
+        int nums2[] = {2, 4, 7};
         System.out.println(findMedianSortedArrays(nums1, nums2));
     }
 }
