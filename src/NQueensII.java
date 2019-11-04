@@ -41,7 +41,7 @@ public class NQueensII {
         } else {
             //第t行，遍历所有的节点
             for (int j = 1; j <= N; j++) {
-                x[t] = j;
+                x[t] = j;//{0,1,3,0,0} 3 为2行3列
                 //如果第j个节点可以放下皇后
                 if (place(t)) {//在这里递归产生回溯算法 回溯之后t-1 通过for循环进行剪枝
                     //接着放下一个
