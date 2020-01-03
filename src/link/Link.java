@@ -59,6 +59,7 @@ public class Link {
                 preNode.next = curNode.next;
                 return true;
             }
+            //从head向下移动找位置
             preNode = curNode;
             curNode = curNode.next;
             i++;
@@ -113,15 +114,19 @@ public class Link {
      */
     public Node ReverseIteratively(Node head) {
         Node pReversedHead = head;
-        Node pNode = head;//原指针
-        Node pPrev = null;//临时指针
+        Node pNode = head;//原指针 当前节点
+        Node pPrev = null;//临时指针  指针2：当前节点的前一个节点
         while (pNode != null) {
+            // 指针3：当前节点的后一个节点
             Node pNext = pNode.next;
             if (pNext == null) {
                 pReversedHead = pNode;
             }
+            // 将当前节点的后一个节点指向前一个节点
             pNode.next = pPrev;
+            // 将前一个节点指向当前节点
             pPrev = pNode;
+            // 将当前节点指向后一个节点
             pNode = pNext;
         }
         this.head = pReversedHead;
@@ -172,14 +177,14 @@ public class Link {
 
     public static void main(String[] args) {
         Link list = new Link();
-        list.addNode(5);
+        list.addNode(1);
+        list.addNode(2);
         list.addNode(3);
-        list.addNode(1);
-        list.addNode(1);
+        list.addNode(4);
         System.out.println("linkLength:" + list.length());
         System.out.println("head.data:" + list.head.data);
         list.printList();
-        list.deleteNode(4);
+        list.deleteNode(3);
         System.out.println("After deleteNode(4):");
         list.printList();
         list.ReverseIteratively(list.head);
