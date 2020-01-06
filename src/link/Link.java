@@ -108,17 +108,18 @@ public class Link {
 
     /**
      * 链表反转
+     * 参考博客 https://blog.csdn.net/qq_36791466/article/details/88766450
      *
      * @param head
      * @return
      */
     public Node ReverseIteratively(Node head) {
         Node pReversedHead = head;
-        Node pNode = head;//原指针 当前节点
-        Node pPrev = null;//临时指针  指针2：当前节点的前一个节点
+        Node pNode = head;//原指针 当前节点 p2
+        Node pPrev = null;//临时指针  指针2：当前节点的前一个节点 p1
         while (pNode != null) {
             // 指针3：当前节点的后一个节点
-            Node pNext = pNode.next;
+            Node pNext = pNode.next; //p3
             if (pNext == null) {
                 pReversedHead = pNode;
             }
