@@ -28,13 +28,26 @@ public class DPBackPack {
      * @param w 表示商品重量数组
      * @param p 表示商品价值数组
      */
+    /**
+     * w[i] :  第i个物体的重量；
+     * <p>
+     * 　　p[i] : 第i个物体的价值；
+     * <p>
+     * 　　c[i][m] ： 前i个物体放入容量为m的背包的最大价值；
+     * <p>
+     * 　　c[i-1][m] ： 前i-1个物体放入容量为m的背包的最大价值；
+     * <p>
+     * 　　c[i-1][m-w[i]] ： 前i-1个物体放入容量为m-w[i]的背包的最大价值；
+     * <p>
+     * 　　由此可得：
+     * <p>
+     * 　　　　　　c[i][m]=max{c[i-1][m-w[i]]+pi , c[i-1][m]}
+     * <p>
+     * 原文链接：https://blog.csdn.net/sdgihshdv/article/details/76944834
+     */
     public static int[][] BackPack_Solution(int m, int n, int[] w, int[] p) {
         //c[i][v]表示前i件物品恰放入一个重量为m的背包可以获得的最大价值
         int c[][] = new int[n + 1][m + 1];
-        for (int i = 0; i < n + 1; i++)
-            c[i][0] = 0;
-        for (int j = 0; j < m + 1; j++)
-            c[0][j] = 0;
 
         for (int i = 1; i < n + 1; i++) {
             for (int j = 1; j < m + 1; j++) {

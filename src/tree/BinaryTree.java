@@ -226,5 +226,6 @@ public class BinaryTree {
 //        bTree.inOrder(bTree.root);
 //        bTree.postOrder(bTree.root);
         bTree.preOrderTraverse2(bTree.root);
+        bTree.inOrderTraverse2(bTree.root);
     }
 }
