@@ -39,3 +39,11 @@
 1. hashmap
 ```https://www.jianshu.com/p/e2f75c8cce01```
 2. 集合
+
+### 读书计划
+
+1. 设计模式
+2. GoLang
+3. java并发编程
+4. java编程思想
+5. springboot
