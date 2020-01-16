@@ -33,7 +33,7 @@ public class HeapSort {
      * 调整大顶堆（仅是调整过程，建立在大顶堆已构建的基础上）
      *
      * @param arr
-     * @param i
+     * @param i 当前节点索引
      * @param length
      */
     public static void adjustHeap(int[] arr, int i, int length) {
