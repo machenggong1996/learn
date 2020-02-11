@@ -7,6 +7,7 @@ public class HeapSort {
 
     /**
      * 堆排序 https://blog.csdn.net/qq_36186690/article/details/82505569
+     * 父节点大于子节点 大顶堆 父节点小于子节点 小顶堆
      */
     public static void main(String[] args) {
         int[] arr = {7, 8, 9, 11, 5, 12, 3, 0, 13};
@@ -27,7 +28,7 @@ public class HeapSort {
         //2.调整堆结构+交换堆顶元素与末尾元素
         for (int j = arr.length - 1; j > 0; j--) {
             swap(arr, 0, j);//将堆顶元素与末尾元素进行交换
-            adjustHeap(arr, 0, j);//重新对堆进行调整
+            adjustHeap(arr, 0, j);//重新对堆进行调整 从0开始
         }
 
     }

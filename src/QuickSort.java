@@ -2,6 +2,12 @@
  * Created by machenggong on 2019/5/22.
  */
 public class QuickSort {
+    /**
+     * 快速排序使一遍大于基准一边小于基准
+     * @param arr
+     * @param low
+     * @param high
+     */
 
     public static void quickSort(int[] arr, int low, int high) {
         int i, j, temp, t;
