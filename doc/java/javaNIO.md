@@ -261,3 +261,187 @@ public class TestChannel{
     }
 }
 ```
+### 字符集：Charset
+
+1. 编码：字符串转换成字节数组
+2. 解码：字节数组转换成字符串
+
+```java
+public class TestCharset{
+    public void test1(){
+        Map<String,java.nio.charset.Charset> map = java.nio.charset.Charset.availableCharsets();
+       
+    }
+    
+    public void test2(){
+        java.nio.charset.Charset cs1 = java.nio.charset.Charset.forName("GBK");
+        java.nio.charset.CharsetEncoder ce = cs1.newEncoder();
+        java.nio.charset.CharsetDecoder ce = cs1.newDecoder();
+        
+        java.nio.CharBuffer cBuf = java.nio.CharBuffer.allocate(1024);
+        
+    }
+}
+```
+### NIO非阻塞式网络通信
+
+1. 阻塞：客户端发起请求，服务端不能确认数据有效，线程会进入等待状态，当前线程不会做任何事情
+2. NIO非阻塞：选择器(selector)，每一个传输数据的通道都注册到选择器上，选择器监控每个通道状态，当客户端准备就绪时选择器将任务分配到服务端一个或者多个线程上面
+
+使用NIO完成网络通信的三个核心
+1. 通道 Channel
+2. 缓冲区Buffer
+3. 选择器 selectorChannel多路复用器
+
+```java
+public class TestNIO{
+    
+    public void blockClient() throws java.io.IOException{
+        
+        //1. 获取通道
+        java.nio.channels.SocketChannel socketChannel = java.nio.channels.SocketChannel.open("127.0.0.1",9898);
+        
+        java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open(java.nio.file.Paths.get("1.jpg"),java.nio.file.StandardOpenOption.READ);
+        
+        //2. 分配指定大小的缓冲区
+        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+        
+        //3. 读取本地文件并发送到服务端去
+        while (fileChannel.read(buf)!=-1){
+            buf.flip();
+            socketChannel.write(buf);
+            buf.clear();
+        }
+        
+        socketChannel.shutdownOutput();
+        
+        //接收服务端反馈
+        int len = 0;
+        while ((len = socketChannel.read(buf))!=-1){
+            buf.flip();
+            System.out.println(new String(buf.array()),0,len);
+            buf.clear();
+        }
+        
+        fileChannel.close();
+        socketChannel.close();
+        
+    }
+    
+    public void blockServer(){
+        //1. 获取通道
+        java.nio.channels.ServerSocketChannel serverSocketChannel = java.nio.channels.ServerSocketChannel.open();
+        
+        java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open(java.nio.file.Paths.get("2.jpg"),java.nio.file.StandardOpenOption.WRITE,java.nio.file.StandardOpenOption.CREATE_NEW);
+        
+        //2. 绑定连接
+        serverSocketChannel.bind(new java.net.InetSocketAddress(9898));
+        
+        //3. 获取客户端连接的通道
+        java.nio.channels.SocketChannel socketChannel = serverSocketChannel.accept();
+        
+        //4. 分配指定大小的缓冲区
+        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+        
+        //接收客户端数据
+        while (fileChannel.read(buf)!=-1){
+            buf.flip();
+            socketChannel.write(buf);
+            buf.clear();
+        }
+        
+        //发送反馈给客户端
+        buf.put("服务端接收数据成功".getBytes());
+        buf.flip();
+        socketChannel.write(buf);
+
+        socketChannel.close();
+        fileChannel.close();
+        serverSocketChannel.close();
+    }
+    
+    /**
+    * 无阻塞
+    */
+    public void NoBlockClient() throws java.io.IOException{
+        
+        //1. 获取通道
+        java.nio.channels.SocketChannel socketChannel = java.nio.channels.SocketChannel.open("127.0.0.1",9898);
+        
+        //2. 切换非阻塞
+        socketChannel.configureBlocking(false);
+        
+        //3. 分配指定大小的缓冲区
+        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+        
+        //4. 发送数据
+        
+        buf.put(new Date().toString().getBytes());
+        buf.flip();
+        socketChannel.write(buf);
+        buf.clear();
+        
+        socketChannel.close();
+    }
+    
+    public void NoBlockServer() throws java.io.IOException{
+        
+        //1. 获取通道
+        java.nio.channels.ServerSocketChannel serverSocketChannel = java.nio.channels.ServerSocketChannel.open();
+        
+        //2. 切换非阻塞
+        serverSocketChannel.configureBlocking(false);
+
+        //3. 绑定连接
+        serverSocketChannel.bind(new java.net.InetSocketAddress(9898));
+        
+        //4. 选择器
+        java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+        
+        //5. 将通道注册到选择器上 监听接收事件
+        serverSocketChannel.register(selector,java.nio.channels.SelectionKey.OP_ACCEPT);
+        
+        //6. 轮询式的获取选择器上已经准备好的事件
+        while (selector.select()>0){
+            //7. 获取当前选择器上注册的选择键 监听事件
+            java.util.Iterator<java.nio.channels.SelectionKey> it = selector.selectedKeys().iterator();
+        
+            while (it.hasNext()){
+                //8. 获取准备就绪的事件
+                java.nio.channels.SelectionKey sk = it.next();
+                
+                if(sk.isAcceptable()){
+                    //10. 若接收就绪 获取客户端连接
+                    java.nio.channels.SocketChannel socketChannel = serverSocketChannel.accept();
+                    
+                    socketChannel.configureBlocking(false);
+                    
+                    //12. 将通道注册到选择器上
+                    socketChannel.register(selector,java.nio.channels.SelectionKey.OP_READ);
+                }else if(sk.isValid()){
+                    
+                    // 13. 获取当前选择器上读就绪状态通道
+                   java.nio.channels.SocketChannel socketChannel = sk.channel();
+                   
+                   //14. 读取数据
+                   java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+                   
+                   int len = 0;
+                   while ((len = socketChannel.read(buf))!=-1){
+                       buf.flip();
+                       System.out.println(new String(buf.array()),0,len);
+                       buf.clear();
+                   }
+                    
+                   
+                }
+                //取消选择键
+                it.remove();
+            }
+        }
+        
+    }
+    
+    
+}
+```
