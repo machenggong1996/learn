@@ -445,3 +445,79 @@ public class TestNIO{
     
 }
 ```
+
+### DatagramChannel
+
+```java
+public class Test{
+    public void testClient(){
+        java.nio.channels.DatagramChannel dc = java.nio.channels.DatagramChannel.open();
+        dc.configureBlocking(false);
+        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+        java.util.Scanner scan = new java.util.Scanner(System.in);
+        
+        while (scan.hasNext()){
+            String str = scan.next();
+            buf.put((new java.util.Date().toString()+"\n"+str).getBytes());
+            buf.flip();
+            dc.send(buf,new java.net.InetSocketAddress("127.0.0.1",9898));
+            buf.clear();
+        }
+        dc.close();
+    }
+    
+    public void testServer(){
+            java.nio.channels.DatagramChannel dc = java.nio.channels.DatagramChannel.open();
+            dc.configureBlocking(false);
+            dc.bind(new java.net.InetSocketAddress(9898));
+            
+            java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+            
+            dc.register(selector,java.nio.channels.SelectionKey.OP_READ);
+            
+            while(selector.select()>0){
+                java.util.Iterator<java.nio.channels.SelectionKey> it = selector.selectedKeys().iterator();
+                
+                while (it.hasNext()){
+                    java.nio.channels.SelectionKey sk = it.next();
+                    if(sk.isReadable()){
+                        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+                        dc.receive(buf);
+                        buf.flip();
+                        System.out.println(new String(buf.array(),0,buf.limit()));
+                        buf.clear();
+                    }
+                    it.remove();
+                }
+            }
+        }
+}
+```
+
+### 管道Pipe
+
+管道是两个线程之间单向数据连接，pipe有一个source通道和一个sink通道，数据会被写到sink通道，从source通道读取
+
+```java
+public class Test{
+    public void test(){
+        java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+        
+       java.nio.channels.Pipe.SinkChannel sinkChannel = pipe.sink();
+       
+       java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1024);
+       buf.put("通过管道发送数据".getBytes());
+       buf.flip();
+       sinkChannel.write(buf);
+       
+       java.nio.channels.Pipe.SourceChannel sourceChannel = pipe.source();
+       
+       buf.flip();
+       sourceChannel.read(buf);
+       System.out.println(new String(buf.array(),0,len));
+       sourceChannel.close();
+       sinkChannel.close();
+      
+    }
+}
+```
