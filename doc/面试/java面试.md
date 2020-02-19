@@ -152,6 +152,8 @@ CAS的缺点
 
 ### tcp三次握手四次挥手
 
+不能两次握手是因为要防止中间一次传输丢失
+
 [三次握手四次挥手](https://blog.csdn.net/qq_38950316/article/details/81087809)
 
 ### 死锁条件
@@ -216,6 +218,8 @@ CAS的缺点
 
 迭代器删除
 
+[迭代器删除](https://blog.csdn.net/jam_yin/article/details/82382044)
+
 ### jdk动态代理
 
 由于java的单继承，动态生成的代理类已经继承了Proxy类的，就不能再继承其他的类，所以只能靠实现被代理类的接口的形式，故JDK的动态代理必须有接口。
@@ -223,3 +227,15 @@ CAS的缺点
 另外，为何调用代理类的方法就会自动进入InvocationHandler 的 invoke（）方法呢？
 
 其实是因为在动态代理类的定义中，构造函数是含参的构造，参数就是我们invocationHandler 实例，而每一个被代理接口的方法都会在代理类中生成一个对应的实现方法，并在实现方法中最终调用invocationHandler 的invoke方法，这就解释了为何执行代理类的方法会自动进入到我们自定义的invocationHandler的invoke方法中，然后在我们的invoke方法中再利用jdk反射的方式去调用真正的被代理类的业务方法，而且还可以在方法的前后去加一些我们自定义的逻辑。比如切面编程AOP等。
+
+### jvm Survivor区
+
+如果没有Survivor，Eden区每进行一次Minor GC，存活的对象就会被送到老年代。老年代很快被填满，触发Major GC（因为Major GC一般伴随着Minor GC，也可以看做触发了Full GC）。老年代的内存空间远大于新生代，进行一次Full GC消耗的时间比Minor GC长得多。你也许会问，执行时间长有什么坏处？频发的Full GC消耗的时间是非常可观的，这一点会影响大型程序的执行和响应速度，更不要说某些连接会因为超时发生连接错误了
+
+在GC开始的时候，对象只会存在于Eden区和名为“From”的Survivor区，Survivor区“To”是空的。紧接着进行GC，
+Eden区中所有存活的对象都会被复制到“To”，而在“From”区中，仍存活的对象会根据他们的年龄值来决定去向。
+年龄达到一定值(年龄阈值，可以通过-XX:MaxTenuringThreshold来设置)的对象会被移动到年老代中，没有达
+到阈值的对象会被复制到“To”区域。经过这次GC后，Eden区和From区已经被清空。这个时候，“From”和“To”会
+交换他们的角色，也就是新的“To”就是上次GC前的“From”，新的“From”就是上次GC前的“To”。不管怎样，都会
+保证名为To的Survivor区域是空的。Minor GC会一直重复这样的过程，直到“To”区被填满，“To”区被填满之后，
+会将所有对象移动到年老代中。
