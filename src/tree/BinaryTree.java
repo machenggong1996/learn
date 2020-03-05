@@ -1,6 +1,7 @@
 package tree;
 
 import java.util.LinkedList;
+import java.util.Stack;
 
 /**
  * Created by machenggong on 2019/5/17.
@@ -182,7 +183,7 @@ public class BinaryTree {
                 //p.right == null：表示没有右节点，可以直接访问根节点
                 //p.right == q:刚访问完该节点右节点，则可以访问我该节点
                 if (p.right == null || p.right == q) {
-                    System.out.print(p);//访问当前节点
+                    System.out.println(p.data);//访问当前节点
                     q = p;//记录这个节点
                     p = null;
                 } else {//开始遍历右孩子
@@ -191,6 +192,97 @@ public class BinaryTree {
             }
         }
     }
+
+    public void postOrderFast(Node root) {
+        if (root == null) {
+            return;
+        }
+
+        Stack<Node> s1 = new Stack<>();
+        Stack<Node> s2 = new Stack<>();
+
+        s1.push(root);
+
+        Node curNode;
+        while (!s1.isEmpty()) {
+
+            curNode = s1.pop();
+            // 中、右、左顺序压入栈中
+            s2.push(curNode);
+
+            // 压入s1为先左后右，保证中、右、左顺序压入s2中
+            if (curNode.left != null) {
+                s1.push(curNode.left);
+            }
+            if (curNode.right != null) {
+                s1.push(curNode.right);
+            }
+        }
+
+        while (!s2.isEmpty()) {
+            System.out.print(s2.pop().data + " ");
+        }
+    }
+
+    /**
+     * 递归求深度
+     *
+     * @param root
+     * @return
+     */
+    public static int treeDepth(Node root) {
+        if (root == null) {
+            return 0;
+        }
+        // 计算左子树的深度
+        int left = treeDepth(root.left);
+        // 计算右子树的深度
+        int right = treeDepth(root.right);
+        // 树root的深度=路径最长的子树深度 + 1
+        return left >= right ? (left + 1) : (right + 1);
+    }
+
+    /**
+     * 非递归，借助栈来计算深度(层数)
+     * 比如                root，先放入栈中
+     * 5          当前栈的元素数量为1，len=1，取出栈中此时所有的元素，即5，然后将其子节点3和7放入栈中
+     * 3       7      当前栈的元素数量为2，len=2，所以连续从栈中pop两次，使栈中不在含有该层元素，同时将下层节点2和4放入栈中
+     * 2       4          当前栈的元素数量为2，len=2，所以连续从栈中pop两次
+     * 记录深度，所以每次pop出栈中所有元素(某层的所有节点)只需深度+1，即depth++
+     *
+     * @param root
+     * @return
+     */
+    public static int treeDepth2(Node root) {
+        if (root == null) {
+            return 0;
+        }
+        // 初始化深度
+        int depth = 0;
+        // 存放每层树节点的栈
+        Stack<Node> stack = new Stack<>();
+        // 将树的根(即第一层)放入栈中
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            // 当栈不为空时，层数+1，
+            // 因为每次都会pop出当前层的所有节点，并将该层所有节点的子节点放入栈中
+            depth++;
+            // 当前栈中元素的数量
+            int length = stack.size();
+            while (length-- > 0) {
+                // 取出栈中所有的节点，并将对应节点的子节点放入栈中
+                Node node = stack.pop();
+                if (node.left != null) {
+                    stack.push(node.left);
+                }
+                if (node.right != null) {
+                    stack.push(node.right);
+                }
+            }
+        }
+        return depth;
+    }
+
 
     /**
      * 深度优先搜索
@@ -225,7 +317,9 @@ public class BinaryTree {
 //        bTree.preOrder(bTree.root);
 //        bTree.inOrder(bTree.root);
 //        bTree.postOrder(bTree.root);
-        bTree.preOrderTraverse2(bTree.root);
-        bTree.inOrderTraverse2(bTree.root);
+        //bTree.postOrderFast(bTree.root);
+        int t = treeDepth2(bTree.root);
+        System.out.println(t);
+        //bTree.inOrderTraverse2(bTree.root);
     }
 }
