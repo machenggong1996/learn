@@ -13,3 +13,5 @@ handler就是controller对象
 
 HandlerAdapter目的是区分不同类型controller 有三种成为controller的方式，最终方法调用逻辑
 在这里
+
+[Handler分析](https://blog.csdn.net/yutao_Struggle/article/details/80662689)

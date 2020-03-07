@@ -154,6 +154,8 @@ CAS的缺点
 
 不能两次握手是因为要防止中间一次传输丢失
 
+两次握手可能会出现失效的请求发起的握手请求，服务端接收之后给了回应然后一直等客户端发消息过来最终导致资源浪费
+
 [三次握手四次挥手](https://blog.csdn.net/qq_38950316/article/details/81087809)
 
 ### 死锁条件
@@ -267,3 +269,99 @@ if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY){
     }
 }
 ```
+
+### mysql like性能问题
+
+[mysql like性能问题](https://blog.csdn.net/weixin_38860401/article/details/81331972)
+
+### websocket
+
+WebSocket 是 HTML5 开始提供的一种在单个 TCP 连接上进行全双工通讯的协议。
+
+### equals()与==
+
+1. 当使用==比较时，如果相比较的两个变量是引用类型，那么比较的是两者的物理地址值（内存地址），
+如果相比较的两个变量都是数值类型，那么比较的是具体数值是否相等；而引用类型进行比较时使用的是
+他们的hashCode()方法的返回结果。
+2. 当使用equals()方法进行比较时，比较的结果实际上取决于equals()方法的具体实现。众所周知，任
+何类都继承自Object类，因此所有的类均具有Object类的特性，比如String、Integer等，他们在自己
+的类中重写了equals()方法，此时他们进行的是数值的比较，而在Object类的默认实现中，equals()方
+法的底层是通过==来实现的。也就是按照引用（物理地址）来比较的方式
+
+### Exception和Error有什么区别
+
+首先Exception和Error都是继承于Throwable 类，在 Java 中只有 Throwable 类型的实例才可以被抛出（throw）
+或者捕获（catch），它是异常处理机制的基本组成类型。
+
+Exception和Error体现了JAVA这门语言对于异常处理的两种方式。
+
+Exception是java程序运行中可预料的异常情况，咱们可以获取到这种异常，并且对这种异常进行业务外的处理。
+
+Error是java程序运行中不可预料的异常情况，这种异常发生以后，会直接导致JVM不可处理或者不可恢复的情况。所
+以这种异常不可能抓取到，比如OutOfMemoryError、NoClassDefFoundError等。
+
+其中的Exception又分为检查性异常和非检查性异常。两个根本的区别在于，检查性异常 必须在编写代码时，使用
+try catch捕获（比如：IOException异常）。非检查性异常 在代码编写使，可以忽略捕获操作（比如：ArrayIndexOutOfBoundsException），
+这种异常是在代码编写或者使用过程中通过规范可以避免发生的。 切记，Error是Throw不是Exception 。
+
+运行时异常，也就是extends RuntimeException的异常编译时不用try{}catch(){}和throws
+
+编译时异常，也就是extends Exception 的异常需要在调用时try{}catch(){}或throws
+
+### JAVA序列化ID问题 serialVersionUID
+
+ObjectInputStream读 和 ObjectOutputStream写
+
+如果没有serialVersionUID反序列化过程中会报 java.io.InvalidClassException
+
+### 深克隆和浅克隆
+
+[深克隆和浅克隆](https://blog.csdn.net/lovezhaohaimig/article/details/80372233)
+
+### java重写equals()方法的几个原则
+
+1、自反性：对于任何非空引用x，x.equals(x)应该返回true。
+
+2、对称性：对于任何引用x和y，如果x.equals(y)返回true，那么y.equals(x)也应该返回true。
+
+3、传递性：对于任何引用x、y和z，如果x.equals(y)返回true，y.equals(z)返回true，那么x.equals(z)也应该返回true。
+
+4、一致性：如果x和y引用的对象没有发生变化，那么反复调用x.equals(y)应该返回同样的结果。
+
+5、非空性：对于任意非空引用x，x.equals(null)应该返回false。
+
+(1)当obj1.equals(obj2)为true时，obj1.hashCode() == obj2.hashCode()必须为true
+
+(2)当obj1.hashCode() == obj2.hashCode()为false时，obj1.equals(obj2)必须为false
+
+### 重写equals()方法为什么要同时重写hashcode()方法？
+
+重写equals()方法同时重写hashcode()方法，就是为了保证当两个对象通过equals()方法比较相等时，那么他们的hashCode值也一定要保证相等。
+
+和hash相关的集合需要计算使用hashcode计算位置，可能相同对象但是hashcode不同导致存储位置不同
+
+### 接口和抽象类优点 作用
+
+### linux过滤日志
+
+### 数据倾斜
+
+[数据倾斜解决方案](https://blog.csdn.net/chyeers/article/details/78320778)
+
+### redis分布式锁
+
+[redis分布式锁](https://blog.csdn.net/dazou1/article/details/88088223)
+
+setnx命令 成功设置key返回1 失败返回0
+
+getset 命令防止死锁 防止其他进程获取锁
+
+### spring反射工厂
+
+### jvm类加载机制
+
+（类的解析阶段）虚拟机会把类的二进制数据中的符号引用替换为直接引用
+
+### jvm GC条件
+
+[jvm GC](https://www.jianshu.com/p/1196cf7cb8b8)

@@ -46,3 +46,7 @@ BeanPostProcessor
 3. 载入多个（有继承关系）上下文 ，使得每一个上下文都专注于一个特定的层次，比如应用的web层  
 4. 消息发送、响应机制（ApplicationEventPublisher）
 5. AOP（拦截器）
+
+### spring refresh
+
+[spring refresh](https://www.jianshu.com/p/66f81f501d4a)
