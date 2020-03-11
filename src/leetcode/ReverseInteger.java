@@ -16,7 +16,24 @@ public class ReverseInteger {
     }
 
     public static void main(String[] args) {
-        System.out.println(reverse(123));
+        System.out.println(reverseTest(-1234));
     }
 
+
+    public static int reverseTest(int x) {
+
+        //int 369
+
+        int t = 0;
+        int y = 0;
+        int a = x;
+        while (a != 0) {
+            t = a % 10;
+            y = y * 10 + t;
+            a = a / 10;
+        }
+
+
+        return y;
+    }
 }

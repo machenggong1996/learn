@@ -20,6 +20,9 @@ public class QuickSort {
         temp = arr[low];
 
         while (i < j) {
+
+            //一定要先看右边 j先减 所以j要在前面
+
             //先看右边，依次往左递减
             while (temp <= arr[j] && i < j) {
                 j--;

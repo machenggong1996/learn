@@ -102,6 +102,6 @@ public class LongestPalindrome {
     public static void main(String[] args) {
         System.out.println(longestPalindrome("abba"));
         System.out.println(bruteForceSolution("abba"));
-        System.out.println(dynamicProgramming("abba"));
+        System.out.println(dynamicProgramming("abbaa"));
     }
 }

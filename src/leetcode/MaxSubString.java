@@ -9,8 +9,8 @@ import java.util.Map;
 public class MaxSubString {
 
     public static void main(String[] args) {
-        String str = "abac";
-        System.out.println(lengthOfLongestSubstring2(str));
+        String str = "pwwkew";
+        System.out.println(lengthOfLongestSubstringTest(str));
     }
 
     /**
@@ -34,13 +34,15 @@ public class MaxSubString {
     }
 
     public static int lengthOfLongestSubstring2(String s) {
+        //尾部
         int i = 0;
         int flag = 0;
         int length = 0;
         int result = 0;
         //使用flag作为滑动窗口的标志位
         while (i < s.length()) {
-            int a = s.charAt(i);
+            char a = s.charAt(i);
+            //flag开始搜索的位置 pos代表头部
             int pos = s.indexOf(s.charAt(i), flag);
             if (pos < i) {
                 if (length > result) {
@@ -57,4 +59,52 @@ public class MaxSubString {
         }
         return length;
     }
+
+    public static int lengthOfLongestSubstring(String s) {
+        String res = "";
+        int length = s.length();
+        if (length < 1) {
+            return 0;
+        }
+        int maxLen = 1;
+        for (int head = 0, tail = 1; tail < s.length(); tail++) {
+            char c = s.charAt(tail);
+            int index = s.indexOf(c, head);
+            if (index < tail) {
+                head = index + 1;
+            }
+            int len = tail - head + 1;
+            if (len > maxLen) {
+                res = s.substring(head, tail + 1);
+                System.out.println(res);
+            }
+            maxLen = len > maxLen ? len : maxLen;
+        }
+        return maxLen;
+    }
+
+    public static int lengthOfLongestSubstringTest(String s) {
+        //String s = "pwwkew";
+        int maxlen = 0;
+
+        if (s == null || s.length() == 0) {
+            return maxlen;
+        }
+        for (int head = 0, tail = 1; tail < s.length(); tail++) {
+
+            int index = s.indexOf(s.charAt(tail), head);
+
+            if (index < tail) {
+                head = index + 1;
+            }
+
+            int len = tail -head + 1;
+
+            maxlen = maxlen>len?maxlen:len;
+        }
+
+
+        return maxlen;
+    }
+
 }
