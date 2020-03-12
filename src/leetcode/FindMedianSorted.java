@@ -4,6 +4,14 @@ package leetcode;
  * Created by machenggong on 2019/6/24.
  */
 public class FindMedianSorted {
+    /**
+     * https://blog.csdn.net/nailiang97/article/details/97275106
+     * 寻找两个有序数组中位数
+     *
+     * @param A
+     * @param B
+     * @return
+     */
 
     public static double findMedianSortedArrays(int[] A, int[] B) {
         int m = A.length;

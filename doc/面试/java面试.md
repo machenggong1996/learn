@@ -100,7 +100,7 @@ Integer.valueOf(10)方法会判断数值是否在缓存范围内，在的话进�
 
 mysql默认可重复读
 
-#### spring事务隔离级别
+#### spring事务传播级别
 
 1. PROPERGATION_MANDATORY:　方法必须运行在一个事务中，不存在事务则抛出异常
 

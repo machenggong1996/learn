@@ -15,6 +15,7 @@ public class MaxSubString {
 
     /**
      * 滑动窗口法
+     * 无重复子序列
      *
      * @param s
      * @return
@@ -98,9 +99,9 @@ public class MaxSubString {
                 head = index + 1;
             }
 
-            int len = tail -head + 1;
+            int len = tail - head + 1;
 
-            maxlen = maxlen>len?maxlen:len;
+            maxlen = maxlen > len ? maxlen : len;
         }
 
 
