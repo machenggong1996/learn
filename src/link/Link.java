@@ -156,6 +156,22 @@ public class Link {
         return preNode;
     }
 
+    public static Node reverseListNodeTest(Node head) {
+
+        Node pre = null;
+        Node cur = head;
+        Node next = null;
+
+        while (cur != null) {
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+
+        return null;
+    }
+
     /**
      * 查找单链表的中间节点
      * 定义两个节点，一个快，一个慢
@@ -185,15 +201,13 @@ public class Link {
         System.out.println("linkLength:" + list.length());
         System.out.println("head.data:" + list.head.data);
         list.printList();
-        list.deleteNode(3);
-        System.out.println("After deleteNode(4):");
         list.printList();
         list.ReverseIteratively(list.head);
         list.printList();
         System.out.println("----------------------");
-//        reverseListNode(list.head);
+        reverseListNode(list.head);
 //        list.printList();
-        list.SearchMid(list.head);
+        //list.SearchMid(list.head);
     }
 
 
