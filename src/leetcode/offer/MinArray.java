@@ -23,6 +23,6 @@ public class MinArray {
     }
 
     public static void main(String[] args) {
-        System.out.println(minArray(new int[]{2,2,2,0,1}));
+        System.out.println(minArray(new int[]{2,2,2,3,0,1}));
     }
 }
