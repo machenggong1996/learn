@@ -66,7 +66,7 @@ public class LongestPalindromic {
 
     public static void main(String[] args) {
         LongestPalindromic longestPalindromic = new LongestPalindromic();
-        System.out.println(longestPalindromic.longest2("abbasaasa"));
+        System.out.println(longestPalindromic.longest2("abccccdd"));
         //System.out.println(longestPalindrome("abbasaasa"));
     }
 

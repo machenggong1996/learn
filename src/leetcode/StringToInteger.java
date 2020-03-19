@@ -5,32 +5,61 @@ package leetcode;
  */
 public class StringToInteger {
 
+    /**
+     * 字符串转整数
+     *
+     * @param str
+     * @return
+     */
+
     public static int myAtoi(String str) {
-        if (str == null || str.length() == 0) return 0;
-        str = str.trim();
-        char firstChar = str.charAt(0);
-        int sign = 1;
-        int start = 0;
-        long res = 0;
-        if (firstChar == '+') {
-            sign = 1;
-            start++;
-        } else if (firstChar == '-') {
-            sign = -1;
-            start++;
+        if(str==null) {
+            return 0;
         }
-        for (int i = start; i < str.length(); i++) {
-            if (Character.isDigit(str.charAt(i))) {
-                return (int) res * sign;
+        int n = str.length();
+        int i = 0;
+        int res = 0;
+        boolean is_negative = false;
+        //第一步，跳过前面若干个空格
+        while(i<n && str.charAt(i)==' ') {
+            ++i;
+        }
+        //如果字符串全是空格直接返回
+        if(i==n) {
+            return 0;
+        }
+        //第二步，判断正负号
+        if(str.charAt(i)=='-') {
+            is_negative = true;
+        }
+        //如果是正负号，还需要将指针i，跳过一位
+        if(str.charAt(i)=='-' || str.charAt(i)=='+') {
+            ++i;
+        }
+        //第三步，循环判断字符是否在 0~9之间
+        while(i<n && str.charAt(i)>='0' && str.charAt(i)<='9') {
+            //'0'的ASCII码是48，'1'的是49，这么一减就从就可以得到真正的整数值
+            int tmp = str.charAt(i)-'0';
+            //判断是否大于 最大32位整数
+            if(!is_negative &&(res>214748364 ||(res==214748364 && tmp>=7))) {
+                return 2147483647;
             }
-            res = res * 10 + str.charAt(i) - '0';
-            if (sign == 1 && res > Integer.MAX_VALUE)return Integer.MAX_VALUE;
-            if (sign == -1 && res > Integer.MAX_VALUE) return Integer.MIN_VALUE;
+            //判断是否小于 最小32位整数
+            if(is_negative &&(-res<-214748364 || (-res==-214748364 && tmp>=8))) {
+                return -2147483648;
+            }
+            res = res*10 + tmp;
+            ++i;
         }
-        return (int) res;
+        //如果有负号标记则返回负数
+        if(is_negative) {
+            return -res;
+        }
+        return res;
     }
+
     public static void main(String[] args) {
-        System.out.println(myAtoi("123"));
+        System.out.println(myAtoi(" +123"));
     }
 
 

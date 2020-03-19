@@ -10,6 +10,9 @@ public class MaopaoYouhua {
         for (int t : arr) {
             System.out.print(t + " ");
         }
+
+        Thread t = new Thread();
+
     }
 
     /**
