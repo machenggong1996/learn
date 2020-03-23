@@ -409,3 +409,7 @@ getset 命令防止死锁 防止其他进程获取锁
 不能
 
 ### 两个类相同父类 子类之间强转编译报错
+
+### 
+
+[synchronized 原理](https://blog.csdn.net/javazejian/article/details/72828483)

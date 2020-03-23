@@ -7,6 +7,7 @@ public class FindNumberK {
 
     /**
      * 寻找数组第k大元素
+     * 小顶堆里面存放的是当前最大的k个元素 堆顶为最小元素
      */
     public static int findNumberK(int[] array, int k) {
         //1.用前k个元素构建小顶堆
