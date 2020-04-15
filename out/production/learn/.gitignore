@@ -42,4 +42,4 @@ dependency-reduced-pom.xml
 *.iws
 *.idea
 
-out/array/
+out/
