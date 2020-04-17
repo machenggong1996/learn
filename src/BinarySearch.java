@@ -10,6 +10,7 @@ public class BinarySearch {
      * @param arr
      * @param key
      * @return 关键字位置
+     *
      */
     public static int commonBinarySearch(int[] arr, int key) {
         int low = 0;
