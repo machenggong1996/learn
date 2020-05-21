@@ -8,7 +8,7 @@ public class RemoveDuplicates {
     public static int removeDuplicates(int[] nums) {
 
         /**
-         * 移除重复的
+         * 移除重复的 去重
          */
 // 使用双指针
         if (nums == null || nums.length == 1) {

@@ -75,7 +75,7 @@ produceByKey会combine预聚合 groupByKey不会
 
 ### AggregateByKey
 
-两部分参数，scala称为柯里化函数，zeroValue为初始化值
+两部分参数，scala称为柯里化函数， zeroValue为初始化值
 
 seqOp分区内部迭代计算
 
@@ -87,4 +87,62 @@ FoldByKey使用与AggregateByKey相同实现但是分区内和分区间使用同
 
 ### CombineByKey
 
+### 累加器
 
+只写变量，共享变量累加数据
+
+## RDD
+
+
+### 定义
+
+1. 数据集：存储数据的计算逻辑
+2. 分布式：从不同的网络节点取数据，数据来源，计算，存储都是分布式的
+3. 弹性：
+  * 血缘：spark可以通过特殊的处理方案简化依赖关系，
+  * 计算：基于内存计算速度快，可以在内存和磁盘间切换
+  * 分区：创建分区后可以通过算子改变分区
+  * 容错：运算时如果过发生错误将会进行重试容错处理
+4. spark数量：
+  * executor：默认两个，可以通过提交参数设定
+  * partition：默认情况下读取文件采用hadoop的切片规则，读取内存根据特定算法进行设定，可以特定算子进行分区，多阶段场合取决于上一阶段最后shuffle最后分区数
+  * stage：1（resultStage）+shuffle依赖数量（shuffleMapStage），划分目的是执行任务的等待
+  * task：原则上一个分区就是一个任务，实际上可以动态调整
+### 创建
+
+1. 内存中创建
+2. 存储中创建，文件中
+3. 从其他RDD中创建
+
+### 属性
+
+1. 分区
+2. 依赖关系
+3. 分区器
+4. 优先属性
+5. 计算函数
+
+### 使用
+
+1. 转换算子
+  * 单value
+  * 双value
+  * K-V
+
+2. 行动算子 触发job执行
+
+## 广播变量 分布式只读变量
+
+## 累加器 分布式只写变量
+
+## sparkSQL
+
+### dataFrame dataSet RDD三者关系
+
+类似于数据表二维表格，dataSet相当于对象数据
+
+RDD增加结构变为DataFrame，DataFrame增加类和属性变为DataSet
+
+RDD toDF方法可以将RDD转为DataFrame
+
+三者可以通过函数相互转换 as toDF toDS rdd
