@@ -7,31 +7,42 @@ import java.util.Arrays;
  */
 public class ThreeSumClosest {
 
+    /**
+     * 最接近的三数之和
+     *
+     * @param nums
+     * @param target
+     * @return
+     */
     public static int threeSumClosest(int[] nums, int target) {
-        int res = nums[0];
-
+        // 排序
         Arrays.sort(nums);
-
+        int closestNum = nums[0] + nums[1] + nums[2];
         for (int i = 0; i < nums.length - 2; i++) {
-            int start = i + 1, end = nums.length - 1;
-            while (start < end) {
-                int sum = nums[i] + nums[start] + nums[end];
-                if (sum > target) {
-                    end--;
+            int l = i + 1, r = nums.length - 1;
+            while (l < r) {
+                int threeSum = nums[l] + nums[r] + nums[i];
+                if (Math.abs(threeSum - target) < Math.abs(closestNum - target)) {
+                    closestNum = threeSum;
+                }
+                if (threeSum > target) {
+                    r--;
+                } else if (threeSum < target) {
+                    l++;
                 } else {
-                    start++;
+                    // 如果已经等于target的话, 肯定是最接近的
+                    return target;
                 }
-                if (Math.abs(sum - target) < Math.abs(res - target)) {
-                    res = sum;
-                }
+
             }
+
         }
 
-        return res;
+        return closestNum;
     }
 
     public static void main(String[] args) {
-        System.out.println(threeSumClosest(new int[]{-1, -1, -1, 0, 1, 2}, 5));
+        System.out.println(threeSumClosest(new int[] { -1, -1, 0, 1, 2 }, -1));
     }
 
 }
