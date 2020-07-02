@@ -1,7 +1,7 @@
 package leetcode;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/06/29
  */
 public class FindKthLargest {

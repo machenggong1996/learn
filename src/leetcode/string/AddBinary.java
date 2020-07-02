@@ -1,7 +1,7 @@
 package leetcode.string;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/06/23
  * 二进制求和
  */
