@@ -7,8 +7,10 @@ package leetcode.offer;
 public class CountDigitOne {
 
     /**
-     * https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof/solution/mian-shi-ti-43-1n-zheng-shu-zhong-1-chu-xian-de-2/
-     * 1到n中一的个数
+     * https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof/solution/mian-shi-ti-43-1n-zheng
+     * -shu-zhong-1-chu-xian-de-2/
+     * 1到n中一的个数 233 数字1的个数 多少个1 多少个一
+     *
      * @param n
      * @return
      */
