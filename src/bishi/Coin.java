@@ -7,7 +7,15 @@ import java.util.Scanner;
  */
 public class Coin {
 
+    String s = "good";
+    Integer i = 10;
+
     public static void main(String[] args) {
+
+        Coin c = new Coin();
+        char[] cs = new char[]{'a','b','c'};
+        c.exchange(c.s,cs,c.i);
+        System.out.println(c.i);
         Scanner sc = new Scanner(System.in);
         int T = sc.nextInt();
         while (T-- != 0) {
@@ -25,6 +33,14 @@ public class Coin {
             }
             System.out.println(dp[n][m]);
         }
+
+
+    }
+
+    public void exchange(String s,char[] cs,Integer i){
+        s = "hello";
+        cs[0] = 'a';
+        i = 100;
     }
 
 }
