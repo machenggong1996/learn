@@ -62,3 +62,7 @@
 ### 跳跃表
 
 [跳跃表原理](https://blog.csdn.net/wei_gg/article/details/92407489)
+
+### docker安装redis集群
+
+[docker安装redis集群](https://github.com/modouxiansheng/about-docker/tree/master/redis-cluster)
