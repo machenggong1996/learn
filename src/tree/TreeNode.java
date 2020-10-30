@@ -5,9 +5,9 @@ package tree;
  */
 public class TreeNode {
 
-    private TreeNode left;
-    private TreeNode right;
-    private int data;
+    public TreeNode left;
+    public TreeNode right;
+    public int data;
 
     public TreeNode(int data) {
         this.left = null;

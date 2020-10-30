@@ -6,7 +6,9 @@ package leetcode;
 public class LongestPalindrome {
 
     public static String longestPalindrome(String s) {
-        if (s == null || s.length() < 1) return "";
+        if (s == null || s.length() < 1) {
+            return "";
+        }
         int start = 0, end = 0;
         for (int i = 0; i < s.length(); i++) {
             int len1 = expandAroundCenter(s, i, i);//字符串长度为奇数
@@ -64,9 +66,9 @@ public class LongestPalindrome {
         return true;
     }
 
-    private static String dynamicProgramming(String s){
+    private static String dynamicProgramming(String s) {
         int len = s.length();
-        if(len == 0){
+        if (len == 0) {
             return "";
         }
         char[] sToArray = s.toCharArray();
@@ -75,9 +77,9 @@ public class LongestPalindrome {
         int fromIndex = 0;
         int toIndex = 1;
         // 初始化条件
-        for(int i = 0; i < len; ++i){
+        for (int i = 0; i < len; ++i) {
             mem[i][i] = true;
-            if(i + 1 < len && sToArray[i] == sToArray[i + 1]){
+            if (i + 1 < len && sToArray[i] == sToArray[i + 1]) {
                 mem[i][i + 1] = true;
                 maxLen = 2;
                 fromIndex = i;
@@ -85,10 +87,10 @@ public class LongestPalindrome {
             }
         }
         // 执行dp
-        for(int i = 2; i < len; ++i){
-            for(int j = 0; j < i - 1; ++j){
+        for (int i = 2; i < len; ++i) {
+            for (int j = 0; j < i - 1; ++j) {
                 mem[j][i] = mem[j + 1][i - 1] && sToArray[j] == sToArray[i];
-                if(mem[j][i] && i - j + 1 > maxLen){
+                if (mem[j][i] && i - j + 1 > maxLen) {
                     maxLen = i - j + 1;
                     fromIndex = j;
                     toIndex = i + 1;

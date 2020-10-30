@@ -5,9 +5,17 @@ package leetcode.offer;
  */
 public class MinArray {
 
+    /**
+     * 剑指 Offer 11. 旋转数组的最小数字
+     *
+     * @param numbers
+     * @return
+     */
+
     public static int minArray(int[] numbers) {
         int l = 0, r = numbers.length - 1;
         while (l < r) {
+            //low+(high-low)/2 防止int溢出
             int mid = ((r - l) >> 1) + l;
             //只要右边比中间大，那右边一定是有序数组
             if (numbers[r] > numbers[mid]) {
@@ -23,6 +31,6 @@ public class MinArray {
     }
 
     public static void main(String[] args) {
-        System.out.println(minArray(new int[]{2,2,2,3,0,1}));
+        System.out.println(minArray(new int[] { 2, 2, 2, 3, 0, 1 }));
     }
 }

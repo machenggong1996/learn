@@ -318,8 +318,8 @@ public class BinaryTree {
 //        bTree.inOrder(bTree.root);
 //        bTree.postOrder(bTree.root);
         //bTree.postOrderFast(bTree.root);
-        int t = treeDepth2(bTree.root);
-        System.out.println(t);
-        //bTree.inOrderTraverse2(bTree.root);
+//        int t = treeDepth2(bTree.root);
+//        System.out.println(t);
+        bTree.preOrderTraverse2(bTree.root);
     }
 }

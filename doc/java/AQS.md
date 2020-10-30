@@ -37,3 +37,9 @@ enq()通过死循环方式维护队列关系，将等待线程入队 自旋，�
 
 unparkSuccessor
 
+## 文章
+
+[tryAcquire()、addWaiter()、acquireQueued()挨个分析](https://blog.csdn.net/weixin_38003389/article/details/85935982)
+
+[JUC AQS ReentrantLock源码分析](https://blog.csdn.net/java_lyvee/article/details/98966684)
+

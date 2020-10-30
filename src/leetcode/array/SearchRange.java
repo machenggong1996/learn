@@ -78,7 +78,7 @@ public class SearchRange {
 
 
     public static void main(String[] args) {
-        System.out.println(searchRangeB(new int[]{1, 2, 3, 7, 7, 7, 8}, 8));
+        System.out.println(searchRangeB(new int[]{1, 2, 3, 7, 7, 7, 8}, 7));
     }
 
 

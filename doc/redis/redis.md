@@ -58,3 +58,11 @@
 性能较差但数据完整性比较好
 * 每秒同步everysec：异步操作，每秒记录 如果一秒内宕机，有数据丢失
 * 不同no：从不同步
+
+### 跳跃表
+
+[跳跃表原理](https://blog.csdn.net/wei_gg/article/details/92407489)
+
+### docker安装redis集群
+
+[docker安装redis集群](https://github.com/modouxiansheng/about-docker/tree/master/redis-cluster)
