@@ -14,6 +14,8 @@ Union All：对两个结果集进行并集操作，包括重复行，不进行�
 
 查询班级成绩前三名
 
+[班级成绩前三名](https://blog.csdn.net/qq_35119422/article/details/81941696?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v28-2-81941696.nonecase&utm_term=mysql%E7%8F%AD%E7%BA%A7%E6%88%90%E7%BB%A9%E6%9F%A5%E8%AF%A2&spm=1000.2123.3001.4430)
+
 ```sql
 SELECT
 	e1.* 
