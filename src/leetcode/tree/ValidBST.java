@@ -5,6 +5,11 @@ package leetcode.tree;
  */
 public class ValidBST {
 
+    /**
+     * 验证二叉搜索树
+     * @param root
+     * @return
+     */
     public static boolean isValidBST(TreeNode root) {
         return validate(root, Long.MIN_VALUE, Long.MAX_VALUE);
     }
