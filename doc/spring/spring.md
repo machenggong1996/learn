@@ -50,3 +50,9 @@ BeanPostProcessor
 ### spring refresh
 
 [spring refresh](https://www.jianshu.com/p/66f81f501d4a)
+
+### spring循环依赖
+
+使用三级缓存
+
+[spring循环引用](https://blog.csdn.net/java_lyvee/article/details/101793774)
