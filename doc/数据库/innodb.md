@@ -1,5 +1,7 @@
 # innodb
 
+[MySQL 三万字精华总结 + 面试100 问，吊打面试官绰绰有余（收藏系列）](https://www.jianshu.com/p/24e1179ef563)
+
 ## 1. InnoDB 对比 MyISAM
 
 * InnoDB 支持事务，MyISAM 不支持事务。这是 MySQL 将默认存储引擎从 MyISAM 变成 InnoDB 的重要原因之一；
