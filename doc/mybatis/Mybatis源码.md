@@ -62,7 +62,7 @@ sqlSession和executor是一对一的，mybatis和spring整合之后sqlSession用
 
 ### 二级缓存
 
-1. 一级缓存不能跨线程使用
+1. 一级缓存不能跨线程使用 与spring的整合中使用ThreadLocal作为sqlSession的缓存
 2. 二级缓存可以跨线程调用，生命周期是整个应用，需要考虑容量
 
 
