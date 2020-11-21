@@ -67,6 +67,11 @@ populateBean方法中使用的递归解决循环依赖，A类引用了B类，在
 * 如果还是获取不到，且允许singletonFactories（allowEarlyReference=true）通过getObject()获取。就从三级缓存singletonFactory.getObject()获取。
 （如果获取到了就从singletonFactories中移除，并且放进earlySingletonObjects。其实也就是从三级缓存移动（是剪切、不是复制哦~）到了二级缓存
 
+## 流程
+
+创建bean-A -> 将A放入正在创建过程中singletonsCurrentlyInCreation-> 满足三个条件放入singletonFactories
+-> populateBean填充属性发现依赖B -> 创建B发现引用A A已经实例化 B先创建成功 getSingleton(String beanName, ObjectFactory<?> singletonFactory)这个方法中将B创建成功-> B成功之后继续创建A
+
 ## 总结
 
 1. 使用context.getBean(A.class)，旨在获取容器内的单例A(若A不存在，就会走A这个Bean的创建流程)，显然初次获取A是不存在的，因此走A的创建之路~
