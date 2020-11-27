@@ -125,6 +125,90 @@ typedef struct dict {
   * privdata 保存了需要传给上述特定函数的可选参数；
   * ht 是两个哈希表，一般情况下，只使用ht[0]，只有当哈希表的键值对数量超过负载(元素过多)时，才会将键值对迁移到ht[1]，这一步迁移被称为 rehash (重哈希)，rehash 会在下文进行详细介绍；
   * rehashidx 由于哈希表键值对有可能很多很多，所以 rehash 不是瞬间完成的，需要按部就班，那么 rehashidx 就记录了当前 rehash 的进度，当 rehash 完毕后，将 rehashidx 置为-1；
+  
+### 2.4.4 类型处理函数
+
+类型处理函数全部定义在 dict.h/dictType 中：
+
+```cpp
+typedef struct dictType {
+    unsigned int (*hashFunction)(const void *key);                                         // 计算哈希值的函数
+    void *(*keyDup)(void *privdata, const void *key);                                      // 复制键的函数
+    void *(*valDup)(void *privdata, const void *obj);                                      // 复制值的函数
+    int (*keyCompare)(void *privdata, const void *key1, const void *key2);                 // 比较键的函数
+    void (*keyDestructor)(void *privdata, void *key);                                      // 销毁键的函数
+    void (*valDestructor)(void *privdata, void *obj);                                      // 销毁值的函数
+} dictType;
+```
+
+### 2.4.5 rehash
+
+随着字典操作的不断执行，哈希表保存的键值对会不断增多（或者减少），为了让哈希表的负载因子维持在一个合理的范围之内，当哈希表保存的键值对数量太多或者太少时，需要对哈希表大小进行扩展或者收缩。
+
+1. 负载因子
+ * 这里提到了一个负载因子，其实就是当前已使用结点数量除上哈希表的大小，即：
+    ```load_factor = ht[0].used / ht[0].size```
+2. 哈希表扩展
+  * 当哈希表的负载因子大于5时，为 ht[1] 分配空间，大小为第一个大于等于 ht[0].used * 2 的 2 的幂；
+  * 将保存在 ht[0] 上的键值对 rehash 到 ht[1] 上，rehash 就是重新计算哈希值和索引，并且重新插入到 ht[1] 中，插入一个删除一个；
+  * 当 ht[0] 包含的所有键值对全部 rehash 到 ht[1] 上后，释放 ht[0] 的控件， 将 ht[1] 设置为 ht[0]，并且在 ht[1] 上新创件一个空的哈希表，为下一次 rehash 做准备；
+  * Redis 中 实现哈希表扩展调用的是 dict.c/_dictExpandIfNeeded 函数：
+```cpp
+static int _dictExpandIfNeeded(dict *d)
+{
+    if (dictIsRehashing(d)) return DICT_OK;
+    if (d->ht[0].size == 0) return dictExpand(d, DICT_HT_INITIAL_SIZE);          // 大小为0需要设置初始哈希表大小为4
+    if (d->ht[0].used >= d->ht[0].size &&
+        (dict_can_resize ||
+         d->ht[0].used/d->ht[0].size > dict_force_resize_ratio))                 // 负载因子超过5，执行 dictExpand
+    {
+        return dictExpand(d, d->ht[0].used*2);
+    }
+    return DICT_OK;
+}
+```
+3. 哈希表收缩
+ * 哈希表的收缩，同样是为 ht[1] 分配空间， 大小等于 max( ht[0].used, DICT_HT_INITIAL_SIZE )，然后和扩展做同样的处理即可。
+
+### 2.4.6 渐进式rehash
+
+扩展或者收缩哈希表的时候，需要将 ht[0] 里面所有的键值对 rehash 到 ht[1] 里，当键值对数量非常多的时候，
+这个操作如果在一帧内完成，大量的计算很可能导致服务器宕机，所以不能一次性完成，需要渐进式的完成。
+渐进式 rehash 的详细步骤如下：
+
+1. 为 ht[1] 分配指定空间，让字典同时持有 ht[0] 和 ht[1] 两个哈希表；
+2. 将 rehashidx 设置为0，表示正式开始 rehash，前两步是在 dict.c/dictExpand 中实现的：
+```cpp
+
+int dictExpand(dict *d, unsigned long size)
+{
+    dictht n;
+    unsigned long realsize = _dictNextPower(size);                      // 找到比size大的最小的2的幂
+    if (dictIsRehashing(d) || d->ht[0].used > size)
+        return DICT_ERR;
+    if (realsize == d->ht[0].size) return DICT_ERR;
+ 
+    n.size = realsize;                                                 // 给ht[1]分配 realsize 的空间
+    n.sizemask = realsize-1;
+    n.table = zcalloc(realsize*sizeof(dictEntry*));
+    n.used = 0;
+    if (d->ht[0].table == NULL) {                                      // 处于初始化阶段
+        d->ht[0] = n;
+        return DICT_OK;
+    }
+    d->ht[1] = n;
+    d->rehashidx = 0;                                                  // rehashidx 设置为0，开始渐进式 rehash
+    return DICT_OK;
+}
+```
+
+3. 在进行 rehash 期间，每次对字典执行 增、删、改、查操作时，程序除了执行指定的操作外，
+还会将 哈希表 ht[0].table中下标为 rehashidx 位置上的所有的键值对 全部迁移到 ht[1].table 上，
+完成后 rehashidx 自增。这一步就是 rehash 的关键一步。为了防止 ht[0] 是个稀疏表 （遍历很久遇到的都是NULL），
+从而导致函数阻塞时间太长，这里引入了一个 “最大空格访问数”，也即代码中的 enmty_visits，初始值为 n*10。
+当遇到NULL的数量超过这个初始值直接返回。
+4. 最后，当 ht[0].used 变为0时，代表所有的键值对都已经从 ht[0] 迁移到 ht[1] 了，释放 ht[0].table， 
+并且将 ht[0] 设置为 ht[1]，rehashidx 标记为 -1 代表 rehash 结束
 
 ## 3. 持久化
 
