@@ -12,8 +12,119 @@
 
 ### 2.1 Redis 有哪些数据类型？
 ### 2.2 Redis 的应用场景？
+
+1. 缓存
+2. 发布订阅
+
 ### 2.3 跳跃表
+
+[redis跳跃表](https://blog.csdn.net/lz710117239/article/details/78408919)
+
+1. Redis使用跳跃表作为有序集合键的底层实现之一，若一个有序集合包含的元素数量比较多，
+或者有序集合中的成员是比较长的字符串时，Redis就会使用跳跃表来作为有序集合键的底层实现
+2. 和链表、字典等数据结构被广泛地应用在Redis内部不同，Redis只在两个地方用到了跳跃表，
+一个是实现有序集合键，另一个是在集群结点中用作内部数据结构。除此之外，跳跃表在Redis里面没有其他用途。
+
+```cpp
+typedef struct zskiplistNode {  
+    robj *obj;  
+    double score;  
+    struct zskiplistNode *backward;  
+    struct zskiplistLevel {  
+        struct zskiplistNode *forward;  
+        unsigned int span;  
+    } level[];  
+} zskiplistNode;
+```
+3. 每次创建一个新跳跃表结点的时候，程序都根据幂次定律（power law，越大的数出现的概率越小）
+随机生成一个介于1和32之间的值作为level数组的大小，这个大小就是该结点包含的层数。
+4. Redis中的跳跃表，与普通跳跃表的区别之一，就是包含了层跨度(level[i].span)的概念。
+这是因为在有序集合支持的命令中，有些跟元素在集合中的排名有关，比如获取元素的排名，根据排名获取、删除元素等。
+通过跳跃表结点的层跨度，可以快速得到该结点在跳跃表中的排名。
+5. 计算结点的排名，就是在查找某个结点的过程中，将沿途访问过的所有结点的层跨度累加起来，得到的结果就是目标结点在跳跃表中的排名。
+6. 层跨度用于记录本层两个相邻结点之间的距离，举个例子，如下图的跳跃表：
+![avatar](pics/跳跃表.png)
+7. 跳跃表头结点（header指向的节点）排名为0，之后的节点排名以此类推。在上图跳跃表中查找计算分值为3.0、成员对象为o3的结点的排名。查找过程只遍历了头结点的L5层就找到了，并且头结点该层的跨度为3，因此得到该结点在跳跃表中的排名为3。
+8. 如果要查找分值为2.0、成员对象为o2的结点，查找结点的过程中，首先经过头结点的L4层，然后是o1结点的L2层，也就是经过了两个层跨度为1的结点，因此得到目标结点在跳跃表中的排名为2。
+9. Redis中的跳跃表，与普通跳跃表的另一个区别就是，每个结点还有一个前继指针backward。可用于从表尾向表头方向访问结点。通过结点的前继指针，组成了一个普通的链表。因为每个结点只有一个前继指针，所以只能依次访问结点，而不能跳过结点。
+
+```cpp
+typedef struct zskiplist {  
+    struct zskiplistNode *header, *tail;  
+    unsigned long length;  
+    int level;  
+} zskiplist;
+```
+10. header和tail指针分别指向跳跃表的表头结点和表尾结点，通过这两个指针，定位表头结点和表尾结点的复杂度为O(1)。表尾结点是表中最后一个结点。而表头结点实际上是一个伪结点，该结点的成员对象为NULL，分值为0，它的层数固定为32（层的最大值）。
+11. length属性记录结点的数最，程序可以在O(1)的时间复杂度内返回跳跃表的长度。
+12. level属性记录跳跃表的层数，也就是表中层高最大的那个结点的层数，注意，表头结点的层高并不计算在内。
+13. 下面就是一个zskiplist表示的跳跃表：
+![avatar](pics/跳跃表.png)
+
 ### 2.4 哈希表
+
+### 2.4.1 哈希表结构
+
+[哈希表](https://blog.csdn.net/whereisherofrom/article/details/80833863)
+
+1. 哈希表的结构定义在 dict.h/dictht ：
+
+```cpp
+typedef struct dictht {
+    dictEntry **table;             // 哈希表数组
+    unsigned long size;            // 哈希表数组的大小
+    unsigned long sizemask;        // 用于映射位置的掩码，值永远等于(size-1)
+    unsigned long used;            // 哈希表已有节点的数量
+} dictht;
+```
+  * table 是一个数组，数组的每个元素都是一个指向 dict.h/dictEntry 结构的指针；
+  * size 记录哈希表的大小，即 table 数组的大小，且一定是2的幂；
+  * used 记录哈希表中已有结点的数量；
+  * sizemask 用于对哈希过的键进行映射，索引到 table 的下标中，且值永远等于 size-1。
+  具体映射方法很简单，就是对 哈希值 和 sizemask 进行位与操作，由于 size 一定是2的幂，
+  所以 sizemask=size-1，自然它的二进制表示的每一个位(bit)都是1，等同于上文提到的取模；
+2. 如图所示，为一个长度为8的空哈希表。
+![avatar](pics/哈希表.png)
+
+### 2.4.2 哈希表节点
+
+1. 哈希表节点用 dict.h/dictEntry 结构表示，每个 dictEntry 结构存储着一个键值对，且存有一个 next 指针来保持链表结构：
+
+```cpp
+typedef struct dictEntry {
+    void *key;                  // 键
+    union {                     // 值
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+        double d;
+    } v;
+    struct dictEntry *next;     // 指向下一个哈希表节点，形成单向链表
+} dictEntry;
+```
+  * key 是键值对中的键；
+  * v 是键值对中的值，它是一个联合类型，方便存储各种结构；
+  * next 是链表指针，指向下一个哈希表节点，他将多个哈希值相同的键值对串联在一起，用于解决键冲突；
+  如图所示，两个dictEntry 的 key 分别是 k0 和 k1，通过某种哈希算法计算出来的哈希值和 sizemask 
+  进行位与运算后都等于 3，所以都被放在了 table 数组的 3号槽中，并且用 next 指针串联起来。
+![avatar](pics/哈希表节点.png)
+
+### 2.4.3 字典
+
+1. Redis中字典结构由 dict.h/dict 表示：
+```cpp
+typedef struct dict {
+    dictType *type;                        // 和类型相关的处理函数
+    void *privdata;                        // 上述类型函数对应的可选参数
+    dictht ht[2];                          // 两张哈希表，ht[0]为原生哈希表，ht[1]为 rehash 哈希表
+    long rehashidx;                        // 当等于-1时表示没有在 rehash，否则表示 rehash 的下标
+    int iterators;                         // 迭代器数量(暂且不谈)
+} dict;
+```
+  * type 是一个指向 dict.h/dictType 结构的指针，保存了一系列用于操作特定类型键值对的函数；
+  * privdata 保存了需要传给上述特定函数的可选参数；
+  * ht 是两个哈希表，一般情况下，只使用ht[0]，只有当哈希表的键值对数量超过负载(元素过多)时，才会将键值对迁移到ht[1]，这一步迁移被称为 rehash (重哈希)，rehash 会在下文进行详细介绍；
+  * rehashidx 由于哈希表键值对有可能很多很多，所以 rehash 不是瞬间完成的，需要按部就班，那么 rehashidx 就记录了当前 rehash 的进度，当 rehash 完毕后，将 rehashidx 置为-1；
 
 ## 3. 持久化
 
