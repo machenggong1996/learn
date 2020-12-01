@@ -1,10 +1,18 @@
 package leetcode.array;
 
+import java.util.Arrays;
+
 /**
  * Created by machenggong on 2020/3/22.
  */
 public class SearchRange {
 
+    /**
+     * 34. 在排序数组中查找元素的第一个和最后一个位置
+     * @param nums
+     * @param target
+     * @return
+     */
     public static int[] searchRange(int[] nums, int target) {
         int[] targetRange = {-1, -1};
 
@@ -78,7 +86,7 @@ public class SearchRange {
 
 
     public static void main(String[] args) {
-        System.out.println(searchRangeB(new int[]{1, 2, 3, 7, 7, 7, 8}, 7));
+        System.out.println(Arrays.toString(searchRangeB(new int[] { 1, 2, 3, 7, 7, 7, 8 }, 7)));
     }
 
 
