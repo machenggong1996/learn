@@ -7,3 +7,9 @@
 
 ## 1. 启动过程
 
+## 2. 零配置tomcat
+
+使用java spi机制 对 ServletContainerInitializer进行默认实现
+实现类为 SpringServletContainerInitializer
+@HandlesTypes注解 找接口的实现 不找配置的类本身
+
