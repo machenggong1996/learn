@@ -208,3 +208,181 @@ Engine下有多个Host子容器，Host下有多个Context子容器，Context下�
 按照父子关系分别为：Engine、Host、Context、Wrapper，其中除了Engine外，其余的容器都是可以有多个。
 
 refreshContext()->refresh()->onRefresh();
+
+## 2. springboot中tomcat启动流程
+
+[springboot内置tomcat启动全流程详解及处理请求详解](https://blog.csdn.net/qq_31086797/article/details/107418371)
+
+### 2.1 tomcat启动的全流程
+
+1. SpringApplication#SpringApplication()构造器中使用WebApplicationType.deduceFromClasspath()获取springboot类型
+2. WebApplicationType.deduceFromClasspath() 方法判断有没有"javax.servlet.Servlet","org.springframework.web.context.ConfigurableWebApplicationContext"
+这两个class，如果有则为servlet类型
+3. SpringApplication#run()方法调用createApplicationContext() 创建一个AnnotationConfigServletWebServerApplicationContext类型的容器
+4. AnnotationConfigServletWebServerApplicationContext继承ServletWebServerApplicationContext
+5. SpringApplication#run()调用refreshContext(context) 进入spring的refresh()->onRefresh() 这个方法的实现在ServletWebServerApplicationContext类中
+6. ServletWebServerApplicationContext#onRefresh()#createWebServer()方法创建tomcat
+
+### 2.2 处理http请求
+
+## 3. SpringBoot配置外部Tomcat项目启动流程
+
+[SpringBoot配置外部Tomcat项目启动流程源码分析(长文)](https://janus.blog.csdn.net/article/details/80764031)
+
+### 3.1 首先看Servlet3.0中的规范
+
+* javax.servlet.ServletContainerInitializer(其是一个接口) 类是通过JAR服务API查找的。对于每个应用程序，ServletContainerInitializer的一个实例是由容器在应用程序启动时创建。
+* 提供ServletContainerInitializer实现的框架必须将名为javax.servlet的文件捆绑到jar文件的META-INF/services目录中。根据JAR服务API，找到指向ServletContainerInitializer的实现类。
+* 除了ServletContainerInitializer 之外，还有一个注解–@HandlesTypes。ServletContainerInitializer 实现上的handlesTypes注解用于寻找感兴趣的类–要么是@HandlesTypes注解指定的类，要么是其子类。
+* 不管元数据完成的设置如何，都将应用handlesTypes注解。
+* ServletContainerInitializer实例的onStartup 方法将在应用程序启动时且任何servlet侦听器事件被激发之前被调用。
+* ServletContainerInitializer 的onStartup 方法调用是伴随着一组类的(Set<Class<?>> webAppInitializerClasses)，这些类要么是initializer的扩展类，要么是添加了@HandlesTypes注解的类。将会依次调用webAppInitializerClasses实例的onStartup方法。
+
+* 服务器启动（web应用启动）会创建当前web应用里面每一个jar包里面ServletContainerInitializer实例；
+* jar包的META-INF/services文件夹下，有一个名为javax.servlet.ServletContainerInitializer的文件，内容就是ServletContainerInitializer的实现类的全类名；
+![avatar](pics/javax-servlet.png)
+* 还可以使用@HandlesTypes，在应用启动的时候加载我们感兴趣的类；
+* 容器启动过程中首先调用ServletContainerInitializer 实例的onStartup方法。
+
+```java
+public interface ServletContainerInitializer {
+
+    void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException;
+}
+```
+
+### 3.2 步骤分析
+
+#### 3.2.1 Tomcat启动
+
+StandardContext
+
+#### 3.2.2 根据Servlet3.0规范，找到ServletContainerInitializer ，进行实例化
+
+对org.springframework.web.SpringServletContainerInitializer进行初始化 
+
+#### 3.2.3 创建实例
+
+1. SpringServletContainerInitializer将@HandlesTypes(WebApplicationInitializer.class)
+标注的所有这个类型的类都传入到onStartup方法的Set集合，为这些WebApplicationInitializer类型的
+类创建实例并遍历调用其onStartup方法
+
+```java
+//感兴趣的类为WebApplicationInitializer及其子类
+@HandlesTypes(WebApplicationInitializer.class)
+public class SpringServletContainerInitializer implements ServletContainerInitializer {
+	//先调用onStartup方法，会传入一系列webAppInitializerClasses
+	@Override
+	public void onStartup(@Nullable Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
+			throws ServletException {
+		List<WebApplicationInitializer> initializers = new LinkedList<>();
+		if (webAppInitializerClasses != null) {
+			//遍历感兴趣的类
+			for (Class<?> waiClass : webAppInitializerClasses) {
+				// Be defensive: Some servlet containers provide us with invalid classes,
+				// no matter what @HandlesTypes says...
+				//判断是不是接口，是不是抽象类，是不是该类型
+				if (!waiClass.isInterface() && !Modifier.isAbstract(waiClass.getModifiers()) &&
+						WebApplicationInitializer.class.isAssignableFrom(waiClass)) {
+					try {
+						//实例化每个initializer并添加到initializers中
+						initializers.add((WebApplicationInitializer)
+								ReflectionUtils.accessibleConstructor(waiClass).newInstance());
+					}
+					catch (Throwable ex) {
+						throw new ServletException("Failed to instantiate WebApplicationInitializer class", ex);
+					}
+				}
+			}
+		}
+
+		if (initializers.isEmpty()) {
+			servletContext.log("No Spring WebApplicationInitializer types detected on classpath");
+			return;
+		}
+		servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
+		AnnotationAwareOrderComparator.sort(initializers);
+		//依次调用initializer的onStartup方法。
+		for (WebApplicationInitializer initializer : initializers) {
+			initializer.onStartup(servletContext);
+		}
+	}
+}
+```
+
+* SpringBootServletInitializer和SpringApplicationWebApplicationInitializer都实现WebApplicationInitializer，
+* SpringApplicationWebApplicationInitializer继承SpringBootServletInitializer
+* SpringBootServletInitializer#onStartup(ServletContext servletContext)方法如下
+```java_holder_method_tree
+/**
+	 * 通过启动servlet来启动spring容器
+	 * @param servletContext
+	 * @throws ServletException
+	 */
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException {
+		// Logger initialization is deferred in case an ordered
+		// LogServletContextInitializer is being used
+		this.logger = LogFactory.getLog(getClass());
+        //创建WebApplicationContext
+		WebApplicationContext rootAppContext = createRootApplicationContext(servletContext);
+		if (rootAppContext != null) {
+        //如果根容器不为null，则添加监听--注意这里的ContextLoaderListener，
+        //contextInitialized方法为空，因为默认application context已经被初始化
+			servletContext.addListener(new ContextLoaderListener(rootAppContext) {
+				@Override
+				public void contextInitialized(ServletContextEvent event) {
+					// no-op because the application context is already initialized
+				}
+			});
+		}
+		else {
+			this.logger.debug("No ContextLoaderListener registered, as createRootApplicationContext() did not "
+					+ "return an application context");
+		}
+	}
+```
+* createRootApplicationContext()代码，主要作用是创建一个SpringApplication然后调用run方法进入springboot逻辑
+```java_holder_method_tree
+protected WebApplicationContext createRootApplicationContext(ServletContext servletContext) {
+        //创建SpringApplicationBuilder --这一步很关键
+		SpringApplicationBuilder builder = createSpringApplicationBuilder();
+        //设置应用主启动类--本文这里为com.web.ServletInitializer
+		builder.main(getClass());
+        //从servletContext中获取servletContext.getAttribute(
+        //WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)作为parent。第一次获取肯定为null
+        
+		ApplicationContext parent = getExistingRootWebApplicationContext(servletContext);
+		if (parent != null) {
+			this.logger.info("Root context already created (using as parent).");
+            //以将ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE重置为null
+			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, null);
+            //注册一个新的ParentContextApplicationContextInitializer--包含parent
+			builder.initializers(new ParentContextApplicationContextInitializer(parent));
+		}
+        //注册ServletContextApplicationContextInitializer--包含servletContext
+		builder.initializers(new ServletContextApplicationContextInitializer(servletContext));
+        //设置applicationContextClass为AnnotationConfigServletWebServerApplicationContext
+		builder.contextClass(AnnotationConfigServletWebServerApplicationContext.class);
+		builder = configure(builder);
+		builder.listeners(new WebEnvironmentPropertySourceInitializer(servletContext));
+		SpringApplication application = builder.build();
+		if (application.getAllSources().isEmpty()
+				&& MergedAnnotations.from(getClass(), SearchStrategy.TYPE_HIERARCHY).isPresent(Configuration.class)) {
+			application.addPrimarySources(Collections.singleton(getClass()));
+		}
+		Assert.state(!application.getAllSources().isEmpty(),
+				"No SpringApplication sources have been defined. Either override the "
+						+ "configure method or add an @Configuration annotation");
+		// Ensure error pages are registered
+		if (this.registerErrorPageFilter) {
+			application.addPrimarySources(Collections.singleton(ErrorPageFilterConfiguration.class));
+		}
+        //启动应用
+		return run(application);
+	}
+```
+
+* SpringBootServletInitializer#createSpringApplicationBuilder()->SpringApplicationBuilder#createSpringApplication(sources)
+->SpringApplication#SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) 进行资源初始化
+* 随后继续执行springboot运行逻辑
