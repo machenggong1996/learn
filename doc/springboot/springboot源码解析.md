@@ -386,3 +386,35 @@ protected WebApplicationContext createRootApplicationContext(ServletContext serv
 * SpringBootServletInitializer#createSpringApplicationBuilder()->SpringApplicationBuilder#createSpringApplication(sources)
 ->SpringApplication#SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) 进行资源初始化
 * 随后继续执行springboot运行逻辑
+
+## 4. 内置Tomcat启动
+
+### 4.1 maven tomcat plugin
+
+### 4.2 spring mvc
+
+#### 4.2.1 DispatcherServlet
+
+DispatcherServlet继承于FrameworkServlet，FrameworkServlet继承于HttpServletBean
+```java_holder_method_tree
+Tomcat.addServlet(rootContext,"learn",dispatcherServlet).setLoadOnStartup(1);
+```
+* 执行上面代码会执行HttpServletBean#init方法
+* 当对controller发送get请求的时候回执行HttpServletBean#doGet方法，真正的实现在FrameworkServlet#doGet
+* FrameworkServlet#doGet->processRequest->doService->DispatcherServlet#doService->doDispatch(关键)
+* getHandler推断controller类型 三种类型
+  - @Controller
+  - 实现Controller
+  - HttpRequestHandler
+* handlerMappings中有两个BeanNameUrlHandlerMapping和RequestHandlerMapping，请求是RequestHandlerMapping类型
+* 继续执行AbstractHandlerMapping#getHandler->getHandlerInternal
+  - getLookupPathForRequest找到请求路径
+  - lookupHandlerMethod找到请求方法
+* doDispatch方法中的getHandler mappedHandler handle()方法为实际逻辑执行
+* RequestMappingHandlerAdapter#handleInternal->invokeHandlerMethod
+![avatar](pics/springmvc调用链.png)
+
+#### 4.2.1 HandlerMapping
+
+#### 4.2.2 HandlerAdapters
+
