@@ -406,15 +406,34 @@ Tomcat.addServlet(rootContext,"learn",dispatcherServlet).setLoadOnStartup(1);
   - @Controller
   - 实现Controller
   - HttpRequestHandler
-* handlerMappings中有两个BeanNameUrlHandlerMapping和RequestHandlerMapping，请求是RequestHandlerMapping类型
+* handlerMappings中有两个BeanNameUrlHandlerMapping（可以使用@Component）和RequestHandlerMapping，请求是RequestHandlerMapping类型
 * 继续执行AbstractHandlerMapping#getHandler->getHandlerInternal
-  - getLookupPathForRequest找到请求路径
-  - lookupHandlerMethod找到请求方法
-* doDispatch方法中的getHandler mappedHandler handle()方法为实际逻辑执行
+  - getLookupPathForRequest找到请求路径 handlerMapping 是 路径和controller的map
+  - lookupHandlerMethod找到请求方法 
+* doDispatch方法中的getHandler mappedHandler
+* handle()方法为实际逻辑执行 这是个HandlerAdapter 实际类型为RequestMappingHandlerAdapter
 * RequestMappingHandlerAdapter#handleInternal->invokeHandlerMethod
+* ServletInvocableHandlerMethod#invokeAndHandle->invokeForRequest->doInvoke
+* getBridgedMethod().invoke(getBean(), args)执行反射调用
 ![avatar](pics/springmvc调用链.png)
+
+#### 4.2.2 DispatcherServlet启动流程
+
+![avatar](pics/DispatcharServlet%23init.png)
 
 #### 4.2.1 HandlerMapping
 
+Map<String,Object> key为路径例如 /index,value为controller对象
+
 #### 4.2.2 HandlerAdapters
 
+* 通过Handler找到 HandlerAdapters 进行真正的业务执行 反射
+* 静态资源（.html）和controller使用的是不同的适配器
+
+#### 4.2.3 HandlerExecutionChain
+
+封装了一个handler处理对象和一些interceptors
+
+#### 4.2.4 HandlerMethodReturnValueHandler
+
+寻找合适的处理器进行返回值处理 前端渲染
