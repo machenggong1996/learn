@@ -423,7 +423,7 @@ Tomcat.addServlet(rootContext,"learn",dispatcherServlet).setLoadOnStartup(1);
 
 #### 4.2.1 HandlerMapping
 
-Map<String,Object> key为路径例如 /index,value为controller对象
+Map<String,Object> key为路径例如 /index,value为controller对象 handler 就是HandlerMethod方法
 
 #### 4.2.2 HandlerAdapters
 
@@ -437,3 +437,42 @@ Map<String,Object> key为路径例如 /index,value为controller对象
 #### 4.2.4 HandlerMethodReturnValueHandler
 
 寻找合适的处理器进行返回值处理 前端渲染
+
+#### 4.2.5 HandlerMethod
+
+其实就是处理器+处理器的方法
+
+* Handler ： 绑定了注解@RequestMapping和@Controller的类
+* HandlerMethod：就是Handler下某个绑定@RequestMapping注解的方法
+（GetMapping、PostMapping...等都绑定的有注解@RequestMapping，
+spring mvc在做注解解析处理生成代理对象等的时候，会做值的合并等处理，
+所以最终都是用RequestMapping的注解来计算，所以@Controller和@RestController的处理等同）
+
+##### 1. HandlerMethod初始化
+
+遍历所有的bean找到handler类型（使用@RequestMapping和@Controller注解），注册到mappingRegistry
+
+AbstractHandlerMethodMapping#initHandlerMethods->detectHandlerMethods->registerHandlerMethod->register
+
+##### 2. 注册过程
+
+1. 创建HandlerMethod
+```java_holder_method_tree
+protected HandlerMethod createHandlerMethod(Object handler, Method method) {
+		HandlerMethod handlerMethod;   
+		if (handler instanceof String) {
+            //handler是 String
+			String beanName = (String) handler;
+			handlerMethod = new HandlerMethod(beanName,
+					obtainApplicationContext().getAutowireCapableBeanFactory(), method);
+		}
+		else {
+			handlerMethod = new HandlerMethod(handler, method);
+		}
+		return handlerMethod;
+	}
+```
+
+##### 3. 获取HandlerMethod过程
+
+doDispatch->getHandler(processedRequest)->hm.getHandler(request)->getHandlerInternal(request)->lookupHandlerMethod
