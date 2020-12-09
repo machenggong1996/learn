@@ -1,7 +1,7 @@
 package leetcode.array;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/07/02
  */
 public class KthSmallest {

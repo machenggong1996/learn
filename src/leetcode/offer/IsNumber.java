@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/09/02
  */
 public class IsNumber {

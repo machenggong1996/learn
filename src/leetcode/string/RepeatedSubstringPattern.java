@@ -1,7 +1,7 @@
 package leetcode.string;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/08/24
  */
 public class RepeatedSubstringPattern {
