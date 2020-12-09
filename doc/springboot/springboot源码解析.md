@@ -476,3 +476,18 @@ protected HandlerMethod createHandlerMethod(Object handler, Method method) {
 ##### 3. 获取HandlerMethod过程
 
 doDispatch->getHandler(processedRequest)->hm.getHandler(request)->getHandlerInternal(request)->lookupHandlerMethod
+
+## 5. springboot自动装配原理
+
+* EnableAutoConfiguration->AutoConfigurationImportSelector 会去spring.factories里面加载
+* AutoConfigurationImportSelector为@Import修饰
+
+### 5.1 ConfigurationClassPostProcessor进行注解解析
+
+* postProcessBeanDefinitionRegistry方法
+* ->processConfigBeanDefinitions构建@Configuration注解修饰类
+* ->parser.parse(candidates)解析
+* ->ConfigurationClassParser#parse(AnnotationMetadata metadata, String beanName) 解析注解修饰
+* ->processConfigurationClass
+* ->doProcessConfigurationClass 处理 @ComponentScan，@Import，@ImportResource，@Bean注解修饰
+* ->collectImports递归寻找@Import类
