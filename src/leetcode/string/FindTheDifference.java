@@ -23,6 +23,23 @@ public class FindTheDifference {
         return res;
     }
 
+    /**
+     * 求和做差
+     * @param s
+     * @param t
+     * @return
+     */
+    public char findTheDifference1(String s, String t) {
+        int as = 0, at = 0;
+        for (int i = 0; i < s.length(); ++i) {
+            as += s.charAt(i);
+        }
+        for (int i = 0; i < t.length(); ++i) {
+            at += t.charAt(i);
+        }
+        return (char) (at - as);
+    }
+
     public static void main(String[] args) {
         System.out.println(findTheDifference("abcd", "abcde"));
         int a = 2;
