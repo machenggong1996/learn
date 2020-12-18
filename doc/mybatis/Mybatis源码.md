@@ -199,3 +199,7 @@ public ResultSetHandler newResultSetHandler(Executor executor,MappedStatement ma
 ```
 
 同样支持插件化机制
+
+## 5. mybatis插件
+
+* [制作Mybatis插件---针对Mybatis的四大对象](https://blog.csdn.net/jinhaijing/article/details/84313668)
