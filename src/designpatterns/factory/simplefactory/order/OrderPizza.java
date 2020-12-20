@@ -27,18 +27,16 @@ public class OrderPizza {
 //        } while (true);
 //    }
 
-    public OrderPizza(SimpleFactory simpleFactory){
-        this.factory = simpleFactory;
+    public OrderPizza(){
         setFactory();
     }
 
-    SimpleFactory factory;
     Pizza pizza = null;
     public void setFactory(){
         String orderType = "";//用户输入
         do{
             orderType= getType();
-            pizza = this.factory.createPizza(orderType);
+            pizza = SimpleFactory.createPizza(orderType);
             if(pizza!=null){
                 pizza.setName(orderType);
                 pizza.prepare();

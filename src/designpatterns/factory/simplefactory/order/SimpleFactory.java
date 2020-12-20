@@ -12,7 +12,7 @@ import designpatterns.factory.simplefactory.pizza.Pizza;
  */
 public class SimpleFactory {
 
-    public Pizza createPizza(String orderType){
+    public static Pizza createPizza(String orderType){
         Pizza pizza = null;
         System.out.println("使用简单工厂模式");
         if ("greek".equals(orderType)) {
