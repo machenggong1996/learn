@@ -116,7 +116,7 @@ java.sql.CallableStatement对象的创建处理器，可用来执行存储过程
 
 StatementHandler路由器，我们看一下其构造方法后
 
-```java
+```java_method
 public RoutingStatementHandler(Executor executor,MappedStatement ms,Object parameter,RowBounds rowBounds,ResultHandler resultHandler,BoundSql boundSql){
 
         switch(ms.getStatementType()){ // @1
@@ -142,7 +142,7 @@ default:
 
 Configuration#newStatementHandler
 
-```java
+```java_method
 public StatementHandler newStatementHandler(Executor executor,MappedStatement mappedStatement,Object parameterObject,RowBounds rowBounds,ResultHandler resultHandler,BoundSql boundSql){
         StatementHandler statementHandler=new RoutingStatementHandler(executor,mappedStatement,parameterObject,rowBounds,resultHandler,boundSql); // @1
         statementHandler=(StatementHandler)interceptorChain.pluginAll(statementHandler); // @2
@@ -167,7 +167,7 @@ DefaultParameterHandler
 
 Configuration#newParameterHandler
 
-```java
+```java_method
 public ParameterHandler newParameterHandler(MappedStatement mappedStatement,Object parameterObject,BoundSql boundSql){
         ParameterHandler parameterHandler=mappedStatement.getLang().createParameterHandler(mappedStatement,parameterObject,boundSql);
         parameterHandler=(ParameterHandler)interceptorChain.pluginAll(parameterHandler);  // @1
@@ -189,7 +189,7 @@ DefaultParameterHandler
 
 Configuration#newResultSetHandler
 
-```java
+```java_method
 public ResultSetHandler newResultSetHandler(Executor executor,MappedStatement mappedStatement,RowBounds rowBounds,ParameterHandler parameterHandler,
         ResultHandler resultHandler,BoundSql boundSql){
         ResultSetHandler resultSetHandler=new DefaultResultSetHandler(executor,mappedStatement,parameterHandler,resultHandler,boundSql,rowBounds);
@@ -211,7 +211,8 @@ public ResultSetHandler newResultSetHandler(Executor executor,MappedStatement ma
 * SqlSessionFactory的实现类有DefaultSqlSessionFactory和SqlSessionManager
 * openSession()方法构建SqlSession
 * openSessionFromDataSource()方法创建SqlSession
-```java
+
+```java_method
 private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
@@ -234,7 +235,7 @@ private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionI
 
 从XML读取配置生成Configuration，生成SqlSessionFactory
 
-```java
+```java_method
 public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
@@ -262,7 +263,8 @@ public SqlSessionFactory build(InputStream inputStream, String environment, Prop
 
 * Configuration 的创建工作是有XMLConfigBuilder完成的
 * 相关的核心方法XMLConfigBuilder#parse()
-```java
+
+```java_method
 public Configuration parse() {
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
@@ -272,9 +274,10 @@ public Configuration parse() {
     return configuration;
   }
 ```
+
 * parseConfiguration 进行xml解析
 
-```java
+```java_method
 private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
@@ -300,6 +303,7 @@ private void parseConfiguration(XNode root) {
     }
   }
 ```
+
 * mapperElement()方法将mapper接口解析出来放入Configuration中
 
 #### 6.2.2 Configuration方法解析
@@ -308,7 +312,7 @@ private void parseConfiguration(XNode root) {
 
 将解析出来的类放入mapperRegistry中
 
-```java
+```java_method
 public <T> void addMapper(Class<T> type) {
     mapperRegistry.addMapper(type);
   }
@@ -317,11 +321,14 @@ public <T> void addMapper(Class<T> type) {
 ##### 2. MapperRegistry在Configuration中创建
 
 * 创建
-```java
+
+```java_method
 protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
 ```
+
 * MapperRegistry#addMapper(Class<T> type)
-```java
+
+```java_method
 public void addMappers(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
@@ -331,7 +338,8 @@ public void addMappers(String packageName, Class<?> superType) {
     }
   }
 ```
-```java
+
+```java_method
 public <T> void addMapper(Class<T> type) {
     if (type.isInterface()) {
       if (hasMapper(type)) {
@@ -356,7 +364,8 @@ public <T> void addMapper(Class<T> type) {
 ```
 
 * 获取mapper
-```java
+
+```java_method
 public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
     if (mapperProxyFactory == null) {
@@ -373,3 +382,29 @@ public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
 ##### 5. MapperProxyFactory
 
 * mapperProxyFactory.newInstance(sqlSession)在这里创建mapper代理对象
+
+### 6.3 SqlSession
+
+* SqlSession由SqlSessionFactory创建
+* SqlSessionFactory实现类为DefaultSqlSession，SqlSessionManager
+
+#### 6.3.1 DefaultSqlSession
+
+##### 1. 关键方法selectList
+
+```java_method
+ @Override
+  public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
+    try {
+      MappedStatement ms = configuration.getMappedStatement(statement);
+      return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
+    } catch (Exception e) {
+      throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);
+    } finally {
+      ErrorContext.instance().reset();
+    }
+  }
+```
+
+* MappedStatement代表mapper中的一个查询方法，这个方法在configuration中获取
+* executor.query() 进行真正的查询 具体见上面executor解析
