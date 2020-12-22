@@ -408,3 +408,121 @@ public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
 
 * MappedStatement代表mapper中的一个查询方法，这个方法在configuration中获取
 * executor.query() 进行真正的查询 具体见上面executor解析
+
+### 6.4 MapperRegistry mapper 注册管理
+
+这个类着重看一个成员变量及两个方法
+
+* knownMappers，key为mapper类，value为MapperProxyFactory用来创建mapper的代理
+```java_global_variable
+private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
+```
+* addMapper,Configuration#addMappers(String packageName)方法将mapper注册进MapperRegistry
+```java_method
+public <T> void addMapper(Class<T> type) {
+    if (type.isInterface()) {
+      if (hasMapper(type)) {
+        throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
+      }
+      boolean loadCompleted = false;
+      try {
+        knownMappers.put(type, new MapperProxyFactory<>(type));
+        // It's important that the type is added before the parser is run
+        // otherwise the binding may automatically be attempted by the
+        // mapper parser. If the type is already known, it won't try.
+        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        parser.parse();
+        loadCompleted = true;
+      } finally {
+        if (!loadCompleted) {
+          knownMappers.remove(type);
+        }
+      }
+    }
+  }
+```
+* getMapper，configuration#getMapper(Class<T> type, SqlSession sqlSession)调用，开始由SqlSession#getMapper(Class<T> type)调用
+```java_method
+public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    if (mapperProxyFactory == null) {
+      throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
+    }
+    try {
+      return mapperProxyFactory.newInstance(sqlSession);
+    } catch (Exception e) {
+      throw new BindingException("Error getting mapper instance. Cause: " + e, e);
+    }
+  }
+```
+
+### 6.5 MapperProxyFactory mapper代理创建
+
+* 使用jdk代理创建代理对象
+```java_method
+  protected T newInstance(MapperProxy<T> mapperProxy) {
+    return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
+  }
+
+  public T newInstance(SqlSession sqlSession) {
+    final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
+    return newInstance(mapperProxy);
+  }
+```
+
+### 6.6 MapperProxy
+
+* MapperProxy#invoke->mapperMethod.execute(sqlSession, args)
+* MapperProxy实现InvocationHandler，是jdk代理对象
+* MapperMethod是mapper和执行方法的封装
+```java_method
+public Object execute(SqlSession sqlSession, Object[] args) {
+    Object result;
+    switch (command.getType()) {
+      case INSERT: {
+        Object param = method.convertArgsToSqlCommandParam(args);
+        result = rowCountResult(sqlSession.insert(command.getName(), param));
+        break;
+      }
+      case UPDATE: {
+        Object param = method.convertArgsToSqlCommandParam(args);
+        result = rowCountResult(sqlSession.update(command.getName(), param));
+        break;
+      }
+      case DELETE: {
+        Object param = method.convertArgsToSqlCommandParam(args);
+        result = rowCountResult(sqlSession.delete(command.getName(), param));
+        break;
+      }
+      case SELECT:
+        if (method.returnsVoid() && method.hasResultHandler()) {
+          executeWithResultHandler(sqlSession, args);
+          result = null;
+        } else if (method.returnsMany()) {
+          result = executeForMany(sqlSession, args);
+        } else if (method.returnsMap()) {
+          result = executeForMap(sqlSession, args);
+        } else if (method.returnsCursor()) {
+          result = executeForCursor(sqlSession, args);
+        } else {
+          Object param = method.convertArgsToSqlCommandParam(args);
+          result = sqlSession.selectOne(command.getName(), param);
+          if (method.returnsOptional()
+              && (result == null || !method.getReturnType().equals(result.getClass()))) {
+            result = Optional.ofNullable(result);
+          }
+        }
+        break;
+      case FLUSH:
+        result = sqlSession.flushStatements();
+        break;
+      default:
+        throw new BindingException("Unknown execution method for: " + command.getName());
+    }
+    if (result == null && method.getReturnType().isPrimitive() && !method.returnsVoid()) {
+      throw new BindingException("Mapper method '" + command.getName()
+          + " attempted to return null from a method with a primitive return type (" + method.getReturnType() + ").");
+    }
+    return result;
+  }
+```
