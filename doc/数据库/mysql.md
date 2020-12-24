@@ -98,3 +98,7 @@ next lock = record lock + gap lock
 3. 索引上的等值查询--给唯一索引加锁的时候，next-key lock升级为行锁
 4. 索引上的等值查询--向右遍历时最后一个值不满足查询需求时，next-key lock 退化为间隙锁
 5. 唯一索引上的范围查询会访问到不满足条件的第一个值为止
+
+## mysql开发约束
+
+* [MySQL开发约束](https://blog.csdn.net/xcy1193068639/article/details/109263167)
