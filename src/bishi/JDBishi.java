@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public class JDBishi {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception, CustomException {
         switch (2) {
             default:
                 System.out.print(4);
@@ -23,10 +23,10 @@ public class JDBishi {
             throw new Exception("1");
         }catch (IOException e){
             throw new Exception("2");
-        }catch (Exception e) {
+        }catch (Throwable e) {
             throw new Exception("3");
         }finally {
-            throw new Exception("4");
+            throw new CustomException("4");
         }
 
     }
