@@ -1,7 +1,7 @@
 package designpatterns.bridge;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/12/24
  * @description
  */
