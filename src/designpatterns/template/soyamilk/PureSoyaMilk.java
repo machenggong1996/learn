@@ -1,7 +1,7 @@
 package designpatterns.template.soyamilk;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2020/12/30
  * @description
  */
