@@ -1,0 +1,3 @@
+# DefaultListableBeanFactory源码解析
+
+DefaultListableBeanFactory，是 GenericApplicationContext 和 AbstractRefreshableApplicationContext 的(bean工厂)默认策略，而这两者是所有 xxxApplicationContext 的基类，因此 DefaultListableBeanFactory 可以说是 ApplicationContext 的标准配置
