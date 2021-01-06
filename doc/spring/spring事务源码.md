@@ -600,6 +600,11 @@ this.holder.getSqlSession().close();关闭会话。(源码由于是spring管理�
 
 * rollback->processRollback()->doRollback()
 
+#### 3.1.6 事务隔离级别原理
+
+* AbstractPlatformTransactionManager具体的事务执行
+* TransactionDefinition事务隔离级别定义
+
 ## 4. 时序图
 
 ![avatar](pic/spring事务时序图.png)
