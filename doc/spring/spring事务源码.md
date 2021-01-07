@@ -31,7 +31,9 @@
           }
 }
 ```
+
 * 核心方法execute
+
 ```java_method
  @Override
     public <T> T execute(TransactionCallback<T> action) throws TransactionException {　　　　　　　// 内部封装好的事务管理器
@@ -67,13 +69,17 @@
 
 1. getTransaction()获取事务
 2. doInTransaction()执行业务逻辑，这里就是用户自定义的业务代码。如果是没有返回值的，就是doInTransactionWithoutResult()。
-3. commit()事务提交：调用AbstractPlatformTransactionManager的commit，rollbackOnException()异常回滚：调用AbstractPlatformTransactionManager的rollback()，事务提交回滚
+3. commit()事务提交：调用AbstractPlatformTransactionManager的commit，rollbackOnException()
+   异常回滚：调用AbstractPlatformTransactionManager的rollback()，事务提交回滚
 
 ### 2.2 申明式事务@Transactional
 
+![avatar](pic/声明式事务启动类结构.png)
+
 #### 2.2.1 AOP相关概念
 
-* 通知（Advice）:定义了切面(各处业务代码中都需要的逻辑提炼成的一个切面)做什么what+when何时使用。例如：前置通知Before、后置通知After、返回通知After-returning、异常通知After-throwing、环绕通知Around.
+* 通知（Advice）:定义了切面(各处业务代码中都需要的逻辑提炼成的一个切面)
+  做什么what+when何时使用。例如：前置通知Before、后置通知After、返回通知After-returning、异常通知After-throwing、环绕通知Around.
 * 连接点（Joint point）：程序执行过程中能够插入切面的点，一般有多个。比如调用方式时、抛出异常时。
 * 切点（Pointcut）:切点定义了连接点，切点包含多个连接点,即where哪里使用通知.通常指定类+方法 或者 正则表达式来匹配 类和方法名称。
 * 切面（Aspect）:切面=通知+切点，即when+where+what何时何地做什么。
@@ -84,14 +90,14 @@
 
 申明式事务整体调用过程，可以抽出2条线：
 
-1.使用代理模式，生成代理增强类。
-2.根据代理事务管理配置类，配置事务的织入，在业务方法前后进行环绕增强，增加一些事务的相关操作。例如获取事务属性、提交事务、回滚事务。
+1.使用代理模式，生成代理增强类。 2.根据代理事务管理配置类，配置事务的织入，在业务方法前后进行环绕增强，增加一些事务的相关操作。例如获取事务属性、提交事务、回滚事务。
 
 ![avatar](pic/spring声明式事务.png)
 
 #### 2.2.3 @EnableTransactionManagement
 
 ```java
+
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -116,14 +122,14 @@ TransactionManagementConfigurationSelector继承自AdviceModeImportSelector实�
 
 ```java
 public class TransactionManagementConfigurationSelector extends AdviceModeImportSelector<EnableTransactionManagement> {
-    
+
     @Override
     protected String[] selectImports(AdviceMode adviceMode) {
         switch (adviceMode) {
             case PROXY:
-                return new String[] {AutoProxyRegistrar.class.getName(), ProxyTransactionManagementConfiguration.class.getName()};
+                return new String[]{AutoProxyRegistrar.class.getName(), ProxyTransactionManagementConfiguration.class.getName()};
             case ASPECTJ:
-                return new String[] {TransactionManagementConfigUtils.TRANSACTION_ASPECT_CONFIGURATION_CLASS_NAME};
+                return new String[]{TransactionManagementConfigUtils.TRANSACTION_ASPECT_CONFIGURATION_CLASS_NAME};
             default:
                 return null;
         }
@@ -131,7 +137,9 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 
 }
 ```
-* AutoProxyRegistrar：给容器中注册一个 InfrastructureAdvisorAutoProxyCreator 组件；利用后置处理器机制在对象创建以后，包装对象，返回一个代理对象（增强器），代理对象执行方法利用拦截器链进行调用；
+
+* AutoProxyRegistrar：给容器中注册一个 InfrastructureAdvisorAutoProxyCreator
+  组件；利用后置处理器机制在对象创建以后，包装对象，返回一个代理对象（增强器），代理对象执行方法利用拦截器链进行调用；
 * ProxyTransactionManagementConfiguration：就是一个配置类，定义了事务增强器。
 
 ##### 1. AutoProxyRegistrar
@@ -222,13 +230,17 @@ private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, Bean
 * 由于InfrastructureAdvisorAutoProxyCreator这个类在list中第一个index=0,requiredPriority最小，不进入，所以没有重置beanClassName，啥都没做，返回null
 * 那么何时生成代理
 * InfrastructureAdvisorAutoProxyCreator类图如下
-![avatar](pic/InfrastructureAdvisorAutoProxyCreator类图.png)
-* InstantiationAwareBeanPostProcessor接口的postProcessBeforeInstantiation实例化前+BeanPostProcessor接口的postProcessAfterInitialization初始化后
+  ![avatar](pic/InfrastructureAdvisorAutoProxyCreator类图.png)
+*
+
+InstantiationAwareBeanPostProcessor接口的postProcessBeforeInstantiation实例化前+BeanPostProcessor接口的postProcessAfterInitialization初始化后
+
 * 走spring动态代理逻辑
 
 ##### 3. ProxyTransactionManagementConfiguration
 
 ```java
+
 @Configuration
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
@@ -266,12 +278,18 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 * 核心方法：transactionAdvisor()事务织入
 * 定义了一个advisor，设置事务属性、设置事务拦截器TransactionInterceptor、设置顺序。核心就是事务拦截器TransactionInterceptor。
-* TransactionInterceptor使用通用的spring事务基础架构实现“声明式事务”，继承自TransactionAspectSupport类（该类包含与Spring的底层事务API的集成），实现了MethodInterceptor接口。spring类图如下：
-* 事务拦截器的拦截功能就是依靠实现了MethodInterceptor接口，熟悉spring的同学肯定很熟悉MethodInterceptor了，这个是spring的方法拦截器，主要看invoke方法：
-* TransactionInterceptor复写MethodInterceptor接口的invoke方法，并在invoke方法中调用了父类TransactionAspectSupport的invokeWithinTransaction()方法
+*
 
-1.createTransactionIfNecessary():如果有必要，创建事务
-2.InvocationCallback的proceedWithInvocation()：InvocationCallback是父类的内部回调接口，子类中实现该接口供父类调用，子类TransactionInterceptor中invocation.proceed()。回调方法执行
+TransactionInterceptor使用通用的spring事务基础架构实现“声明式事务”，继承自TransactionAspectSupport类（该类包含与Spring的底层事务API的集成），实现了MethodInterceptor接口。spring类图如下：
+
+* 事务拦截器的拦截功能就是依靠实现了MethodInterceptor接口，熟悉spring的同学肯定很熟悉MethodInterceptor了，这个是spring的方法拦截器，主要看invoke方法：
+*
+
+TransactionInterceptor复写MethodInterceptor接口的invoke方法，并在invoke方法中调用了父类TransactionAspectSupport的invokeWithinTransaction()
+方法
+
+1.createTransactionIfNecessary():如果有必要，创建事务 2.InvocationCallback的proceedWithInvocation()
+：InvocationCallback是父类的内部回调接口，子类中实现该接口供父类调用，子类TransactionInterceptor中invocation.proceed()。回调方法执行
 3.异常回滚completeTransactionAfterThrowing()
 
 ###### createTransactionIfNecessary()
@@ -285,7 +303,8 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 ![avatar](pic/ReflectiveMethodInvocation类图.png)
 
-* ReflectiveMethodInvocation类实现了ProxyMethodInvocation接口，但是ProxyMethodInvocation继承了3层接口...ProxyMethodInvocation->MethodInvocation->Invocation->Joinpoint
+* ReflectiveMethodInvocation类实现了ProxyMethodInvocation接口，但是ProxyMethodInvocation继承了3层接口...ProxyMethodInvocation->
+  MethodInvocation->Invocation->Joinpoint
 * Joinpoint：连接点接口，定义了执行接口：Object proceed() throws Throwable; 执行当前连接点，并跳到拦截器链上的下一个拦截器。
 * Invocation：调用接口，继承自Joinpoint，定义了获取参数接口： Object[] getArguments();是一个带参数的、可被拦截器拦截的连接点。
 * MethodInvocation：方法调用接口，继承自Invocation，定义了获取方法接口：Method getMethod(); 是一个带参数的可被拦截的连接点方法。
@@ -294,7 +313,8 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 ###### completeTransactionAfterThrowing()
 
-最终调用AbstractPlatformTransactionManager的rollback()，提交事务commitTransactionAfterReturning()最终调用AbstractPlatformTransactionManager的commit()
+最终调用AbstractPlatformTransactionManager的rollback()，提交事务commitTransactionAfterReturning()
+最终调用AbstractPlatformTransactionManager的commit()
 
 ### 2.3 事务小结
 
@@ -317,8 +337,10 @@ PlatformTransactionManager顶级接口定义了最核心的事务管理方法，
 public interface PlatformTransactionManager {
     // 获取事务状态
     TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
+
     // 事务提交
     void commit(TransactionStatus status) throws TransactionException;
+
     // 事务回滚
     void rollback(TransactionStatus status) throws TransactionException;
 }
@@ -328,8 +350,7 @@ public interface PlatformTransactionManager {
 
 ![avatar](pic/getTransaction执行逻辑.png)
 
-1.当前已存在事务：isExistingTransaction()判断是否存在事务，存在事务handleExistingTransaction()根据不同传播机制不同处理
-2.当前不存在事务: 不同传播机制不同处理
+1.当前已存在事务：isExistingTransaction()判断是否存在事务，存在事务handleExistingTransaction()根据不同传播机制不同处理 2.当前不存在事务: 不同传播机制不同处理
 
 #### 3.1.1 handleExistingTransaction()
 
@@ -435,11 +456,11 @@ private TransactionStatus handleExistingTransaction(
 * NEVER：不支持当前事务;如果当前事务存在，抛出异常:"Existing transaction found for transaction marked with propagation 'never'"
 * NOT_SUPPORTED：不支持当前事务，现有同步将被挂起:suspend()
 * REQUIRES_NEW挂起当前事务，创建新事务:
-  - suspend()
-  - doBegin()
+    - suspend()
+    - doBegin()
 * NESTED嵌套事务
-  - 非JTA事务：createAndHoldSavepoint()创建JDBC3.0保存点，不需要同步
-  - JTA事务：开启新事务，doBegin()+prepareSynchronization()需要同步
+    - 非JTA事务：createAndHoldSavepoint()创建JDBC3.0保存点，不需要同步
+    - JTA事务：开启新事务，doBegin()+prepareSynchronization()需要同步
 
 这里有几个核心方法：挂起当前事务suspend()、开启新事务doBegin()。
 
@@ -487,7 +508,10 @@ protected final SuspendedResourcesHolder suspend(Object transaction) throws Tran
         }
     }
 ```
-* doSuspend(),挂起事务，AbstractPlatformTransactionManager抽象类doSuspend()会报错：不支持挂起，如果具体事务执行器支持就复写doSuspend()，DataSourceTransactionManager实现如下：
+
+* doSuspend(),挂起事务，AbstractPlatformTransactionManager抽象类doSuspend()会报错：不支持挂起，如果具体事务执行器支持就复写doSuspend()
+  ，DataSourceTransactionManager实现如下：
+
 ```java_method
     protected Object doSuspend(Object transaction) {
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
@@ -499,7 +523,8 @@ protected final SuspendedResourcesHolder suspend(Object transaction) throws Tran
 挂起DataSourceTransactionManager事务的核心操作就是：
 
 * 把当前事务的connectionHolder数据库连接持有者清空。
-* 当前线程解绑datasource.其实就是ThreadLocal移除对应变量（TransactionSynchronizationManager类中定义的private static final ThreadLocal<Map<Object, Object>> resources = new NamedThreadLocal<Map<Object, Object>>("Transactional resources");）
+* 当前线程解绑datasource.其实就是ThreadLocal移除对应变量（TransactionSynchronizationManager类中定义的private static final ThreadLocal<Map<
+  Object, Object>> resources = new NamedThreadLocal<Map<Object, Object>>("Transactional resources");）
 
 #### 3.1.3 doBegin()
 
@@ -561,13 +586,16 @@ protected final SuspendedResourcesHolder suspend(Object transaction) throws Tran
 ```
 
 1. DataSourceTransactionObject“数据源事务对象”，设置ConnectionHolder，再给ConnectionHolder设置各种属性：自动提交、超时、事务开启、隔离级别。
-2. 给当前线程绑定一个线程本地变量，key=DataSource数据源  v=ConnectionHolder数据库连接
+2. 给当前线程绑定一个线程本地变量，key=DataSource数据源 v=ConnectionHolder数据库连接
 
 #### 3.1.4 commit提交事务
 
 ##### 1. 讲解源码之前先看一下资源管理类
 
-* SqlSessionSynchronization是SqlSessionUtils的一个内部类，继承自TransactionSynchronizationAdapter抽象类，实现了事务同步接口TransactionSynchronization。
+*
+
+SqlSessionSynchronization是SqlSessionUtils的一个内部类，继承自TransactionSynchronizationAdapter抽象类，实现了事务同步接口TransactionSynchronization。
+
 * TransactionSynchronization接口定义了事务操作时的对应资源的（JDBC事务那么就是SqlSessionSynchronization）管理方法
 
 ##### 2. AbstractPlatformTransactionManager#commit提交事务
@@ -581,18 +609,20 @@ protected final SuspendedResourcesHolder suspend(Object transaction) throws Tran
 ##### 3. AbstractPlatformTransactionManager#processCommit
 
 commit事务时，有6个核心操作，分别是3个前置操作，3个后置操作
+
 * prepareForCommit(status);源码是空的，没有拓展目前。
 * triggerBeforeCommit(status); 提交前触发操作
-* triggerBeforeCompletion(status);完成前触发操作，如果是jdbc事务，那么最终就是，
-SqlSessionUtils.beforeCompletion->TransactionSynchronizationManager.unbindResource(sessionFactory); 解绑当前线程的会话工厂
-this.holder.getSqlSession().close();关闭会话。(源码由于是spring管理实务，最终不会执行事务close操作，例如是DefaultSqlSession，也会执行各种清除收尾操作)
-* triggerAfterCommit(status);提交事务后触发操作。TransactionSynchronizationUtils.triggerAfterCommit();->TransactionSynchronizationUtils.invokeAfterCommit
-* triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED); 
-   TransactionSynchronizationUtils.TransactionSynchronizationUtils.invokeAfterCompletion
+* triggerBeforeCompletion(status);完成前触发操作，如果是jdbc事务，那么最终就是， SqlSessionUtils.beforeCompletion->
+  TransactionSynchronizationManager.unbindResource(sessionFactory); 解绑当前线程的会话工厂 this.holder.getSqlSession().close()
+  ;关闭会话。(源码由于是spring管理实务，最终不会执行事务close操作，例如是DefaultSqlSession，也会执行各种清除收尾操作)
+* triggerAfterCommit(status);提交事务后触发操作。TransactionSynchronizationUtils.triggerAfterCommit();->
+  TransactionSynchronizationUtils.invokeAfterCommit
+* triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);
+  TransactionSynchronizationUtils.TransactionSynchronizationUtils.invokeAfterCompletion
 * cleanupAfterCompletion(status)
-  - 设置事务状态为已完成。
-  - 如果是新的事务同步，解绑当前线程绑定的数据库资源，重置数据库连接
-  - 如果存在挂起的事务（嵌套事务），唤醒挂起的老事务的各种资源：数据库资源、同步器。
+    - 设置事务状态为已完成。
+    - 如果是新的事务同步，解绑当前线程绑定的数据库资源，重置数据库连接
+    - 如果存在挂起的事务（嵌套事务），唤醒挂起的老事务的各种资源：数据库资源、同步器。
 
 #### 3.1.5 AbstractPlatformTransactionManager#rollback回滚事务
 
@@ -608,5 +638,111 @@ this.holder.getSqlSession().close();关闭会话。(源码由于是spring管理�
 ## 4. 时序图
 
 ![avatar](pic/spring事务时序图.png)
+
+## 5. 事务传播级别
+
+* 外方法加事务 内方法加事务
+    - this调用内部方法 内部方法代理失效 外方法事务传播到内部方法 内部方法与外部方法在同一事务
+    - 手动获取代理对象 只有public方法代理生效
+
+![avatar](pic/getTransaction执行逻辑.png)
+
+```java
+public interface TransactionDefinition {
+
+    /**
+     * Support a current transaction; create a new one if none exists. 
+     * 支持当前事物，若当前没有事物就创建一个事物
+     */
+    int PROPAGATION_REQUIRED = 0;
+
+    /**
+     * Support a current transaction; execute non-transactionally if none exists. 
+     * 如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式运行
+     */
+    int PROPAGATION_SUPPORTS = 1;
+
+    /**
+     * Support a current transaction; throw an exception if no current transaction exists. 
+     * 如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常
+     */
+    int PROPAGATION_MANDATORY = 2;
+
+    /**
+     * Create a new transaction, suspending the current transaction if one exists.
+     * 创建一个新的事务，如果当前存在事务，则把当前事务挂起
+     */
+    int PROPAGATION_REQUIRES_NEW = 3;
+
+    /**
+     * Do not support a current transaction; rather always execute non-transactionally.
+     * 以非事务方式运行，如果当前存在事务，则把当前事务挂起
+     */
+    int PROPAGATION_NOT_SUPPORTED = 4;
+
+    /**
+     * Do not support a current transaction; throw an exception if a current transaction exists. 
+     * 以非事务方式运行，如果当前存在事务，则抛出异常
+     */
+    int PROPAGATION_NEVER = 5;
+
+    /**
+     * Execute within a nested transaction if a current transaction exists.
+     * 如果外层存在事务，就以嵌套事务运行，被嵌套的事务可以独立于外层事务进行提交或者回滚(保存点)，如果外层不存在事务,行为跟PROPAGATION_REQUIRES_NEW
+     */
+    int PROPAGATION_NESTED = 6;
+
+
+    /**
+     * Use the default isolation level of the underlying datastore. 
+     * 使用数据库默认的隔离级别　　　
+     */
+    int ISOLATION_DEFAULT = -1;
+
+    /**
+     * 读未提交　　　*/
+    int ISOLATION_READ_UNCOMMITTED = Connection.TRANSACTION_READ_UNCOMMITTED;
+
+    /**
+     * 读已提交　　  */
+    int ISOLATION_READ_COMMITTED = Connection.TRANSACTION_READ_COMMITTED;
+
+    /**
+     * 可重复读*/
+    int ISOLATION_REPEATABLE_READ = Connection.TRANSACTION_REPEATABLE_READ;
+
+    /**
+     * 可串行化　　　*/
+    int ISOLATION_SERIALIZABLE = Connection.TRANSACTION_SERIALIZABLE;
+
+
+    /**
+     * 使用默认的超时时间
+     */
+    int TIMEOUT_DEFAULT = -1;
+
+
+    /**
+     * 获取事物的传播行为     */
+    int getPropagationBehavior();
+
+    /**
+     * 获取事物的隔离级别　　　*/
+    int getIsolationLevel();
+
+    /**
+     * 获取事物的超时时间　　  */
+    int getTimeout();
+
+    /**
+     * 是否为只读事物     */
+    boolean isReadOnly();
+
+    /**
+     * 获取当前事物的名称　　　*/
+    String getName();
+
+}
+```
 
 
