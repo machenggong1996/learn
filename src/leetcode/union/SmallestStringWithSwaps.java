@@ -18,33 +18,43 @@ public class SmallestStringWithSwaps {
      * @return
      */
     public static String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {
-        DisjointSetUnion dsu = new DisjointSetUnion(s.length());
+        if (pairs.size() == 0) {
+            return s;
+        }
+
+        // 第 1 步：将任意交换的结点对输入并查集
+        int len = s.length();
+        UnionFind unionFind = new UnionFind(len);
         for (List<Integer> pair : pairs) {
-            dsu.unionSet(pair.get(0), pair.get(1));
+            int index1 = pair.get(0);
+            int index2 = pair.get(1);
+            unionFind.union(index1, index2);
         }
-        Map<Integer, List<Character>> map = new HashMap<Integer, List<Character>>();
-        for (int i = 0; i < s.length(); i++) {
-            int parent = dsu.find(i);
-            if (!map.containsKey(parent)) {
-                map.put(parent, new ArrayList<Character>());
+
+        // 第 2 步：构建映射关系
+        char[] charArray = s.toCharArray();
+        // key：连通分量的代表元，value：同一个连通分量的字符集合（保存在一个优先队列中）
+        Map<Integer, PriorityQueue<Character>> hashMap = new HashMap<>(len);
+        for (int i = 0; i < len; i++) {
+            int root = unionFind.find(i);
+            if (hashMap.containsKey(root)) {
+                hashMap.get(root).offer(charArray[i]);
+            } else {
+                // PriorityQueue<Character> minHeap = new PriorityQueue<>();
+                // minHeap.offer(charArray[i]);
+                // hashMap.put(root, minHeap);
+                // 上面三行代码等价于下面一行代码，JDK 1.8 以及以后支持下面的写法
+                hashMap.computeIfAbsent(root, key -> new PriorityQueue<>()).offer(charArray[i]);
             }
-            map.get(parent).add(s.charAt(i));
         }
-        for (Map.Entry<Integer, List<Character>> entry : map.entrySet()) {
-            Collections.sort(entry.getValue(), new Comparator<Character>() {
-                @Override
-                public int compare(Character c1, Character c2) {
-                    return c2 - c1;
-                }
-            });
+
+        // 第 3 步：重组字符串
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            int root = unionFind.find(i);
+            stringBuilder.append(hashMap.get(root).poll());
         }
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < s.length(); i++) {
-            int x = dsu.find(i);
-            List<Character> list = map.get(x);
-            sb.append(list.remove(list.size() - 1));
-        }
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     public static void main(String[] args) {
@@ -62,37 +72,47 @@ public class SmallestStringWithSwaps {
 
 }
 
-class DisjointSetUnion {
-    int[] f;
-    int[] rank;
-    int n;
+class UnionFind {
 
-    public DisjointSetUnion(int n) {
-        this.n = n;
-        rank = new int[n];
-        Arrays.fill(rank, 1);
-        f = new int[n];
+    private int[] parent;
+    /**
+     * 以 i 为根结点的子树的高度（引入了路径压缩以后该定义并不准确）
+     */
+    private int[] rank;
+
+    public UnionFind(int n) {
+        this.parent = new int[n];
+        this.rank = new int[n];
         for (int i = 0; i < n; i++) {
-            f[i] = i;
+            this.parent[i] = i;
+            this.rank[i] = 1;
+        }
+    }
+
+    public void union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX == rootY) {
+            return;
+        }
+
+        if (rank[rootX] == rank[rootY]) {
+            parent[rootX] = rootY;
+            // 此时以 rootY 为根结点的树的高度仅加了 1
+            rank[rootY]++;
+        } else if (rank[rootX] < rank[rootY]) {
+            parent[rootX] = rootY;
+            // 此时以 rootY 为根结点的树的高度不变
+        } else {
+            // 同理，此时以 rootX 为根结点的树的高度不变
+            parent[rootY] = rootX;
         }
     }
 
     public int find(int x) {
-        return f[x] == x ? x : (f[x] = find(f[x]));
-    }
-
-    public void unionSet(int x, int y) {
-        int fx = find(x), fy = find(y);
-        if (fx == fy) {
-            return;
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
         }
-        if (rank[fx] < rank[fy]) {
-            int temp = fx;
-            fx = fy;
-            fy = temp;
-        }
-        rank[fx] += rank[fy];
-        f[fy] = fx;
+        return parent[x];
     }
-
 }
