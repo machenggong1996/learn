@@ -1,17 +1,17 @@
+import java.util.Arrays;
+
 /**
  * Created by mache on 2019/10/23.
  */
 public class MaopaoYouhua {
 
     public static void main(String[] args) {
-        int[] arr = {3, 1, 5, 2, 9, 8};
+        int[] arr = {3, 1, 5, 7, 9, 8};
         sort(arr);
 
         for (int t : arr) {
             System.out.print(t + " ");
         }
-
-        Thread t = new Thread();
 
     }
 
@@ -31,7 +31,7 @@ public class MaopaoYouhua {
                     arr[j + 1] = temp;
                     sorted = false;  //考虑有序，减少趟数
                 }
-                //System.out.println(Arrays.toString(arr));
+                System.out.println(Arrays.toString(arr));
             }
             if (sorted) {
                 break;
@@ -53,6 +53,7 @@ public class MaopaoYouhua {
         for (int i = 0; i < array.length; i++) {
             //有序标记，每一轮的初始是true
             boolean isSorted = true;
+            System.out.println("第" + (i + 1) + "烫");
             for (int j = 0; j < sortBorder; j++) {
                 if (array[j] > array[j + 1]) {
                     tmp = array[j];
@@ -63,6 +64,7 @@ public class MaopaoYouhua {
                     //把无序数列的边界更新为最后一次交换元素的位置
                     lastExchangeIndex = j;
                 }
+                System.out.println(Arrays.toString(array));
             }
             sortBorder = lastExchangeIndex;
             if (isSorted) {
