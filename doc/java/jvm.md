@@ -45,4 +45,10 @@ javap -v class文件 可以看字节码
 
 ## 2. 内存结构概述
 
+![avatar](pics/jvm内存结构模型.png)
 
+### 2.1 类加载过程
+
+#### 2.1.1 类加载器
+
+ClassLoader
