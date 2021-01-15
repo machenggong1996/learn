@@ -1,6 +1,7 @@
 # AbstractQueuedSynchronizer源码分析
 
 * [AQS同步队列器之一：使用和原理](https://www.cnblogs.com/wait-pigblog/archive/2018/07/16/9315700.html)
+* [AQS同步队列器之二：等待通知机制](https://www.cnblogs.com/wait-pigblog/p/9342688.html)
 
 ## 1. 简介
 
@@ -348,3 +349,7 @@ public final boolean releaseShared(int arg){
    acquireInterruptibly()/acquireSharedInterruptibly()即是，这里相应的源码跟acquire()和acquireSahred()差不多，这里就简单阐述一下。
 2. 对于响应中断的获取同步状态操作而言：其会判断获取同步状态的线程是否处于被中断的状态，如果处于被中断的操作就会抛出InterruptedException异常
 3. 对于超时响应的获取同步状态而言：内部多了一个时间判断。其实这些都是在最基础的获取锁上做了一些加强基本的原理还是相同的。
+
+## 4. AQS同步队列器 等待通知机制
+
+
