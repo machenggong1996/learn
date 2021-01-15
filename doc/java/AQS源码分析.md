@@ -1,4 +1,4 @@
-# AQS源码分析
+# AbstractQueuedSynchronizer源码分析
 
 * [AQS同步队列器之一：使用和原理](https://www.cnblogs.com/wait-pigblog/archive/2018/07/16/9315700.html)
 
