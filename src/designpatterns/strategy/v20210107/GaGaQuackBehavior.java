@@ -1,7 +1,7 @@
 package designpatterns.strategy.v20210107;
 
 /**
- * @author machenggong (chenggong@shanshu.ai)
+ * @author machenggong
  * @date 2021/1/7
  * @description
  */
