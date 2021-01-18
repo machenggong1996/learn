@@ -343,13 +343,213 @@ public final boolean releaseShared(int arg){
 
 ### 3.6 AQS源码总结
 
-1. AQS在并发中是一个非常重要的基础类，它定义了很多同步组件需要的方法。通过这些方法开发者可以简单的实现一个相关的锁。
-   我们详解了独占和共享两种模式下获取-释放资源(acquire-release、acquireShared-releaseShared)的源码，相信大家都有一定认识了。
-   值得注意的是，acquire()和acquireSahred()两种方法下，线程在等待队列中都是忽略中断的。AQS也支持响应中断的，
-   acquireInterruptibly()/acquireSharedInterruptibly()即是，这里相应的源码跟acquire()和acquireSahred()差不多，这里就简单阐述一下。
+1. AQS在并发中是一个非常重要的基础类，它定义了很多同步组件需要的方法。通过这些方法开发者可以简单的实现一个相关的锁。 我们详解了独占和共享两种模式下获取-释放资源(
+   acquire-release、acquireShared-releaseShared)的源码，相信大家都有一定认识了。 值得注意的是，acquire()和acquireSahred()
+   两种方法下，线程在等待队列中都是忽略中断的。AQS也支持响应中断的， acquireInterruptibly()/acquireSharedInterruptibly()即是，这里相应的源码跟acquire()
+   和acquireSahred()差不多，这里就简单阐述一下。
 2. 对于响应中断的获取同步状态操作而言：其会判断获取同步状态的线程是否处于被中断的状态，如果处于被中断的操作就会抛出InterruptedException异常
 3. 对于超时响应的获取同步状态而言：内部多了一个时间判断。其实这些都是在最基础的获取锁上做了一些加强基本的原理还是相同的。
 
 ## 4. AQS同步队列器 等待通知机制
 
+### 4.1 AQS简单使用
 
+使用Condition具备两个条件，首先线程一定需要获取到当前的同步状态，其次必须从锁中获取到Condition对象， 而condition.await()方法就对应了Object.wait()
+方法使得当前线程在满足某种条件的时候就进行等待， condition.signal()就是在某种条件下唤醒当前线程。其配合lock接口的使用非常方便。
+
+### 4.2 Condition等待/通知机制的实现原理
+
+```java
+public interface Condition {
+
+    void await() throws InterruptedException;
+
+    void awaitUninterruptibly();
+
+    long awaitNanos(long nanosTimeout) throws InterruptedException;
+
+    boolean await(long time, TimeUnit unit) throws InterruptedException;
+
+    boolean awaitUntil(Date deadline) throws InterruptedException;
+
+    void signal();
+
+    void signalAll();
+}
+```
+
+* await()：使当前线程进入等待状态直到被signal()、signalAll()方法唤醒或者被中断
+* signal()：唤醒等待中的一个线程
+* signalAll()：唤醒等待中的全部线程
+* Condition接口只是定义了相关的处理等待通知的方法，真正实现其等待通知效果的在AQS中的ConditionObject类，在了解源码之前先讲一下同步队列和等待队列：
+* 当线程未获取到同步状态的时候，会创建一个Node节点并把这个节点放入同步队列的尾部，进入同步队列的中的线程都是阻塞的。
+* 在AQS中同步队列和等待队列都复用了Node这个节点类，一个同步状态可以含有多个等待队列，同时等待队列只是一个单向的队列。
+
+#### 4.2.1 await()：使当前线程进入等待状态
+
+```java_method
+public final void await() throws InterruptedException {
+            if (Thread.interrupted())//响应中断
+                throw new InterruptedException();
+            Node node = addConditionWaiter();//放入到等待队列中
+            int savedState = fullyRelease(node);//释放同步状态(同步队列头节点释放状态唤醒后继节点获取同步状态)
+            int interruptMode = 0;　　　　　　　　　//判断是否在同步队列中
+            while (!isOnSyncQueue(node)) {
+                LockSupport.park(this);//存在等待队列中就阻塞该线程
+                if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)//判断等待过程中是否被中断过
+                    break;
+            }　　　　　　　　  //自旋去获取同步状态【在AQS中了解】获取成功并且在退出等待时不抛出中断异常（抛出了异常就会立马被中断）
+            if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+                interruptMode = REINTERRUPT;//在退出等待时重新中断
+            if (node.nextWaiter != null) //如果存在其他节点
+                unlinkCancelledWaiters();//移除所有不是等待状态的节点
+            if (interruptMode != 0)
+                reportInterruptAfterWait(interruptMode);//如果在等待过程中发现被中断，就执行中断的操作
+        }
+```
+
+#### 4.2.2 addConditionWaiter()：往等待队列中添加元素
+
+```java_method
+ 　　　　 private Node addConditionWaiter() {
+             Node t = lastWaiter;//等待队列中的最后一个元素
+             if (t != null && t.waitStatus != Node.CONDITION) {//如果尾节点部位null，并且尾节点不是等待状态中说明这个节点不应该待在等待队列中
+                 unlinkCancelledWaiters();//从等待队列中移除
+                 t = lastWaiter;
+             }
+             Node node = new Node(Thread.currentThread(), Node.CONDITION);//创建一个等待状态的节点
+             if (t == null)
+                 firstWaiter = node;
+             else
+                 t.nextWaiter = node;
+             lastWaiter = node;//加入等待队列的尾部
+             return node;
+         }
+```
+
+#### 4.2.3 addConditionWaiter()：往等待队列中添加元素
+
+```java_method
+ 　　　　 private Node addConditionWaiter() {
+            Node t = lastWaiter;//等待队列中的最后一个元素
+            if (t != null && t.waitStatus != Node.CONDITION) {//如果尾节点部位null，并且尾节点不是等待状态中说明这个节点不应该待在等待队列中
+                unlinkCancelledWaiters();//从等待队列中移除
+                t = lastWaiter;
+            }
+            Node node = new Node(Thread.currentThread(), Node.CONDITION);//创建一个等待状态的节点
+            if (t == null)
+                firstWaiter = node;
+            else
+                t.nextWaiter = node;
+            lastWaiter = node;//加入等待队列的尾部
+            return node;
+        }
+```
+
+#### 4.2.4 unlinkCancelledWaiters()：将不是等待状态的节点从等待队列中移除
+
+```java_method
+private void unlinkCancelledWaiters() {
+            Node t = firstWaiter;//头节点
+            Node trail = null;
+            while (t != null) {//存在节点
+                Node next = t.nextWaiter;//下一个节点
+                if (t.waitStatus != Node.CONDITION) {//如果不是出于等待中的状态
+                    t.nextWaiter = null;//t的后指针引用清除
+                    if (trail == null)//前面是否存在节点
+                        firstWaiter = next;//下一个节点就是头节点
+                    else
+                        trail.nextWaiter = next;//赋值给前节点的后指针引用
+                    if (next == null)//代表不存在元素了
+                        lastWaiter = trail;
+                }
+                else
+                    trail = t;//将t赋值给trail
+                t = next;//next赋值给t
+            }
+        }
+```
+
+#### 4.2.5 fullyRelease(Node node)：释放当前状态值，返回同步状态
+
+```java_method
+final int fullyRelease(Node node) {
+        boolean failed = true;//失败状态
+        try {
+            int savedState = getState();//获取当前同步状态值
+            if (release(savedState)) {//独占模式下释放同步状态，AQS独占式释放锁、前面文章讲过
+                failed = false;//失败状态为false
+                return savedState;//返回同步状态
+            } else {
+                throw new IllegalMonitorStateException();
+            }
+        } finally {
+            if (failed)
+                node.waitStatus = Node.CANCELLED;//取消等待状态
+        }
+    }
+```
+
+#### 4.2.6 isOnSyncQueue：判断线程是否在同步队列中
+
+```java_method
+final boolean isOnSyncQueue(Node node) {
+        //如果等待状态为等待中，或者前继节点为null代表第一种情况该节点出于等待状态，第二种情况可能已经被唤醒不在等待队列中了
+        if (node.waitStatus == Node.CONDITION || node.prev == null)
+            return false;
+        if (node.next != null) //如果后继节点不为null代表肯定在等待队列中
+            return true;
+        return findNodeFromTail(node);//从后往前找判断是否在等待队列中
+    }
+```
+
+#### 4.2.7 等待操作总结
+
+首先等待操作没有进行CAS或者任何的同步操作，因为调用await()方法的是获取当前lock锁对象的线程，也就是同步队列中的首节点， 当调用await()
+方法后，将同步队列的首节点创建一个等待节点放入等待队列的尾部，然后释放出同步状态（不释放同步状态就会造成死锁）， 唤醒同步队列中的后继节点，然后当前线程进入等待的状态
+
+![avatar](pics/await方法过程.png)
+
+#### 4.2.8 signal()：唤醒等待队列中的一个线程
+
+```java_method
+public final void signal() {
+            if (!isHeldExclusively())//判断当前线程是否已经获取同步状态
+                throw new IllegalMonitorStateException();
+            Node first = firstWaiter;//等待队列头节点
+            if (first != null)
+                doSignal(first);//具体实现方法唤醒第一个node
+        }
+```
+
+#### 4.2.9 doSignal(Node node)：具体处理唤醒节点的操作
+
+```java_method
+private void doSignal(Node first) {
+            do {
+                if((firstWaiter = first.nextWaiter) == null)//执行移除头节点的操作
+                    lastWaiter = null;
+                first.nextWaiter = null;
+            } while (!transferForSignal(first) && (first = firstWaiter) != null);
+        }
+```
+
+### 4.2.10 transferForSignal(Node node)：唤醒的具体实现方式
+
+```java_method
+final boolean transferForSignal(Node node) {
+        if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))//将节点的等待状态设置更改为初始状态如果改变失败就会被取消
+            return false;
+        Node p = enq(node);//往同步队列中添加节点【死循环方式】
+        int ws = p.waitStatus;//获取节点的等待状态
+        if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))//如果该结点的状态为cancel 或者修改waitStatus失败，则直接唤醒（这一步判断是为了不立刻唤醒脱离等待中的线程，因为他要等同步队列中的头节点释放同步状态再去竞争）
+            LockSupport.unpark(node.thread);//具体的唤醒操作
+        return true;
+    }
+```
+
+### 4.2.11 唤醒操作的流程总结
+
+当调用signal()方法时，将等待队列中的首节点拿出来，加入到同步队列中，此时该节点不会立刻被唤醒因为就算被唤醒也是需要重新去获取同步状态的，而是在调用lock.unlock()方法释放锁以后将其唤醒获取同步状态。
+
+![avatar](pics/signal唤醒流程总结.png)
