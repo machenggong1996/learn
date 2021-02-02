@@ -284,3 +284,20 @@ ClassLoader
 * 初始化堆大小默认为 系统内存的1/64 最大为1/4
 * jps查看进程 jstat gc 进程号 查看 C为总量 U为使用量
 * -XX:PrintGCDetails 打印GC信息
+
+### 5.3 年轻代老年代
+
+* 年轻代 eden survivor0 survivor1 8:1:1
+* 老年代 Old Gen
+* 默认-XX:NewRatio=2 表示新生代占1，老年代占2 新生代占整个堆的1/3
+* -XX:NewRatio=2 新生代占1 老年代占4 新生代占整个堆的1/5
+* -XX:-UseAdaptiveSizePolicy 关闭自适应内存分配比例
+* -XX:SurvivorRatio=8 内存分配策略 8:1:1
+* -Xmn 设置新生代最大内存大小 设置之后以这个为准
+
+### 5.4 对象分配过程
+
+* Eden区满了之后会触发 MinorGC，无用对象被回收，存活对象到survivor0区
+* 第二次Minor GC的时候会将存活对象放到survivor1区 survivor0区的存活对象到survivor1区
+* 年轻代重复上面步骤 存活对象每次年龄加1
+* 当年龄达到15时 阈值 对象到老年代 -XX:MaxTenuringThreshold=<N>设置阈值大小
