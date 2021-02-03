@@ -301,3 +301,26 @@ ClassLoader
 * 第二次Minor GC的时候会将存活对象放到survivor1区 survivor0区的存活对象到survivor1区
 * 年轻代重复上面步骤 存活对象每次年龄加1
 * 当年龄达到15时 阈值 对象到老年代 -XX:MaxTenuringThreshold=<N>设置阈值大小
+
+### 5.5 jvm 调优工具jprofiler
+
+### 5.6 Minor GC, Major GC, Full GC
+
+* jvm在进行GC时，并不会对上面三个内存（新生代，老年代，方法区）区域一起回收的，大部分回收的都是指新生代
+* 新生代收集（Minor GC/Young GC）在新生代
+* Major GC老年代收集。很多时候会与Full GC混合使用
+* 混合收集 Mixed GC 收集整个新生代及部分老年代的垃圾收集 目前只有G1
+* Full GC 整堆收集，整个堆和方法区垃圾回收
+
+* 年轻代空间不足时会导致年轻代垃圾回收，Eden会回收，survivor区不会回收，晋升之后survivor区满了会伴随Eden区回收
+* 老年代垃圾回收 Major GC回收至少伴随一次Minor GC，Minor之后内存还不足就会OOM
+* Major的速度比Minor GC慢10倍以上 STW时间会更长
+* Full GC System.gc(),
+  - 老年代空间不足，
+  - 方法区空间不足， 
+  - 通过Minor GC后进入老年代的平均大小大于老年代的可用内存，
+  - Eden->survivor from->survivor to->old den 所有的内存都比这个对象小
+  - 调优要尽量避免Full GC 缩短停顿时间
+  
+### GC举例日志分析
+
