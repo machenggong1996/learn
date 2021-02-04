@@ -290,7 +290,7 @@ ClassLoader
 * 年轻代 eden survivor0 survivor1 8:1:1
 * 老年代 Old Gen
 * 默认-XX:NewRatio=2 表示新生代占1，老年代占2 新生代占整个堆的1/3
-* -XX:NewRatio=2 新生代占1 老年代占4 新生代占整个堆的1/5
+* -XX:NewRatio=4 新生代占1 老年代占4 新生代占整个堆的1/5
 * -XX:-UseAdaptiveSizePolicy 关闭自适应内存分配比例
 * -XX:SurvivorRatio=8 内存分配策略 8:1:1
 * -Xmn 设置新生代最大内存大小 设置之后以这个为准
@@ -322,5 +322,22 @@ ClassLoader
   - Eden->survivor from->survivor to->old den 所有的内存都比这个对象小
   - 调优要尽量避免Full GC 缩短停顿时间
   
-### GC举例日志分析
+### 5.7 总结
+
+* 超大对象直接放在老年代，尽量在程序中避免大对象出现，尤其是朝生夕死的对象
+* 长期存活的对象分配在老年代
+* 动态年龄判断，survivor区中相同年龄的所有对象的大小的总和大于survivor空间的一半，年龄大于或者等于该年龄的对象直接分配到老年代
+* 空间分配担保，-XX:HandlePromotionFailure
+
+### 5.8 堆空间为每个线程分配的TLAB
+
+为了保证Java对象的内存分配的安全性，同时提升效率，每个线程在Java堆中可以预先分配一小块内存，
+这部分内存称之为TLAB（Thread Local Allocation Buffer），这块内存的分配时线程独占的，读取、使用、回收是线程共享的。
+
+JVM在内存新生代Eden Space中开辟了一小块线程私有的区域，称作TLAB（Thread-local allocation buffer）。
+默认设定为占用Eden Space的1%。在Java程序中很多对象都是小对象且用过即丢，它们不存在线程共享也适合被快速GC，
+所以对于小对象通常JVM会优先分配在TLAB上，并且TLAB上的分配由于是线程私有所以没有锁开销。因此在实践中分配多
+个小对象的效率通常比分配一个大对象的效率要高。 也就是说，Java中每个线程都会有自己的缓冲区称作
+TLAB（Thread-local allocation buffer），每个TLAB都只有一个线程可以操作，TLAB结合bump-the-pointer技
+术可以实现快速的对象分配，而不需要任何的锁进行同步，也就是说，在对象分配的时候不用锁住整个堆，而只需要在自己的缓冲区分配即可。
 
