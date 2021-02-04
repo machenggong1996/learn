@@ -198,15 +198,14 @@ public class Link {
         list.addNode(2);
         list.addNode(3);
         list.addNode(4);
-        System.out.println("linkLength:" + list.length());
-        System.out.println("head.data:" + list.head.data);
-        list.printList();
-        list.printList();
-        list.ReverseIteratively(list.head);
-        list.printList();
+//        System.out.println("linkLength:" + list.length());
+//        System.out.println("head.data:" + list.head.data);
+//        list.printList();
+//        list.ReverseIteratively(list.head);
+//        list.printList();
         System.out.println("----------------------");
         reverseListNode(list.head);
-//        list.printList();
+        list.printList();
         //list.SearchMid(list.head);
     }
 

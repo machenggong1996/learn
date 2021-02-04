@@ -5,6 +5,13 @@ package leetcode;
  */
 public class TwoNumberAdd {
 
+    /**
+     * 2. 两数相加
+     *
+     * @param l1
+     * @param l2
+     * @return
+     */
     public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 
         ListNode resNode = new ListNode(0);
@@ -90,7 +97,7 @@ public class TwoNumberAdd {
             if (sum >= 10) {
                 carry = 1;
                 node.next = new ListNode(sum - 10);
-            }else {
+            } else {
                 carry = 0;
                 node.next = new ListNode(sum);
             }
