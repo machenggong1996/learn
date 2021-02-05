@@ -53,6 +53,7 @@ public class OddEvenList {
         node6.next = node7;
 
         ListNode resNode = oddEvenList(node1);
+        System.out.println(resNode);
 
     }
 
