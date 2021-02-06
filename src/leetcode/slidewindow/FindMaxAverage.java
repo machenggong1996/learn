@@ -1,4 +1,4 @@
-package slidewindow;
+package leetcode.slidewindow;
 
 /**
  * @author machenggong
