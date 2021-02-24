@@ -1,8 +1,8 @@
 # Kafka
 
-[kafka内核](https://zhuanlan.zhihu.com/p/87558802)
-
-[Kafka-LEO和HW概念及更新流程](https://www.cnblogs.com/youngchaolin/p/12641463.html)
+* [kafka内核](https://zhuanlan.zhihu.com/p/87558802)
+* [Kafka-LEO和HW概念及更新流程](https://www.cnblogs.com/youngchaolin/p/12641463.html)
+* [kafka基本原理介绍，以及重新选举，replica复制机制，isr等](https://blog.csdn.net/dshf_1/article/details/82467558)
 
 ## kafka基础概念
 
@@ -16,7 +16,7 @@
 * Consumer
  消费者，从kafka集群中消费消息的终端或服务。
 * consumer group
- hig-level consumer api中，每个consumeer都属于一个consumer group，每条消息只能被consumer 
+ high-level consumer api中，每个consumer都属于一个consumer group，每条消息只能被consumer 
 * group 中的一个consumer消费，但可以被多个consumer group 消费
 * replica
  partition的副本，保障partition的高可用
@@ -65,7 +65,7 @@ nohup sh kafka-server-start.sh ../config/server.properties > kafka.log 2>&1 &
 
 创建topic
 sh kafka-topics.sh --create --zookeeper localhost:2181 --partitions 2 --replication-factor 1 --topic test1
-#输出：Created topic "test1".
+输出：Created topic "test1".
 
 查看topic
 sh kafka-topics.sh --list --zookeeper localhost:2181
