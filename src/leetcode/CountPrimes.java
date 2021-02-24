@@ -44,6 +44,7 @@ public class CountPrimes {
         int[] isPrime = new int[n];
         Arrays.fill(isPrime, 1);
         int ans = 0;
+        // i为当前质数
         for (int i = 2; i < n; ++i) {
             if (isPrime[i] == 1) {
                 ans += 1;
@@ -82,7 +83,7 @@ public class CountPrimes {
     }
 
     public static void main(String[] args) {
-        System.out.println(countPrimesLinear(10));
+        System.out.println(countPrimesEratosthenes(10));
     }
 
 }
