@@ -11,6 +11,7 @@ public class MethodAreaTest {
         Order order = null;
         order.hello();
         System.out.println(order.count);
+        System.out.println(2<<3);
     }
 
 }
