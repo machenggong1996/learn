@@ -143,4 +143,34 @@ public class ListRing {
         return null;
     }
 
+    /**
+     * 环形链表2
+     *
+     * @param head
+     * @return
+     */
+    public static Node detectCycle(Node head) {
+        if (head == null) {
+            return null;
+        }
+        Node slow = head, fast = head;
+        while (fast != null) {
+            slow = slow.next;
+            if (fast.next != null) {
+                fast = fast.next.next;
+            } else {
+                return null;
+            }
+            if (fast == slow) {
+                Node ptr = head;
+                while (ptr != slow) {
+                    ptr = ptr.next;
+                    slow = slow.next;
+                }
+                return ptr;
+            }
+        }
+        return null;
+    }
+
 }
