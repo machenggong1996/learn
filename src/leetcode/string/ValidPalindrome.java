@@ -7,7 +7,9 @@ package leetcode.string;
 public class ValidPalindrome {
 
     /**
-     * 验证回文字符串
+     * 680. 验证回文字符串 Ⅱ
+     * 允许删除一个字符
+     *
      * @param s
      * @return
      */
@@ -37,7 +39,7 @@ public class ValidPalindrome {
 
     public static void main(String[] args) {
         ValidPalindrome v = new ValidPalindrome();
-        System.out.println(v.validPalindrome("abcab"));
+        System.out.println(v.validPalindrome("abca"));
     }
 
 }
