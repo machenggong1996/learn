@@ -15,7 +15,7 @@ public class BinaryTree {
      *
      * @author yhh
      */
-    private class Node {
+    private static class Node {
         private Node left;
         private Node right;
         private int data;
@@ -314,12 +314,20 @@ public class BinaryTree {
         for (int i = 0; i < a.length; i++) {
             bTree.buildTree(bTree.root, a[i]);
         }
+        Node root = new Node(1);
+        Node node2 = new Node(2);
+        Node node3 = new Node(3);
+        root.left = node2;
+        root.right = node3;
+
 //        bTree.preOrder(bTree.root);
 //        bTree.inOrder(bTree.root);
 //        bTree.postOrder(bTree.root);
         //bTree.postOrderFast(bTree.root);
 //        int t = treeDepth2(bTree.root);
 //        System.out.println(t);
-        bTree.preOrderTraverse2(bTree.root);
+        bTree.preOrderTraverse2(root);
+        bTree.inOrderTraverse2(root);
+        bTree.postOrderFast(root);
     }
 }

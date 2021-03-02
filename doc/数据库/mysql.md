@@ -102,3 +102,8 @@ next lock = record lock + gap lock
 ## mysql开发约束
 
 * [MySQL开发约束](https://blog.csdn.net/xcy1193068639/article/details/109263167)
+
+## mysql为什么不用B树 而用B+树
+
+* [mysql为什么不用b树_MySQL用B+树(而不是B树)做索引的原因](https://blog.csdn.net/weixin_29563497/article/details/113284907)
+* [B（B-）树，B+树，B树和B+树的区别，B树和B+树的优点](https://blog.csdn.net/weixin_42228338/article/details/97684517)

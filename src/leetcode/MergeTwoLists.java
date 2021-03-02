@@ -14,6 +14,13 @@ public class MergeTwoLists {
         }
     }
 
+    /**
+     * 21. 合并两个有序链表
+     *
+     * @param l1
+     * @param l2
+     * @return
+     */
     public static ListNode mergeTwoLists(ListNode l1, ListNode l2) {
 
         ListNode resNode = new ListNode(0);
@@ -40,14 +47,20 @@ public class MergeTwoLists {
         return resNode.next;
     }
 
+    /**
+     * 使用迭代的形式进行链表合并
+     *
+     * @param l1
+     * @param l2
+     * @return
+     */
     public static ListNode mergeTwoLists1(ListNode l1, ListNode l2) {
         ListNode dum = new ListNode(0), cur = dum;
-        while(l1 != null && l2 != null) {
-            if(l1.val < l2.val) {
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
                 cur.next = l1;
                 l1 = l1.next;
-            }
-            else {
+            } else {
                 cur.next = l2;
                 l2 = l2.next;
             }
@@ -75,8 +88,8 @@ public class MergeTwoLists {
         listNode6.next = listNode7;
         listNode7.next = listNode8;
 
-       ListNode node = mergeTwoLists1(listNode1, listNode4);
-       System.out.println();
+        ListNode node = mergeTwoLists1(listNode1, listNode4);
+        System.out.println();
     }
 
 

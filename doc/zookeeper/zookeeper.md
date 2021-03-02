@@ -5,6 +5,8 @@
 
 ## 1. 选举
 
+* [简单理解Zookeeper的Leader选举](https://blog.csdn.net/chengyuqiang/article/details/79190061)
+
 ## 2. 读写数据
 
 ## 3. 数据一致性
