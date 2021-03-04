@@ -10,10 +10,10 @@ import java.util.Queue;
  * @date 2020/05/13
  */
 public class TreeLevelOrder {
+
     /**
      * 二叉树层次遍历
      */
-
     public static List<List<Integer>> levelOrder(TreeNode root) {
         if (root == null) {
             return new ArrayList<>();
@@ -41,6 +41,30 @@ public class TreeLevelOrder {
         return res;
     }
 
+    public static ArrayList<Integer> PrintFromTopToBottom(TreeNode root) {
+        ArrayList<Integer> list = new ArrayList<Integer>();  //存放结果
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();   //辅助队列
+        if (root != null) {
+            //根节点入队
+            queue.offer(root);
+        }
+        //队列不为空，执行循环
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            list.add(node.val);     //将队列元素输出
+
+            //如果有左节点，就把左节点加入
+            if (node.left != null) {
+                queue.offer(node.left);
+            }
+            //如果有右节点，就把右节点加入
+            if (node.right != null) {
+                queue.offer(node.right);
+            }
+        }
+        return list;
+    }
+
     /**
      * 3
      * / \
@@ -57,6 +81,7 @@ public class TreeLevelOrder {
         root.right.left = new TreeNode(15);
         root.right.right = new TreeNode(7);
         System.out.println(levelOrder(root));
+        System.out.println(PrintFromTopToBottom(root));
     }
 
 }
@@ -66,5 +91,7 @@ class TreeNode {
     TreeNode left;
     TreeNode right;
 
-    TreeNode(int x) { val = x; }
+    TreeNode(int x) {
+        val = x;
+    }
 }
