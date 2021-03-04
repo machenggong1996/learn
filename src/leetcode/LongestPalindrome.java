@@ -5,6 +5,12 @@ package leetcode;
  */
 public class LongestPalindrome {
 
+    /**
+     * 5. 最长回文子串
+     *
+     * @param s
+     * @return
+     */
     public static String longestPalindrome(String s) {
         if (s == null || s.length() < 1) {
             return "";
@@ -102,7 +108,7 @@ public class LongestPalindrome {
     }
 
     public static void main(String[] args) {
-        System.out.println(longestPalindrome("abba"));
+        System.out.println(longestPalindrome("abbabb"));
         System.out.println(bruteForceSolution("abba"));
         System.out.println(dynamicProgramming("abbaa"));
     }

@@ -52,6 +52,10 @@ kafka消费者只会消费leader数据，一个分区只能被一个消费者消
 kafka可以自动提交，可以通过设置变为手动提交，如果执行时间过长没有提交，kafka会认为消费者掉线，默认5分钟，可以通过设置max.poll.interval.ms属性
 解决这个问题
 
+## kafka 高吞吐实现
+
+* [Kafka 高吞吐率的实现](https://blog.csdn.net/u010039929/article/details/77934910)
+
 ## kafka启动及基本操作命令
 
 进入mac下面文件夹

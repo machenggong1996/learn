@@ -23,9 +23,31 @@ public class RomanToInt {
         return res;
     }
 
-    public static void main(String[] args){
-        System.out.println(romanToInt("IV"));
+    /**
+     * 把一个小值放在大值的左边，就是做减法，否则为加法
+     * @param s
+     * @return
+     */
+    public static int romanToInt1(String s) {
+        int sum = 0;
+        int preNum = toNumber(s.charAt(0));
+        for (int i = 1; i < s.length(); i++) {
+            int num = toNumber(s.charAt(i));
+            if (preNum < num) {
+                sum -= preNum;
+            } else {
+                sum += preNum;
+            }
+            preNum = num;
+        }
+        sum += preNum;
+        return sum;
     }
+
+    public static void main(String[] args) {
+        System.out.println(romanToInt1("IVI"));
+    }
+
     public static int toNumber(char c) {
         int res = 0;
         switch (c) {

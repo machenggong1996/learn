@@ -5,6 +5,12 @@ package leetcode;
  */
 public class LongestCommonPrefix {
 
+    /**
+     * 14. 最长公共前缀
+     *
+     * @param strs
+     * @return
+     */
     public static String longestCommonPrefix(String[] strs) {
         if (strs.length == 0) {
             return "";

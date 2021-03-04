@@ -5,6 +5,12 @@ package leetcode;
  */
 public class ContainerWithMostWater {
 
+    /**
+     * 11. 盛最多水的容器
+     *
+     * @param arr
+     * @return
+     */
     public static int maxArea(int[] arr) {
 
         int i = 0;
@@ -13,9 +19,9 @@ public class ContainerWithMostWater {
 
         while (i < j) {
             int w = j - i;
-            int h = arr[i] > arr[j] ? arr[j] : arr[i];
+            int h = Math.min(arr[i], arr[j]);
             int m = h * w;
-            max = max > m ? max : m;
+            max = Math.max(max, m);
             if (arr[i] > arr[j]) {
                 j--;
             } else {

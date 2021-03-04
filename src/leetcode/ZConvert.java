@@ -10,10 +10,13 @@ public class ZConvert {
 
     public static String convert1(String s, int numRows) {
 
-        if (numRows == 1) return s;
+        if (numRows == 1) {
+            return s;
+        }
         List<StringBuilder> rows = new ArrayList<>();
-        for (int i = 0; i < Math.min(numRows, s.length()); i++)
+        for (int i = 0; i < Math.min(numRows, s.length()); i++) {
             rows.add(new StringBuilder());
+        }
 
         int curRow = 0;
         boolean goingDown = false;
@@ -40,8 +43,9 @@ public class ZConvert {
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j + i < n; j += cycleLen) {
                 ret.append(s.charAt(j + i));
-                if (i != 0 && i != numRows - 1 && j + cycleLen - i < n)
+                if (i != 0 && i != numRows - 1 && j + cycleLen - i < n) {
                     ret.append(s.charAt(j + cycleLen - i));
+                }
             }
         }
         return ret.toString();

@@ -13,7 +13,10 @@ public class HeapSort {
         int[] arr = {7, 8, 9, 11, 5, 12, 3, 0, 13};
         System.out.println("排序前：" + Arrays.toString(arr));
         sort(arr);
-        System.out.println("排序前：" + Arrays.toString(arr));
+        System.out.println("排序后：" + Arrays.toString(arr));
+        int[] arr1 = {7, 8, 9, 11, 5, 12, 3, 0, 13};
+        heapSort(arr1,5);
+        System.out.println(Arrays.toString(arr1));
     }
 
     public static void sort(int[] arr) {
@@ -37,7 +40,7 @@ public class HeapSort {
      * 调整大顶堆（仅是调整过程，建立在大顶堆已构建的基础上）
      *
      * @param arr
-     * @param i 当前节点索引
+     * @param i      当前节点索引
      * @param length
      */
     public static void adjustHeap(int[] arr, int i, int length) {
@@ -50,10 +53,29 @@ public class HeapSort {
                 arr[i] = arr[k];
                 i = k;
             } else {
+                //
                 break;
             }
         }
         arr[i] = temp;//将temp值放到最终的位置
+    }
+
+    /**
+     * 寻找数组中第k大的数
+     *
+     * @param arr
+     * @param k
+     */
+    public static void heapSort(int[] arr, int k) {
+        for (int i = arr.length / 2 - 1; i >= 0; i--) {
+            adjustHeap(arr, i, arr.length);
+        }
+        for (int j = 0; j < k; j++) {
+            swap(arr, 0, arr.length - 1 - j);
+            adjustHeap(arr, 0, arr.length - 1 - j);
+        }
+
+        System.out.println(arr[arr.length - k]);
     }
 
     /**

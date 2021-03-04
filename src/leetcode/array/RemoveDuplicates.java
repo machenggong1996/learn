@@ -8,6 +8,8 @@ public class RemoveDuplicates {
     public static int removeDuplicates(int[] nums) {
 
         /**
+         * 剑指 Offer 03. 数组中重复的数字
+         * 面试题 02.01. 移除重复节点
          * 移除重复的 去重
          */
 // 使用双指针
