@@ -1,5 +1,8 @@
 package leetcode.offer;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by machenggong on 2020/3/12.
  */
@@ -37,6 +40,18 @@ public class FindRepeatNumber {
             }
         }
         return -1;
+    }
+
+    public static int findRepeatNumber2(int[] nums) {
+        Set<Integer> set = new HashSet<Integer>();
+        int repeat = -1;
+        for (int num : nums) {
+            if (!set.add(num)) {
+                repeat = num;
+                break;
+            }
+        }
+        return repeat;
     }
 
 
