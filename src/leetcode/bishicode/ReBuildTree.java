@@ -19,16 +19,17 @@ public class ReBuildTree {
         }
     }
 
+    /**
+     * 前序遍历 index++ 是子树的根节点
+     */
     private static int index = 0;
 
     public static TreeNode helper(int[] inorder, int[] preorder, int begin, int end) {
         if (begin > end) {
             return null;
         }
-
         //前序遍历找到根
         TreeNode node = new TreeNode(preorder[index]);
-
         //找到根在中序遍历间的位置
         int mid = 0;
         for (; mid < inorder.length; ++mid) {

@@ -224,6 +224,29 @@ public class BinaryTree {
         }
     }
 
+    public void postOrderTraverse(Node root) {
+        Node cur, pre = null;
+
+        Stack<Node> stack = new Stack<>();
+        stack.push(root);
+
+        while (!stack.empty()) {
+            cur = stack.peek();
+            if ((cur.left == null && cur.right == null) || (pre != null && (pre == cur.left || pre == cur.right))) {
+                System.out.print(cur.data + "->");
+                stack.pop();
+                pre = cur;
+            } else {
+                if (cur.right != null) {
+                    stack.push(cur.right);
+                }
+                if (cur.left != null) {
+                    stack.push(cur.left);
+                }
+            }
+        }
+    }
+
     /**
      * 递归求深度
      *
@@ -329,5 +352,6 @@ public class BinaryTree {
         bTree.preOrderTraverse2(root);
         bTree.inOrderTraverse2(root);
         bTree.postOrderFast(root);
+        bTree.postOrderTraverse(root);
     }
 }

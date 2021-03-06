@@ -80,7 +80,10 @@ public class Rotate {
     public static void main(String[] args) {
         int[] nums = {1, 2, 3, 4, 5, 6, 7};
         rotate2(nums, 3);
+        int[] nums1 = {99,-1,-100,3};
+        rotate1(nums1,2);
         System.out.println(Arrays.toString(nums));
+        System.out.println(Arrays.toString(nums1));
     }
 
 

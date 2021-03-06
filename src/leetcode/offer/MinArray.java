@@ -22,8 +22,8 @@ public class MinArray {
                 r = mid;
             } else if (numbers[r] < numbers[mid]) {
                 l = mid + 1;
-                //去重
             } else {
+                //去重
                 r--;
             }
         }
