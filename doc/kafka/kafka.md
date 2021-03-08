@@ -63,6 +63,10 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 2. 从生产者 消费者 kafka本身 三个方向处理
 * [kafka 如何保证数据不丢失](https://www.cnblogs.com/MrRightZhao/p/11498952.html)
 
+## kafka落盘方式
+
+异步批量写入磁盘
+
 ## kafka启动及基本操作命令
 
 进入mac下面文件夹 /usr/local/Cellar/kafka/2.5.0/libexec/bin

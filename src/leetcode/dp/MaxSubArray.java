@@ -31,7 +31,18 @@ public class MaxSubArray {
         return res;
     }
 
+    public static int maxSubArray2(int[] nums) {
+        int res = nums[0];
+        for(int i = 1; i < nums.length; i++) {
+            nums[i] += Math.max(nums[i - 1], 0);
+            res = Math.max(res, nums[i]);
+        }
+        return res;
+    }
+
     public static void main(String[] args) {
-        System.out.println(maxSubArray1(new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4}));
+        int[] arr1 = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+        int[] arr2 = {-1,2};
+        System.out.println(maxSubArray(arr1));
     }
 }

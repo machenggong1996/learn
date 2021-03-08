@@ -1,0 +1,6 @@
+#  hashmap
+
+## put
+
+## resize
+

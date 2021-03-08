@@ -14,6 +14,7 @@ public class DeleteNode {
         }
     }
 
+
     public static ListNode deleteNode(ListNode head, int val) {
         if (head == null) {
             return head;

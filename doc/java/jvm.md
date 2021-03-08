@@ -396,6 +396,16 @@ TLAB（Thread-local allocation buffer），每个TLAB都只有一个线程可以
 
 由字节码的常量池到方法区的常量池，具有动态性 String.intern()
 
+### jvm垃圾回收器
+
+* [Jvm垃圾回收器](https://www.cnblogs.com/chenpt/p/9803298.html)
+*  serial收集器、parnew收集器、parallel scavenge收集器、serial  old 收集器、parallel old收集器、cms收集器、g1收集器
+![avatar](pics/jvm垃圾收集器.png)
+* 新生代收集器：Serial、ParNew、Parallel Scavenge
+* 老年代收集器：CMS、Serial Old、Parallel Old
+* 整堆收集器： G1
+
+
 
 ### CMS和G1的区别
 

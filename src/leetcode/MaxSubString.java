@@ -13,7 +13,7 @@ public class MaxSubString {
     public static void main(String[] args) {
         String str = "pwwkew";
         System.out.println(lengthOfLongestSubstringTest(str));
-        System.out.println(lengthOfLongestSubstring3(str));
+        System.out.println(lengthOfLongestSubstring1(str));
     }
 
     /**

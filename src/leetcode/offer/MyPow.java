@@ -8,12 +8,11 @@ public class MyPow {
     /**
      * 数值的n次方
      *
-     *
      * @param x
      * @param n
      * @return
      */
-    public static double myPow(double x, int n) {
+    public double myPow(double x, int n) {
         double ans = 1, temp = x;
         int exp = n;
         while (exp != 0) {
@@ -26,7 +25,57 @@ public class MyPow {
         return n > 0 ? ans : 1 / ans;
     }
 
+    public double myPow1(double x, int n) {
+        double result = 1.0;
+        for (int i = n; i != 0; i /= 2, x *= x) {
+            if (i % 2 != 0) {
+                //i是奇数
+                result *= x;
+            }
+        }
+        return n < 0 ? 1.0 / result : result;
+    }
+
+    /**
+     * 会超出时间限制
+     *
+     * @param x
+     * @param n
+     * @return
+     */
+    public double myPow2(double x, int n) {
+        double result = 1.0;
+        int ns = Math.abs(n);
+        for (int i = 0; i < ns; i++) {
+            result = result * x;
+        }
+        return n < 0 ? 1.0 / result : result;
+    }
+
+    public double myPow3(double x, int n) {
+        //特判
+        if (x == 0) {
+            return 0;
+        }
+        long b = n;
+        double res = 1.0;
+        if (b < 0) {
+            b = -b;
+            x = 1 / x;
+        }
+        while (b > 0) {
+            if ((b & 1) == 1) {
+                res *= x;
+            }
+            b >>>= 1;
+            x *= x;
+        }
+        return res;
+    }
+
     public static void main(String[] args) {
-        System.out.println(myPow(12.0D, 2));
+        MyPow myPow = new MyPow();
+        System.out.println(myPow.myPow1(2.00000, -2));
+        System.out.println(myPow.myPow2(2.00000, -2));
     }
 }
