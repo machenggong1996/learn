@@ -1,6 +1,0 @@
-#  hashmap
-
-## put
-
-## resize
-

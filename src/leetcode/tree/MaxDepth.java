@@ -6,6 +6,11 @@ package leetcode.tree;
  */
 public class MaxDepth {
 
+    /**
+     * 二叉树深度
+     * @param root
+     * @return
+     */
     public static int maxDepth(TreeNode root) {
         if (root == null) {
             return 0;

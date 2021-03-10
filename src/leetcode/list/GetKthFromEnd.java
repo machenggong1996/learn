@@ -30,6 +30,19 @@ public class GetKthFromEnd {
         return behindNode;
     }
 
+    public static ListNode getKthFromEnd1(ListNode head, int k) {
+        ListNode former = head, latter = head;
+        for (int i = 0; i < k; i++) {
+            former = former.next;
+        }
+        while (former != null) {
+            former = former.next;
+            latter = latter.next;
+        }
+        return latter;
+    }
+
+
     public static void main(String[] args) {
         ListNode listNode1 = new ListNode(1);
         ListNode listNode2 = new ListNode(2);
@@ -40,8 +53,9 @@ public class GetKthFromEnd {
         listNode2.next = listNode3;
         listNode3.next = listNode4;
         listNode4.next = listNode5;
-        ListNode res = getKthFromEnd(listNode1, 4);
-
+        ListNode res = getKthFromEnd(listNode1, 2);
+        ListNode res1 = getKthFromEnd1(listNode1, 2);
+        System.out.println();
     }
 
 
