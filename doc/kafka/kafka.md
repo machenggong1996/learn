@@ -116,6 +116,8 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 ![干货|为什么Kafka不支持读写分离](https://blog.csdn.net/zl1zl2zl3/article/details/87982038)
 
+kafka是CAP中的 CA 一致性 可用性 不满足分区容错性 所以不能读写分离
+
 ## kafka启动及基本操作命令
 
 进入mac下面文件夹 /usr/local/Cellar/kafka/2.5.0/libexec/bin
