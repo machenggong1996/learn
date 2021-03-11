@@ -497,5 +497,32 @@ Parrallel GC，（jdk8默认GC）在早期 JDK 8 等版本中，它是 server �
 CMS 初始标记和重新标记会STW
 G1 初始标记 最终标记 筛选回收会STW
 
+### jvm什么对象可以作为gc root
+
+1. java虚拟机栈中的引用的对象。
+2. 方法区中的类静态属性引用的对象。（一般指被static修饰的对象，加载类的时候就加载到内存中。）
+3. 方法区中的常量引用的对象。 
+4. 本地方法栈中的JNI（native方法）引用的对象
+
+### jvm堆外溢出 CPU100%排查
+
+#### 1. 堆外溢出排查
+
+* [内存溢出排查](https://www.cnblogs.com/aobing/p/12656925.html)
+* jvisualvm将堆的快照dump出来，使用MAT工具对快照进行分析，会定位到代码位置
+* jmap -dump:format=b,file=<dumpfile.hprof> <pid> 将快照dump下来
+* -XX:+HeapDumpOnOutOfMemoryError oom的时候会自动jump的
+* 使用jhat对dump下来的快照进行分析
+
+#### 2. CPU100%排查
+
+* top -c ，显示进程运行信息列表。按下P,进程按照cpu使用率排序
+* top -Hp 3033 ，显示一个进程的线程运行信息列表。按下P,进程按照cpu使用率排序，这是十进制的数据，转成十六进制为0xbda
+* 根据线程号查出对应的java线程，进行处理 执行命令,导出进程快照
+* jstack -l 3033 > ./3033.stack 
+* cat 3033.stack |grep 'bda' -C 8 可以看到运行的行数
+
+
+
 
 

@@ -51,7 +51,7 @@ public class KuoHao {
     }
 
     public static void main(String[] args) {
-        System.out.println(isValid1("[{{][]"));
+        System.out.println(isValid1("[{]}[]"));
     }
 
 }

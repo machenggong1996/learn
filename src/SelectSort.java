@@ -11,6 +11,10 @@ public class SelectSort {
         }
     }
 
+    /**
+     * 每次找到最小的放在最前面 i的位置
+     * @param arr
+     */
     public static void selectSort(int[] arr) {
         for (int i = 0; i < arr.length - 1; i++) {
             int minIndex = i; // 用来记录最小值的索引位置，默认值为i

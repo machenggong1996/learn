@@ -67,6 +67,55 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 异步批量写入磁盘
 
+## kafka重平衡过程（美团面试题）
+
+* [Kafka 重平衡 全流程解析](https://blog.csdn.net/q322625/article/details/101461087)
+* [Kafka详解（八）消费者组重平衡全流程](https://blog.csdn.net/fedorafrog/article/details/104099674)
+
+* 给消费组每个消费者分配消费任务的过程，
+
+### 1. kafka重平衡的时机
+
+* 订阅主题数发生变化
+* 主题分区发生变化
+* 消费端的消费者组成员变化
+  - 消费者处理消息超时
+  - 心跳超时
+  
+### 2. Kafka的心跳机制 与 Rebalance
+
+* 重平衡过程是靠消费者端的心跳线程（Heartbeat Thread）通知到其他消费者实例的
+
+### 3. 消费者组重平衡流程
+
+1. 加入组 当组内成员加入组时，它会向协调者发送 JoinGroup 请求，领导者消费者的任务是收集所有成员的订阅信息，然后根据这些信息，制定具体的分区消费分配方案。
+2. SyncGroup请求 SyncGroup 请求的主要目的，就是让协调者把领导者制定的分配方案下发给各个组内成员。当所有成员都成功接收到分配方案后，消费者组进入到 Stable 状态，即开始正常的消费工作
+
+### 4. Broker端（协调者Coordinator）重平衡流程
+
+* 新成员加入场景
+* 组成员主动离组场景
+* 组成员崩溃离组场景
+* 重平衡时协调者对组内成员提交位移的处理
+
+### 5. 总结
+
+* 基本流程就是 Coordinator 感知到 消费者组的变化，
+* 然后在心跳的过程中发送重平衡信号通知各个消费者离组，
+* 然后消费者重新以 JoinGroup 方式加入 Coordinator，并选出Consumer Leader。
+* 当所有消费者加入 Coordinator，
+* Consumer Leader会根据 Coordinator给予的分区信息给出分区方案。
+* Coordinator 将该方案以 SyncGroup 的方式将该方案执行下去，通知各个消费者，
+这样就完成了一轮 重平衡了
+  
+## kafka使用的通讯协议
+
+* 基于TCP
+
+## 从CAP角度说明kafka不能读写分离
+
+![干货|为什么Kafka不支持读写分离](https://blog.csdn.net/zl1zl2zl3/article/details/87982038)
+
 ## kafka启动及基本操作命令
 
 进入mac下面文件夹 /usr/local/Cellar/kafka/2.5.0/libexec/bin
