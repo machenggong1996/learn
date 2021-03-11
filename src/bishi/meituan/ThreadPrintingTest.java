@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 public class ThreadPrintingTest {
     private volatile int i = 1;
     private volatile boolean flag = true;
+    CountDownLatch countDownLatch = new CountDownLatch(100);
     public void print(){
         Thread A = new Thread(new Runnable() {
             @Override
@@ -19,6 +20,7 @@ public class ThreadPrintingTest {
                         System.out.println("t1="+i);
                         i++;
                         flag = false;
+                        countDownLatch.countDown();
                     }
                 }
             }
@@ -27,11 +29,12 @@ public class ThreadPrintingTest {
         Thread B = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true){
+                while (i<=100){
                     if(!flag){
                         System.out.println("t2="+i);
                         i++;
                         flag = true;
+                        countDownLatch.countDown();
                     }
                 }
             }
@@ -43,6 +46,7 @@ public class ThreadPrintingTest {
     public static void main(String[] args) throws InterruptedException {
         ThreadPrintingTest threadPrintingTest = new ThreadPrintingTest();
         threadPrintingTest.print();
+        threadPrintingTest.countDownLatch.await();
     }
 
 }

@@ -1,6 +1,5 @@
 package thread;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -39,24 +38,24 @@ public class ShunxuPrint {
 
     public static void main(String[] args) throws InterruptedException {
         ShunxuPrint shunxuPrint = new ShunxuPrint();
-        Runnable first =() -> System.out.println(1);
-        Runnable second =() -> System.out.println(2);
-        Runnable third =() -> System.out.println(3);
-        new Thread(()->{
-            try {
-                shunxuPrint.first(first);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        new Thread(()->{
+        Runnable first = () -> System.out.println(1);
+        Runnable second = () -> System.out.println(2);
+        Runnable third = () -> System.out.println(3);
+        new Thread(() -> {
             try {
                 shunxuPrint.second(second);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
-        new Thread(()->{
+        new Thread(() -> {
+            try {
+                shunxuPrint.first(first);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        new Thread(() -> {
             try {
                 shunxuPrint.third(third);
             } catch (InterruptedException e) {
