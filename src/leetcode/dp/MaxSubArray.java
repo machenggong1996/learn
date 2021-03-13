@@ -5,6 +5,11 @@ package leetcode.dp;
  */
 public class MaxSubArray {
 
+    /**
+     * 最大连续子数组的和
+     * @param nums
+     * @return
+     */
     public static int maxSubArray(int[] nums) {
         int N = nums.length;
         int[] dp = new int[N];
