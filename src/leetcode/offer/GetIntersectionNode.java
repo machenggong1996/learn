@@ -8,8 +8,10 @@ package leetcode.offer;
 public class GetIntersectionNode {
 
     /**
+     * 剑指 Offer 52. 两个链表的第一个公共节点
      * a+(b−c)=b+(a−c)
      * a是A list长度 b是B list长度
+     *
      * @param headA
      * @param headB
      * @return
@@ -33,7 +35,12 @@ class ListNode {
     int val;
     ListNode next;
 
-    ListNode(int x) { val = x; }
+    ListNode(int x) {
+        val = x;
+    }
 
-    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+    ListNode(int val, ListNode next) {
+        this.val = val;
+        this.next = next;
+    }
 }

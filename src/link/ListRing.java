@@ -173,4 +173,37 @@ public class ListRing {
         return null;
     }
 
+    public static Node detectCycle1(Node head) {
+
+        if (head == null || head.next == null) {
+            return null;
+        }
+
+        Node slow = head;
+        Node fast = head;
+
+        while (fast != null) {
+
+            slow = slow.next;
+            if (fast.next != null) {
+                fast = fast.next.next;
+            } else {
+                return null;
+            }
+
+            if (fast == slow) {
+                Node n1 = head;
+                Node n2 = slow;
+                while (n1 != n2) {
+                    n1 = n1.next;
+                    n2 = n2.next;
+                }
+                return n1;
+            }
+
+        }
+
+        return null;
+    }
+
 }

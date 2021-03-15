@@ -30,12 +30,13 @@ public class Test {
         sortArr(arr);
         List<int[]> res = new ArrayList<>();
         for (int i = 0; i < arr.length; i++) {
-            int[] as = arr[i];
-            while (i<as.length-1&&as[1] >= arr[i + 1][0]) {
-                as = new int[]{as[0], arr[i + 1][1]};
+            int left = arr[i][0];
+            int right = arr[i][1];
+            while (i < arr.length - 1 && right >= arr[i + 1][0]) {
+                right = Math.max(right, arr[i + 1][1]);
                 i++;
             }
-            res.add(as);
+            res.add(new int[]{left, right});
         }
         return res;
     }
@@ -53,9 +54,9 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        int[][] arr = {{1, 3}, {8, 10}, {2, 6} ,{15, 18}};
-        int[][] arr1 = {{1,4},{4,5}};
-        List<int[]> res = merge(arr1);
+        int[][] arr = {{1, 3}, {8, 10}, {2, 6}, {15, 18}};
+        int[][] arr1 = {{1, 4}, {4, 5}};
+        List<int[]> res = merge(arr);
         for (int[] a : res) {
             System.out.println(Arrays.toString(a));
         }

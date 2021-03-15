@@ -35,6 +35,39 @@ public class LowestCommonAncestor {
         return root;
     }
 
+    /**
+     * 二叉搜索树的最近公共祖先
+     *
+     * @param root
+     * @param p
+     * @param q
+     * @return
+     */
+    public static TreeNode lowestCommonAncestorX(TreeNode root, TreeNode p, TreeNode q) {
+        if (root.val < p.val && root.val < q.val) {
+            return lowestCommonAncestorX(root.right, p, q);
+        }
+        if (root.val > p.val && root.val > q.val) {
+            return lowestCommonAncestorX(root.left, p, q);
+        }
+        return root;
+    }
+
+    public static TreeNode lowestCommonAncestorX1(TreeNode root, TreeNode p, TreeNode q) {
+        TreeNode ancestor = root;
+        while (true) {
+            if (p.val < ancestor.val && q.val < ancestor.val) {
+                ancestor = ancestor.left;
+            } else if (p.val > ancestor.val && q.val > ancestor.val) {
+                ancestor = ancestor.right;
+            } else {
+                break;
+            }
+        }
+        return ancestor;
+    }
+
+
     public static void main(String[] args) {
         TreeNode root = new TreeNode(3);
         TreeNode node5 = new TreeNode(5);

@@ -10,6 +10,7 @@ public class MissingNumber {
     /**
      * 1至n-1缺失的数字
      * 二分查找
+     *
      * @param nums
      * @return
      */
@@ -26,8 +27,18 @@ public class MissingNumber {
         return i;
     }
 
+    public static int missingNumber1(int[] nums) {
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != i) {
+                return i;
+            }
+        }
+        return 1;
+    }
+
     public static void main(String[] args) {
-        int[] nums = { 0,1, 2, 4, 5, 6, 7, 9};
+        int[] nums = {0, 1, 2, 4, 5, 6, 7, 9};
+        System.out.println(missingNumber1(nums));
         System.out.println(missingNumber(nums));
     }
 
