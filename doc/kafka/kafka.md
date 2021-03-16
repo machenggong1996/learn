@@ -114,7 +114,7 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 ## 从CAP角度说明kafka不能读写分离
 
-![干货|为什么Kafka不支持读写分离](https://blog.csdn.net/zl1zl2zl3/article/details/87982038)
+[干货|为什么Kafka不支持读写分离](https://blog.csdn.net/zl1zl2zl3/article/details/87982038)
 
 kafka是CAP中的 CA 一致性 可用性 不满足分区容错性 所以不能读写分离
 

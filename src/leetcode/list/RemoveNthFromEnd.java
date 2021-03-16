@@ -68,7 +68,7 @@ public class RemoveNthFromEnd {
         listNode2.next = listNode3;
         listNode3.next = listNode4;
         listNode4.next = listNode5;
-        ListNode res = removeNthFromEnd(listNode1, 2);
+        ListNode res = removeNthFromEnd1(listNode1, 2);
         System.out.println();
     }
 

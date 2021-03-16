@@ -124,4 +124,7 @@ next lock = record lock + gap lock
 8. 少用or，用它连接时索引会失效
 9. 随着表的增长，where条件出来的数据太多，大于15%，使得索引失效（会导致CBO计算走索引花费大于走全表）
 
+## mysql最左原则 组合索引才会有最左原则概念
 
+* [mysql联合索引的生效规则](https://www.cnblogs.com/mintsd/p/13062308.html)
+* [Mysql最左匹配原则](https://blog.csdn.net/sinat_41917109/article/details/88944290)
