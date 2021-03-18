@@ -127,6 +127,50 @@ public class SpiralOrder {
         System.out.println(Arrays.toString(spiralOrder(arr)));
         System.out.println(spiralOrder1(arr));
         System.out.println(Arrays.toString(spiralOrder2(arr)));
+        System.out.println(Arrays.toString(s(arr)));
+    }
+
+
+    public static int[] s(int[][] arr) {
+        if (arr.length == 0) {
+            return new int[0];
+        }
+
+        int left = 0;
+        int right = arr[0].length - 1;
+        int top = 0;
+        int bottom = arr.length - 1;
+        int index = 0;
+        int[] res = new int[(right + 1) * (bottom + 1)];
+        while (true) {
+            for (int i = left; i <= right; i++) {
+                res[index++] = arr[top][i];
+            }
+            if (++top > bottom) {
+                break;
+            }
+            for (int i = top; i <= bottom; i++) {
+                res[index++] = arr[i][right];
+            }
+            if (--right < left) {
+                break;
+            }
+            for (int i = right; i >= left; i--) {
+                res[index++] = arr[bottom][i];
+            }
+            if (--bottom < top) {
+                break;
+            }
+            for (int i = bottom; i >= top; i--) {
+                res[index++] = arr[i][left];
+            }
+
+            if (++left > right) {
+                break;
+            }
+
+        }
+        return res;
     }
 
 }
