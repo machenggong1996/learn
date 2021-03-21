@@ -5,6 +5,12 @@ package leetcode.tree;
  */
 public class SymmetricTree {
 
+    /**
+     * 对称二叉树
+     *
+     * @param root
+     * @return
+     */
     public static boolean isSymmetric(TreeNode root) {
         if (root == null) {
             return true;
