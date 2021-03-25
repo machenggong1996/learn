@@ -12,6 +12,12 @@ public class DeleteDuplicates {
         ListNode(int x) {
             val = x;
         }
+
+        ListNode(int val, ListNode next) {
+            this.val = val;
+            this.next = next;
+        }
+
     }
 
     public static ListNode deleteDuplicates(ListNode head) {
@@ -51,6 +57,34 @@ public class DeleteDuplicates {
             curNode = curNode.next;
         }
         return root.next;
+    }
+
+    /**
+     * 删除排序链表中的重复元素 II
+     *
+     * @param head
+     * @return
+     */
+    public ListNode deleteDuplicatesII(ListNode head) {
+        if (head == null) {
+            return head;
+        }
+
+        ListNode dummy = new ListNode(0, head);
+
+        ListNode cur = dummy;
+        while (cur.next != null && cur.next.next != null) {
+            if (cur.next.val == cur.next.next.val) {
+                int x = cur.next.val;
+                while (cur.next != null && cur.next.val == x) {
+                    cur.next = cur.next.next;
+                }
+            } else {
+                cur = cur.next;
+            }
+        }
+
+        return dummy.next;
     }
 
     public static void main(String[] args) {
