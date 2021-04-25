@@ -120,7 +120,7 @@ kafka是CAP中的 CA 一致性 可用性 不满足分区容错性 所以不能�
 
 ## kafka启动及基本操作命令
 
-进入mac下面文件夹 /usr/local/Cellar/kafka/2.5.0/libexec/bin
+进入mac下面文件夹 /usr/local/Cellar/kafka/2.7.0/libexec/bin
 
 启动zookeeper nohup sh zookeeper-server-start.sh ../config/zookeeper.properties > zklog.log 2>&1 &
 
