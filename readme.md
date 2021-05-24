@@ -67,13 +67,11 @@
 
 ## 读书计划
 
-1. 设计模式
-2. GoLang
-3. java并发编程
-4. java编程思想
-5. springboot
-6. 贡献开原项目
-7. spring注解开发 springboot starter开发
+1. 分布式唯一id
+2. KMP
+3. 分布式事务
+4. 熔断降级
+5. flink
 
 ## 问题
 
