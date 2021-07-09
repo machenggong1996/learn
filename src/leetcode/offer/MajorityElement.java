@@ -24,8 +24,32 @@ public class MajorityElement {
         return res;
     }
 
+    public static int majorityElement1(int[] nums) {
+        int candidate = -1;
+        int count = 0;
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            if (num == candidate) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+        // 判断是不是超过了一半
+        count = 0;
+        int length = nums.length;
+        for (int num : nums) {
+            if (num == candidate) {
+                count++;
+            }
+        }
+        return count * 2 > length ? candidate : -1;
+    }
+
     public static void main(String[] args) {
-        System.out.println(majorityElement(new int[] { 1, 2, 3, 2, 2, 2, 5, 4, 2 }));
+        System.out.println(majorityElement1(new int[]{1, 2, 3, 2, 2, 2, 5, 4, 2}));
     }
 
 }
