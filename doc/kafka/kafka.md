@@ -116,6 +116,14 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 [干货|为什么Kafka不支持读写分离](https://blog.csdn.net/zl1zl2zl3/article/details/87982038)
 
+1. 数据一致性 在某一时间窗口会出现数据不一致的情况
+2. 延时 kafka的延时会比redis更高 网络-主节点内存-主节点磁盘-网络-从节点内存-从节点磁盘-从节点磁盘
+3. 每个broker上面都有leader和follower,所以每个broker的读写负载是一样的
+4. 生产者写入消息不均   
+5. 消费者消费消息不均
+6. broker分区分配不均
+7. leader副切换不均
+
 kafka是CAP中的 CA 一致性 可用性 不满足分区容错性 所以不能读写分离
 
 ## kafka启动及基本操作命令
