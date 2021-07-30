@@ -11,6 +11,10 @@ public class IsStraight {
 
     /**
      * 剑指 Offer 61. 扑克牌中的顺子
+     * 1. 无重复
+     * 2. 跳过大小王
+     * 3. 最大减去最小 小于 5
+     *
      * @param nums
      * @return
      */
@@ -32,7 +36,7 @@ public class IsStraight {
     }
 
     public static void main(String[] args) {
-        System.out.println(isStraight(new int[] { 1, 2, 0, 4, 5 }));
+        System.out.println(isStraight(new int[]{1, 2, 0, 4, 5}));
     }
 
 }
