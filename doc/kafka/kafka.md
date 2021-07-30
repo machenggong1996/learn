@@ -71,6 +71,7 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 * [Kafka 重平衡 全流程解析](https://blog.csdn.net/q322625/article/details/101461087)
 * [Kafka详解（八）消费者组重平衡全流程](https://blog.csdn.net/fedorafrog/article/details/104099674)
+* [Kafka重平衡机制](https://www.cnblogs.com/weifeng1463/p/13333912.html)
 
 * 给消费组每个消费者分配消费任务的过程，
 
@@ -97,6 +98,13 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 * 组成员主动离组场景
 * 组成员崩溃离组场景
 * 重平衡时协调者对组内成员提交位移的处理
+
+### 5. 重平衡策略
+
+* [重平衡策略](https://www.cnblogs.com/listenfwind/p/12662968.html)
+* Range
+* RoundRobin
+* Sticky
 
 ### 5. 总结
 
