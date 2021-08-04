@@ -26,6 +26,19 @@ public class LastRemaining {
 
     public static void main(String[] args) {
         System.out.println(lastRemaining(5, 3));
+        System.out.println(lastRemaining1(5, 1));
+    }
+
+    public static int lastRemaining1(int n, int m) {
+        return f(n, m);
+    }
+
+    public static int f(int n, int m) {
+        if (n == 1) {
+            return 0;
+        }
+        int x = f(n - 1, m);
+        return (m + x) % n;
     }
 
 }
