@@ -1,6 +1,7 @@
 package leetcode.offer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,11 +11,17 @@ import java.util.List;
  */
 public class FindContinuousSequence {
 
+    /**
+     * 剑指 Offer 57 - II. 和为s的连续正数序列
+     *
+     * @param target
+     * @return
+     */
     public static int[][] findContinuousSequence(int target) {
         List<int[]> vec = new ArrayList<int[]>();
         int sum = 0, limit = (target - 1) / 2; // (target - 1) / 2 等效于 target / 2 下取整
         for (int i = 1; i <= limit; ++i) {
-            for (int j = i;; ++j) {
+            for (int j = i; ; ++j) {
                 sum += j;
                 if (sum > target) {
                     sum = 0;
@@ -34,7 +41,7 @@ public class FindContinuousSequence {
     }
 
     public static void main(String[] args) {
-
+        System.out.println(Arrays.deepToString(findContinuousSequence(9)));
     }
 
 }
