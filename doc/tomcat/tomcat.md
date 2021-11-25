@@ -39,5 +39,22 @@ Bootstrap.main里面
 * [tomcat处理请求](https://blog.csdn.net/u013857458/article/details/82355879)
 * [请求流程](https://blog.csdn.net/toking1979/article/details/83874978)
 
+1. org.apache.tomcat.util.net.NioEndpoint.Acceptor#run()
+2. org.apache.tomcat.util.net.NioEndpoint#setSocketOptions
+3. org.apache.tomcat.util.net.NioEndpoint.Poller#register
+4. org.apache.tomcat.util.net.NioEndpoint.Poller#addEvent
+5. org.apache.tomcat.util.net.NioEndpoint.Poller#run
+6. org.apache.tomcat.util.net.NioEndpoint.Poller#processKey
+7. org.apache.tomcat.util.net.AbstractEndpoint#processSocket
+8. java.util.concurrent.Executor.execute
+9. org.apache.tomcat.util.net.SocketProcessorBase#run
+10. org.apache.tomcat.util.net.NioEndpoint.SocketProcessor#doRun
+11. org.apache.tomcat.util.net.AbstractEndpoint.Handler#process
+12. org.apache.coyote.AbstractProtocol.ConnectionHandler#process
+13. org.apache.coyote.Processor#process
+14. org.apache.coyote.http11.Http11Processor#service
+15. org.apache.catalina.connector.CoyoteAdapter#service
+16. 顺序执行Pipeline Valve
+
 
 
