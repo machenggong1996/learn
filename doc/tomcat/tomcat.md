@@ -56,5 +56,16 @@ Bootstrap.main里面
 15. org.apache.catalina.connector.CoyoteAdapter#service
 16. 顺序执行Pipeline Valve
 
+### servlet启动执行流程
+
+* [Tomcat之StandardWrapperValve的Servlet请求处理](https://blog.csdn.net/iteye_14395/article/details/82541852)
+* [StandarWrapper源码分析](https://blog.csdn.net/fjslovejhl/article/details/21984391)
+
+1. org.apache.catalina.core.StandardWrapperValve#invoke
+2. org.apache.catalina.core.StandardWrapper#allocate 初始化servlet
+3. org.apache.catalina.core.ApplicationFilterChain#doFilter 执行servlet的service方法
+
+### tomcat参数配置生效代码
+
 
 
