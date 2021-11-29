@@ -74,3 +74,10 @@ Bootstrap.main里面
 3. org.apache.tomcat.util.digester.Digester#parse(org.xml.sax.InputSource) 加载xml
 4. org.apache.tomcat.util.digester.Digester#getFactory
 
+### 参数使用
+
+1. org.apache.catalina.core.StandardThreadExecutor#startInternal
+2. org.apache.tomcat.util.net.NioEndpoint#startInternal
+3. org.apache.tomcat.util.net.AbstractEndpoint#createExecutor 创建线程池 使用配置的参数
+4. org.apache.tomcat.util.net.AbstractEndpoint#processSocket 使用线程池
+
