@@ -67,5 +67,10 @@ Bootstrap.main里面
 
 ### tomcat参数配置生效代码
 
+* [server.xml加载过程](https://www.cnblogs.com/jiaan-geng/p/4866009.html)
 
+1. org.apache.catalina.startup.Catalina#load()
+2. org.apache.catalina.startup.Catalina#createStartDigester 配置类 此方法创建解析server.xml的Digester，根据server.xml的元素标签，为每个标签设置相应的规则组，在解析标签时进行调用
+3. org.apache.tomcat.util.digester.Digester#parse(org.xml.sax.InputSource) 加载xml
+4. org.apache.tomcat.util.digester.Digester#getFactory
 
