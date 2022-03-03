@@ -41,8 +41,8 @@
 
 ### 2.1 Redis 有哪些数据类型？
 
-Redis主要有5种数据类型，包括String，List，Set，Zset，Hash，满足大部分的使用要求
-
+Redis主要有8种数据类型，包括String，List，Set，Zset，Hash，满足大部分的使用要求
+bitmaps(位图),hyperloglog,GEO(地理位置定位)
 ### 2.2 Redis 的应用场景？
 
 * 计数器
