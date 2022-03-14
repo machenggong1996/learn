@@ -32,7 +32,25 @@ public class CutForMaxProduct3 {
 
     /* Driver program to test above functions */
     public static void main(String[] args) {
-        System.out.println("Maximum Product is " + maxProdTest(10));
+        System.out.println("Maximum Product is " + cuttingRope(7));
+    }
+
+    /**
+     * 剑指 Offer 14- I. 剪绳子
+     * https://leetcode-cn.com/problems/jian-sheng-zi-lcof/solution/mian-shi-ti-14-i-jian-sheng-zi-tan-xin-si-xiang-by/
+     * 最优： 3 。把绳子尽可能切为多个长度为 3 的片段，留下的最后一段绳子的长度可能为 0,1,2 三种情况。
+     * 次优： 2 。若最后一段绳子长度为 2 ；则保留，不再拆为 1+1 。
+     * 最差： 1 。若最后一段绳子长度为 1 ；则应把一份 3+1 替换为 2+2，因为 2 \times 2 > 3 \times 12×2>3×1。
+     *
+     * @param n
+     * @return
+     */
+    public static int cuttingRope(int n) {
+        if(n <= 3) return n - 1;
+        int a = n / 3, b = n % 3;
+        if(b == 0) return (int)Math.pow(3, a);
+        if(b == 1) return (int)Math.pow(3, a - 1) * 4;
+        return (int)Math.pow(3, a) * 2;
     }
 
     public static int maxProdTest(int n) {
