@@ -15,6 +15,13 @@ public class DeleteNode {
     }
 
 
+    /**
+     * 剑指 Offer 18. 删除链表的节点
+     *
+     * @param head
+     * @param val
+     * @return
+     */
     public static ListNode deleteNode(ListNode head, int val) {
         if (head == null) {
             return head;

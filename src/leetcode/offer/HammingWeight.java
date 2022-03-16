@@ -7,6 +7,7 @@ public class HammingWeight {
 
     /**
      * 剑指 Offer 15. 二进制中1的个数
+     *
      * @param n
      * @return
      */
@@ -23,6 +24,12 @@ public class HammingWeight {
         return count;
     }
 
+    /**
+     * 将最低位的1变为0
+     *
+     * @param n
+     * @return
+     */
     public static int hammingWeight1(int n) {
         int ret = 0;
         while (n != 0) {
@@ -32,8 +39,12 @@ public class HammingWeight {
         return ret;
     }
 
+    public static int hammingWeight2(int n) {
+        return Integer.bitCount(n);
+    }
+
     public static void main(String[] args) {
-        System.out.println(hammingWeight1(0b11111111111111111111111111111101));
+        System.out.println(hammingWeight2(0b11111111111111111111111111111101));
     }
 
 }

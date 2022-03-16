@@ -52,23 +52,31 @@ public class MyPow {
         return n < 0 ? 1.0 / result : result;
     }
 
+    /**
+     * 快速幂
+     * https://baike.baidu.com/item/%E5%BF%AB%E9%80%9F%E5%B9%82/5500243?fr=aladdin
+     * @param x
+     * @param n
+     * @return
+     */
     public double myPow3(double x, int n) {
-        //特判
         if (x == 0) {
             return 0;
         }
         long b = n;
         double res = 1.0;
+        // 指数是负数的情况下
         if (b < 0) {
-            b = -b;
             x = 1 / x;
+            b = -b;
         }
         while (b > 0) {
+            // 进行二进制拆分
             if ((b & 1) == 1) {
                 res *= x;
             }
-            b >>>= 1;
             x *= x;
+            b >>= 1;
         }
         return res;
     }
@@ -77,5 +85,7 @@ public class MyPow {
         MyPow myPow = new MyPow();
         System.out.println(myPow.myPow1(2.00000, -2));
         System.out.println(myPow.myPow2(2.00000, -2));
+        System.out.println(myPow.myPow3(2.00000, -2));
+        System.out.println(Math.pow(2,-2));
     }
 }
