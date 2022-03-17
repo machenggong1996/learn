@@ -17,12 +17,15 @@ public class ArrayExchange {
         int left = 0;
         int right = nums.length - 1;
         while (left < right) {
+            // 是奇数向右移动
             while (left < right && nums[left] % 2 != 0) {
                 left++;
             }
+            // 是偶数向左移动
             while (left < right && nums[right] % 2 == 0) {
                 right--;
             }
+            // 交换
             if (left < right) {
                 int temp = nums[left];
                 nums[left] = nums[right];

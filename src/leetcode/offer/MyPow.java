@@ -85,7 +85,7 @@ public class MyPow {
         MyPow myPow = new MyPow();
         System.out.println(myPow.myPow1(2.00000, -2));
         System.out.println(myPow.myPow2(2.00000, -2));
-        System.out.println(myPow.myPow3(2.00000, -2));
+        System.out.println(myPow.myPow3(2.00000, 7));
         System.out.println(Math.pow(2,-2));
     }
 }
