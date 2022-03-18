@@ -57,6 +57,7 @@ public class MergeTwoLists {
     public static ListNode mergeTwoLists1(ListNode l1, ListNode l2) {
         ListNode dum = new ListNode(0), cur = dum;
         while (l1 != null && l2 != null) {
+            // 这块必须是小于 124 134 这个例子 如果是大于号就永远不会走if里面的逻辑
             if (l1.val < l2.val) {
                 cur.next = l1;
                 l1 = l1.next;
