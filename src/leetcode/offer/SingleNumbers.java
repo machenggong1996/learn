@@ -44,9 +44,11 @@ public class SingleNumbers {
         for (int num : nums) {
             sum ^= num;
         }
+        System.out.println(Integer.toBinaryString(sum));
+        System.out.println(Integer.toBinaryString(-sum));
         //得到sum的二进制的1的最低位 可以获取两个结果从哪位开始不同
         int flag = (-sum) & sum;
-        int result[] = new int[2];
+        int[] result = new int[2];
         //分成两个组进行异或，每组异或后的结果就是不相同两个数的其中之一
         for (int num : nums) {
             if ((flag & num) == 0) {
@@ -73,9 +75,24 @@ public class SingleNumbers {
         return ones;
     }
 
+    public static int singleNumberII2(int[] nums) {
+        int res = 0, bit = 0;
+        for (int i = 30; i >= 0; i--) {
+            for (int num : nums) {
+                //求出所有二进制位的和
+                bit += (num >> i) & 1;
+            }
+            res = res << 1;
+            res += bit % 3;
+            bit = 0;
+        }
+        return res;
+    }
+
     /**
      * 剑指 Offer 56 - II. 数组中数字出现的次数 II
      * 在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字
+     * 有限状态机
      *
      * @param nums
      * @return
@@ -94,7 +111,8 @@ public class SingleNumbers {
         int[] nums1 = {4, 1, 4, 3};
         System.out.println(Arrays.toString(singleNumbers1(nums1)));
         int[] nums2 = {4, 3, 3, 3};
-        System.out.println(singleNumber(nums2));
+        System.out.println(singleNumberII(nums2));
+        System.out.println(singleNumberII2(nums2));
     }
 
 }

@@ -21,7 +21,7 @@ public class SpiralOrder {
             return new int[0];
         }
         // l 左边，r 右边，t 上面，b 下面，x 结果数组的位置
-        int l = 0, r = matrix[0].length - 1, t = 0, b = matrix.length - 1, x = 0;
+        int l = 0, r = matrix[0].length - 1, t = 0, b = matrix.length - 1, x  = 0;
         int[] res = new int[(r + 1) * (b + 1)];
         while (true) {
             for (int i = l; i <= r; i++) {
