@@ -46,6 +46,7 @@ public class GetMinStack {
         minStack.push(-2);
         minStack.push(0);
         minStack.push(-3);
+        minStack.push(-1);
         int min1 = minStack.min();   // --> 返回 -3.
         minStack.pop();
         minStack.top();   // --> 返回 0.
