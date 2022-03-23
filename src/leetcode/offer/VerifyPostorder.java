@@ -1,5 +1,7 @@
 package leetcode.offer;
 
+import java.util.Stack;
+
 /**
  * @author machenggong
  * @date 2021/3/13
@@ -22,6 +24,7 @@ public class VerifyPostorder {
             return true;
         }
         int p = i;
+        // 寻找最大的值作为根节点
         while (postorder[p] < postorder[j]) {
             p++;
         }
@@ -29,7 +32,29 @@ public class VerifyPostorder {
         while (postorder[p] > postorder[j]) {
             p++;
         }
+        // p == j 判断此树是否正确
         return p == j && recur(postorder, i, m - 1) && recur(postorder, m, j - 1);
+    }
+
+    /**
+     * 辅助单调栈
+     *
+     * @param postorder
+     * @return
+     */
+    public static boolean verifyPostorder1(int[] postorder) {
+        Stack<Integer> stack = new Stack<>();
+        int root = Integer.MAX_VALUE;
+        for (int i = postorder.length - 1; i >= 0; i--) {
+            if (postorder[i] > root) {
+                return false;
+            }
+            while (!stack.isEmpty() && stack.peek() > postorder[i]) {
+                root = stack.pop();
+            }
+            stack.add(postorder[i]);
+        }
+        return true;
     }
 
     public static void main(String[] args) {
