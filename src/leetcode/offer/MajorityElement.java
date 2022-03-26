@@ -48,8 +48,27 @@ public class MajorityElement {
         return count * 2 > length ? candidate : -1;
     }
 
+    /**
+     * 剑指 Offer 39. 数组中出现次数超过一半的数字
+     * @param nums
+     * @return
+     */
+    public static int majorityElement3(int[] nums) {
+        int count = 0;
+        Integer candidate = null;
+
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            count += (num == candidate) ? 1 : -1;
+        }
+
+        return candidate;
+    }
+
     public static void main(String[] args) {
-        System.out.println(majorityElement1(new int[]{1, 2, 3, 2, 2, 2, 5, 4, 2}));
+        System.out.println(majorityElement3(new int[]{1, 2, 3, 2, 2, 2, 5, 4, 2}));
     }
 
 }
