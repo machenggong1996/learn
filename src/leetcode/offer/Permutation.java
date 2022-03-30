@@ -10,7 +10,13 @@ import java.util.List;
  */
 public class Permutation {
 
+    /**
+     * 结果集
+     */
     static List<String> rec;
+    /**
+     * 记录走到哪一步
+     */
     static boolean[] vis;
 
     /**
@@ -42,7 +48,7 @@ public class Permutation {
             return;
         }
         for (int j = 0; j < n; j++) {
-            // 去重 同一个字符串不出现相同字符
+            // 去重 同一个字符串不出现相同字符  记录走到哪一步||数组的字符串中有重复的存在需要去重
             if (vis[j] || (j > 0 && !vis[j - 1] && arr[j - 1] == arr[j])) {
                 continue;
             }
