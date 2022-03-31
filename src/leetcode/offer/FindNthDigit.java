@@ -23,6 +23,7 @@ public class FindNthDigit {
             start *= 10;
             count = digit * start * 9;
         }
+        // (n - 1)/digit 是 第 n是num的第几位
         long num = start + (n - 1) / digit; // 2.
         return Long.toString(num).charAt((n - 1) % digit) - '0'; // 3.
     }
