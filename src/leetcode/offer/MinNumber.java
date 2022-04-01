@@ -7,7 +7,8 @@ package leetcode.offer;
 public class MinNumber {
 
     /**
-     * 对字符串进行排序
+     * 对字符串进行排序 剑指 Offer 45. 把数组排成最小的数
+     *
      * @param nums
      * @return
      */
@@ -45,6 +46,12 @@ public class MinNumber {
         strs[l] = tmp;
         fastSort(strs, l, i - 1);
         fastSort(strs, i + 1, r);
+    }
+
+    public static void main(String[] args) {
+        MinNumber minNumber = new MinNumber();
+        int[] nums = {3, 30, 34, 5, 9};
+        System.out.println(minNumber.minNumber(nums));
     }
 
 }
