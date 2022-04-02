@@ -1,7 +1,5 @@
 package leetcode.offer;
 
-import java.util.Arrays;
-
 /**
  * @author machenggong
  * @date 2021/3/13
@@ -9,6 +7,12 @@ import java.util.Arrays;
  */
 public class GiftMaxValue {
 
+    /**
+     * 剑指 Offer 47. 礼物的最大价值
+     *
+     * @param grid
+     * @return
+     */
     public static int maxValue(int[][] grid) {
         int row = grid.length;
         int column = grid[0].length;
