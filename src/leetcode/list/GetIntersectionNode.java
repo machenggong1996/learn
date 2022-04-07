@@ -17,8 +17,8 @@ public class GetIntersectionNode {
             return null;
         }
         //两条链表在各自交换一遍之后长度变为一致 最终会在同一个点上 最终在c1相遇
-        //a1 a2 c1 c2 c3 b1 b2 b3 c1 c2 c3
-        //b1 b2 b3 c1 c2 c3 a1 a2 c1 c2 c3
+        //a1 a2 c1 c2 c3| b1 b2 b3 c1 c2 c3
+        //b1 b2 b3 c1 c2 c3| a1 a2 c1 c2 c3
         ListNode pA = headA, pB = headB;
         while (pA != pB) {
             pA = pA == null ? headB : pA.next;

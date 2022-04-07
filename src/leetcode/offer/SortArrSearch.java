@@ -7,14 +7,16 @@ package leetcode.offer;
 public class SortArrSearch {
 
     /**
-     * 在排序数组中查找数字 I
+     * 剑指 Offer 53 - I. 在排序数组中查找数字 I
      *
      * @param nums
      * @param target
      * @return
      */
     public static int search(int[] nums, int target) {
+        // 低位
         int leftIdx = binarySearch(nums, target, true);
+        // 高位
         int rightIdx = binarySearch(nums, target, false) - 1;
         if (leftIdx <= rightIdx && rightIdx < nums.length && nums[leftIdx] == target && nums[rightIdx] == target) {
             return rightIdx - leftIdx + 1;
