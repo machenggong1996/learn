@@ -9,6 +9,13 @@ import java.util.Arrays;
  */
 public class TwoSum {
 
+    /**
+     * 剑指 Offer 57. 和为s的两个数字
+     *
+     * @param nums   排序数组
+     * @param target 目标结果
+     * @return
+     */
     public static int[] twoSum(int[] nums, int target) {
         int i = 0, j = nums.length - 1;
         while (i < j) {

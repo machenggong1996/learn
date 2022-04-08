@@ -24,10 +24,26 @@ public class KthLargest {
         return res;
     }
 
+
+
+    /**
+     * 二叉搜索树中序遍历倒序为递减序列
+     *
+     * 整体是个中序遍历倒过来 找到中序遍历倒序的第k个节点
+     *
+     *    void dfs(TreeNode root) {
+     *         if(root == null) return;
+     *         dfs(root.left); // 左
+     *         System.out.println(root.val); // 根
+     *         dfs(root.right); // 右
+     *     }
+     * @param root
+     */
     void dfs(TreeNode root) {
         if (root == null) {
             return;
         }
+        // 遍历右边
         dfs(root.right);
         if (k == 0) {
             return;
@@ -35,6 +51,7 @@ public class KthLargest {
         if (--k == 0) {
             res = root.val;
         }
+        // 遍历左边
         dfs(root.left);
     }
 
