@@ -27,6 +27,7 @@ public class MaxQueue {
     }
 
     public void push_back(int value) {
+        // 保证最大的永远在队头
         while (!d.isEmpty() && d.peekLast() < value) {
             d.pollLast();
         }
@@ -45,9 +46,23 @@ public class MaxQueue {
         return ans;
     }
 
+    /**
+     * 剑指 Offer 59 - II. 队列的最大值
+     * @param args
+     */
     public static void main(String[] args) {
         MaxQueue queue = new MaxQueue();
-
+        queue.push_back(3);
+        queue.push_back(1);
+        queue.push_back(2);
+        System.out.println(queue.max_value());
+        queue.push_back(1);
+        queue.push_back(3);
+        queue.pop_front();
+        queue.pop_front();
+        queue.pop_front();
+        queue.pop_front();
+        System.out.println(queue.max_value());
     }
 
 }
