@@ -11,9 +11,9 @@ public class LastRemaining {
     /**
      * 约瑟夫环 圆圈中最后剩下的数字
      *
-     * @param n
-     * @param m
-     * @return
+     * @param n 数字个数
+     * @param m 位置
+     * @return 最后剩下的数字
      */
     public static int lastRemaining(int n, int m) {
         int ans = 0;
