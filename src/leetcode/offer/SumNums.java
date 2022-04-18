@@ -1,4 +1,4 @@
-package leetcode;
+package leetcode.offer;
 
 /**
  * @author machenggong
@@ -7,6 +7,8 @@ package leetcode;
 public class SumNums {
 
     /**
+     * 剑指 Offer 64. 求1+2+…+n
+     *
      * 求1+2+…+n
      * 不能用乘除法 if while else case
      * 使用递归短路
