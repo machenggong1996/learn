@@ -44,9 +44,11 @@ public class LowestCommonAncestor {
      * @return
      */
     public static TreeNode lowestCommonAncestorX(TreeNode root, TreeNode p, TreeNode q) {
+        // 在右子树
         if (root.val < p.val && root.val < q.val) {
             return lowestCommonAncestorX(root.right, p, q);
         }
+        // 左子树
         if (root.val > p.val && root.val > q.val) {
             return lowestCommonAncestorX(root.left, p, q);
         }
