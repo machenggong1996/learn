@@ -3,6 +3,7 @@
 * [浅析Mybatis利用Spring扩展点之ImportBeanDefinitionRegistrar](https://blog.csdn.net/oyc619491800/article/details/105599535)
 * [spring源码学习之整合Mybatis原理分析](https://blog.csdn.net/lihuayong/article/details/83934744)
 * [mybatis与spring事务管理分析](https://www.cnblogs.com/timfruit/p/11508873.html)
+* [mybatis-spring源码分析](https://blog.csdn.net/qq_38366063/article/details/108120233)
 
 ## 1. MapperScannerConfigurer
 
