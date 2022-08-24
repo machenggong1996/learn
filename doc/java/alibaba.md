@@ -13,7 +13,7 @@
 ### jdk 中线程池的类型
 ### 线程池的 BlockQueue 的作用
 ### Java 怎么保证多线程的安全
-### volatile synschonized 的区别和运用场景
+### volatile synchronized 的区别和运用场景
 ### Synchronized 的底层实现
 ### Java 反射是什么，反射的用处
 ### JVM 内存区域划分

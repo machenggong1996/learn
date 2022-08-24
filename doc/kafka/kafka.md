@@ -7,7 +7,7 @@
 ## kafka基础概念
 
 * producer：消息生产者，发布消息到kafka集群的终端或服务。
-* broker kafaka集群中包含的服务器
+* broker kafka集群中包含的服务器
 * topic 每条发布到kafka集群的消息属于的类别，即kafka是面向topic的。
 * partition partition是物理上的概念，每个topic包含一个或多个partition，kafka分配的单位是partition。
 * Consumer 消费者，从kafka集群中消费消息的终端或服务。
