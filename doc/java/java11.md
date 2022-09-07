@@ -76,3 +76,42 @@ strip方法可以去除英文和其他所有语言中的空白
 ## Epsilon垃圾收集器
 
 ## ZGC 突破性GC
+
+* 可伸缩低延迟GC
+* GC时间暂停不会超过10ms
+* 既能处理几百兆的小堆，也能处理几个T的大堆
+* ZGC的设计目标是支持TB级的内存容量，暂停时间低，对整个程序的吞吐量的影响小于15%，将来还可以扩展实现机制
+
+### GC停顿时间对比
+
+ZGC : avg:1.091ms max:1.681ms
+G1 : avg 156.806ms max:543.846ms
+
+## 完全支持linux和docker
+
+## 支持G1上的并行完全垃圾收集
+
+* 对G1进行增强
+* 并行Full GC
+
+## Low-Overhead Heap Profiling 免费的低耗能飞行记录仪和堆分析仪
+
+* 通过 JVMTI 的 SampleObjectAlloc 回调提供了一个开销低的heap分析方式
+
+## Java Flight Recorder 飞行记录仪
+
+* JFR是一套集成进入JDK，jvm的事件机制框架
+* JFR的性能开销最大不超过1%
+
+## JFR启动
+
+jcmd <pid> JFR.start
+jcmd <pid> JFR.dump filename=recording.jfr
+jcmd <pid> JFR.stop
+
+
+
+
+
+
+
