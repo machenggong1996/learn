@@ -1,0 +1,74 @@
+# xxl-job源码分析
+
+## 资料
+
+* [xxl-job源码解析(看这一篇就够了，超简约且详细)](https://blog.csdn.net/Nuan_Feng/article/details/115619448)
+* [xxl-job 源码解析](https://www.bilibili.com/video/BV13V4y1E7CB)
+
+## 每张表的作用
+
+* xxl_job_info 存放任务信息
+* xxl_job_log 任务运行日志
+* xxl_job_log_report 任务统计报告
+* xxl_job_registry 任务注册
+* xxl_job_group 组
+* xxl_job_user 用户
+* xxl_job_lock 分布式锁
+
+服务端 admin项目
+客户端 自己写的项目
+
+## xxl-job-code源码
+
+### com.xxl.job.core.biz 
+
+* 客户端和服务端相互调用的接口 使用netty通信
+
+
+### 问题
+
+1. admin如何触发的客户端 客户端内置netty服务器
+2. 
+
+
+1. 启动流程 XxlJobExecutor
+2. 注册流程 XxlJobExecutor
+3. 执行流程 ExecutorBizImpl IJobHandler
+
+1. 如何分片 策略如何做的
+2. 如何定期执行的
+3. 集群情况下如何处理分布式问题
+
+1. 线程如何创建的 JobThread
+
+### 分片
+
+com.xxl.job.admin.core.trigger.XxlJobTrigger#trigger
+
+group
+
+### 日志
+
+* XxlJobFileAppender
+
+### handler
+
+* MethodJobHandler bean的形式 使用反射执行方法
+
+### Executor
+
+* XxlJobExecutor
+
+### 线程
+
+* JobThread
+
+### server
+
+* EmbedServer netty服务器
+
+
+
+
+
+
