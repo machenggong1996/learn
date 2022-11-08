@@ -61,11 +61,25 @@ group
 
 ### 线程
 
-* JobThread
+* JobThread com.xxl.job.core.executor.XxlJobExecutor#registJobThread 注册之后线程就会启动
 
 ### server
 
 * EmbedServer netty服务器
+
+### glue 胶水 可以执行脚本和代码
+
+* GlueFactory 加载java代码
+* SpringGlueFactory 对代码进行spring注入
+
+## admin项目源码分析
+
+1. 如何解析corn表达式进行定时任务执行
+2. 
+
+
+
+
 
 
 
