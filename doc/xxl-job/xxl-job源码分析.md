@@ -4,6 +4,7 @@
 
 * [xxl-job源码解析(看这一篇就够了，超简约且详细)](https://blog.csdn.net/Nuan_Feng/article/details/115619448)
 * [xxl-job 源码解析](https://www.bilibili.com/video/BV13V4y1E7CB)
+* [xxl-job 源码注释地址](https://github.com/machenggong1996/xxl-job)
 
 ## 每张表的作用
 
@@ -74,8 +75,22 @@ group
 
 ## admin项目源码分析
 
-1. 如何解析corn表达式进行定时任务执行
-2. 
+1. 如何解析corn表达式进行定时任务执行 CronExpression
+2. 分布式锁
+3. 快慢线程池
+
+### UserController
+
+* 用户管理
+
+### JobScheduleHelper
+
+* [xxl-job调度线程与时间轮算法](https://blog.csdn.net/qq_35946969/article/details/122588968)
+* [JobScheduleHelper 源码注释地址](https://github.com/machenggong1996/xxl-job/blob/master/xxl-job-admin/src/main/java/com/xxl/job/admin/core/thread/JobScheduleHelper.java)
+* 普通调度 5秒时间对齐
+* 时间轮调度 1秒时间对齐 下次执行时间在5秒之内的放入时间轮调度
+
+
 
 
 
