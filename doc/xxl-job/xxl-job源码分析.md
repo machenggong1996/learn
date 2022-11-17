@@ -78,6 +78,7 @@ group
 1. 如何解析corn表达式进行定时任务执行 CronExpression
 2. 分布式锁
 3. 快慢线程池
+4. 路由策略
 
 ### UserController
 
@@ -92,14 +93,17 @@ group
 
 ### JobTriggerPoolHelper
 
-* 快慢线程池
+* [JobTriggerPoolHelper源码解读](https://blog.csdn.net/u011236069/article/details/121092471)
+* 快慢线程池 部分慢执行的线程，会拖慢整个线程池，因此需要将快慢分离。 需要区分出哪些是慢线程，这里给一个依据是一分钟内的慢执行（耗时大于500ms）次数为10次。
 
 
+### 路由策略
 
+## 版本对比 2.2.0 与 2.4.0
 
+* 2.4.0获取参数使用XxlJobHelper，2.2.0没有 需要在方法入口写参数
 
-
-
+## 触发一次的调用链
 
 
 
