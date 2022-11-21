@@ -79,6 +79,7 @@ group
 2. 分布式锁
 3. 快慢线程池
 4. 路由策略
+5. 阻塞策略
 
 ### UserController
 
@@ -105,7 +106,29 @@ group
 
 ## 触发一次的调用链
 
+1. admin项目 com.xxl.job.admin.controller.JobInfoController#triggerJob
+2. admin项目 com.xxl.job.admin.core.thread.JobTriggerPoolHelper#trigger
+3. admin项目 com.xxl.job.admin.core.thread.JobTriggerPoolHelper#addTrigger 快慢线程池切换逻辑
+4. admin项目 com.xxl.job.admin.core.trigger.XxlJobTrigger#trigger
+5. admin项目 com.xxl.job.admin.core.trigger.XxlJobTrigger#processTrigger 区分分片路由策略和其他策略，分片路由策略是for循环执行
+6. admin项目 com.xxl.job.admin.core.trigger.XxlJobTrigger#runExecutor
+7. core项目 com.xxl.job.core.biz.client.ExecutorBizClient#run 远程调用
+8. core项目 com.xxl.job.core.biz.impl.ExecutorBizImpl#run 实际调用逻辑执行
+  * 创建JobThread线程
+  * jobThread.pushTriggerQueue(triggerParam) 放入队列
+  * com.xxl.job.core.thread.JobThread#run 从队列中获取任务并执行
+    * 队列中获取参数
+    * 封装XxlJobContext上下文
+    * FutureTask异步执行调用 带超时的 handler.execute()方法实际执行 使用反射
+    * 循环30次队列任务为0 停止任务
+    * TriggerCallbackThread.pushCallBack 执行回调
+    * com.xxl.job.core.thread.TriggerCallbackThread#doCallback
+    * com.xxl.job.admin.core.thread.JobCompleteHelper#callback
+    * com.xxl.job.admin.core.complete.XxlJobCompleter#updateHandleInfoAndFinish 触发子任务执行
 
+## 调度策略算法
+
+### 1. 一致性哈希
 
 
 
