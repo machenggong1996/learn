@@ -130,5 +130,78 @@ group
 
 ### 1. 一致性哈希
 
+![avatar](pics/一致性哈希.png)
 
+```java
+public class  ExecutorRouteConsistentHash extends ExecutorRouter {
+
+    private static int VIRTUAL_NODE_NUM = 100;
+
+    /**
+     * get hash code on 2^32 ring (md5散列的方式计算hash值)
+     * @param key
+     * @return
+     */
+    private static long hash(String key) {
+
+        // md5 byte
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 not supported", e);
+        }
+        md5.reset();
+        byte[] keyBytes = null;
+        try {
+            keyBytes = key.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Unknown string :" + key, e);
+        }
+
+        md5.update(keyBytes);
+        byte[] digest = md5.digest();
+
+        // hash code, Truncate to 32-bits
+        long hashCode = ((long) (digest[3] & 0xFF) << 24)
+                | ((long) (digest[2] & 0xFF) << 16)
+                | ((long) (digest[1] & 0xFF) << 8)
+                | (digest[0] & 0xFF);
+
+        long truncateHashCode = hashCode & 0xffffffffL;
+        return truncateHashCode;
+    }
+
+    public String hashJob(int jobId, List<String> addressList) {
+
+        // ------A1------A2-------A3------
+        // -----------J1------------------
+        TreeMap<Long, String> addressRing = new TreeMap<Long, String>();
+        for (String address: addressList) {
+            // 虚拟节点200个
+            for (int i = 0; i < VIRTUAL_NODE_NUM; i++) {
+                long addressHash = hash("SHARD-" + address + "-NODE-" + i);
+                addressRing.put(addressHash, address);
+            }
+        }
+
+        long jobHash = hash(String.valueOf(jobId));
+        // tailMap 获取尾部 比jobHash大的数据
+        SortedMap<Long, String> lastRing = addressRing.tailMap(jobHash);
+        if (!lastRing.isEmpty()) {
+            // 获取lastRing第一个
+            return lastRing.get(lastRing.firstKey());
+        }
+        // 没有数据从头开始 行程环状
+        return addressRing.firstEntry().getValue();
+    }
+
+    @Override
+    public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
+        String address = hashJob(triggerParam.getJobId(), addressList);
+        return new ReturnT<String>(address);
+    }
+
+}
+```
 
