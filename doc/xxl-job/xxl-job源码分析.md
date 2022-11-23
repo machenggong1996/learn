@@ -126,6 +126,45 @@ group
     * com.xxl.job.admin.core.thread.JobCompleteHelper#callback
     * com.xxl.job.admin.core.complete.XxlJobCompleter#updateHandleInfoAndFinish 触发子任务执行
 
+## 阻塞策略
+
+* com.xxl.job.core.biz.impl.ExecutorBizImpl#run
+
+```
+    // 单机串行
+    SERIAL_EXECUTION("Serial execution"),
+    /*CONCURRENT_EXECUTION("并行"),*/
+    // 丢弃后续调度
+    DISCARD_LATER("Discard Later"),
+    // 覆盖以前调度
+    COVER_EARLY("Cover Early");
+```
+
+```
+// executor block strategy
+        if (jobThread != null) {
+            // 阻塞处理策略
+            ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy(), null);
+            if (ExecutorBlockStrategyEnum.DISCARD_LATER == blockStrategy) {
+                // discard when running
+                // 如果当前任务线程正在运行中 返回失败
+                if (jobThread.isRunningOrHasQueue()) {
+                    return new ReturnT<String>(ReturnT.FAIL_CODE, "block strategy effect："+ExecutorBlockStrategyEnum.DISCARD_LATER.getTitle());
+                }
+            } else if (ExecutorBlockStrategyEnum.COVER_EARLY == blockStrategy) {
+            // 覆盖策略 把当前任务线程置空
+                // kill running jobThread
+                if (jobThread.isRunningOrHasQueue()) {
+                    removeOldReason = "block strategy effect：" + ExecutorBlockStrategyEnum.COVER_EARLY.getTitle();
+
+                    jobThread = null;
+                }
+            } else {
+                // just queue trigger
+            }
+        }
+```
+
 ## 调度策略算法
 
 ### 1. 一致性哈希
