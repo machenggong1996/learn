@@ -17,9 +17,10 @@ ReactiveWebServerApplicationContext.ServerManager#get->ReactiveWebServerApplicat
 routes属性对应配置文件相关配置
 
 ![avatar](pics/gateway/GatewayProperties.png)
+
 ```java
 public class RouteDefinitionRouteLocator
-		implements RouteLocator, BeanFactoryAware, ApplicationEventPublisherAware {
+        implements RouteLocator, BeanFactoryAware, ApplicationEventPublisherAware {
 
     /**
      * Default filters name.
@@ -39,6 +40,7 @@ public class RouteDefinitionRouteLocator
     private final GatewayProperties gatewayProperties;
 }
 ```
+
 * RouteDefinitionRouteLocator 断言，过滤器等的实际加载类
 * GatewayFilterFactory子类
 * RoutePredicateFactory子类
@@ -80,7 +82,7 @@ public RouteLocator routeDefinitionRouteLocator(GatewayProperties properties,
 ## 2. 请求流程
 
 * [请求流程](https://www.jianshu.com/p/f5f6cebcdf88)
-  
+
 ReactorHttpHandlerAdapter#apply开始执行
 
 ![avatar](pics/gateway/请求流程图.png)
@@ -112,10 +114,8 @@ public Mono<Void> handle(ServerWebExchange exchange){
 
 #### 2.1.1 invokeHandler方法调用拦截器链
 
-DispatcherHandler#invokeHandler
-->SimpleHandlerAdapter#handle
-->org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器排序
-->DefaultGatewayFilterChain#filter
+DispatcherHandler#invokeHandler ->SimpleHandlerAdapter#handle ->
+org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器排序 ->DefaultGatewayFilterChain#filter
 
 ```
 		@Override
@@ -210,8 +210,8 @@ RouteDefinitionRouteLocator#lookup
 #### GatewayFilter 配置化拦截器
 
 * 需要通过spring.cloud.routes.filters 配置在具体路由下，只作用在当前路由上或通过spring.cloud.default-filters配置在全局，作用在所有路由上。
-![avatar](pics/gateway/GatewayFilterFactory.png)
-  
+  ![avatar](pics/gateway/GatewayFilterFactory.png)
+
 #### 自定义GatewayFilterFactory
 
 1. 优点 TODO
@@ -252,9 +252,253 @@ route.getMetadata(someKey);
 
 ## 4. 熔断
 
-
-
 ## 5. 限流
 
+* [Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.10) 之 RequestRateLimiterGatewayFilterFactory 请求限流](https://blog.csdn.net/weixin_42073629/article/details/106934827)
+
+### 5.1 redis限流使用
+
+引入org.springframework.boot:spring-boot-starter-data-redis-reactive之后使用RedisRateLimiter
+
+spring cloud gateway限流使用RequestRateLimiterGatewayFilterFactory过滤器
+
+自定义KeyResolver
+
+```java
+
+@Configuration
+public class KeyResolverConfiguration {
+
+    @Primary
+    @Bean
+    public KeyResolver pathKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getURI().getPath());
+    }
+
+    @Bean
+    public KeyResolver parameterKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getHeaders().get("userId").get(0));
+    }
+
+    @Bean
+    public KeyResolver ipKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getURI().getHost());
+    }
+
+}
+```
+
+配置文件配置
+
+```yml
+spring:
+  application:
+    name: hikari-ai-planner-gateway
+  redis:
+    host: localhost
+    port: 6379
+  cloud:
+    gateway:
+      routes:
+        # =====================================
+        - id: default_path_to_httpbin
+          uri: http://planner-class-test.inner.youdao.com
+          order: 10000
+          predicates:
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+          filters:
+            - StripPrefix=4
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1     # 令牌桶每秒填充速率, 指的是允许用户每秒执行多少请求，不丢弃任何请求;
+                redis-rate-limiter.burstCapacity: 5     # 令牌桶总容量, 指的是用户在一秒钟内允许执行的最大请求数，也就是令牌桶可以保存的令牌数, 如果将此值设置为零将阻止所有请求;
+                redis-rate-limiter.requestedTokens: 1   # 指的是每个请求消耗多少个令牌, 默认是1.
+                key-resolver: "#{@pathKeyResolver}"     # 指的是限流的时候以什么维度来判断，使用SpEL表达式按名称引用BEAN(REDIS中限流相关的KEY和此处的配置相关).
+```
+
+在redis中生成key 时间比较短
+![avatar](pics/gateway/限流在redis中生成的key.png)
+
+### 5.2 redis限流源码分析
+
+#### 5.2.1 配置加载
+
+```java
+class GatewayRedisAutoConfiguration {
+
+  /**
+   * lua脚本路径 META-INF/scripts/request_rate_limiter.lua
+   * 
+   * @return
+   */
+  @Bean
+    @SuppressWarnings("unchecked")
+    public RedisScript redisRequestRateLimiterScript() {
+        DefaultRedisScript redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("META-INF/scripts/request_rate_limiter.lua")));
+        redisScript.setResultType(List.class);
+        return redisScript;
+    }
+
+  /**
+   * RedisTemplate使用ReactiveRedisTemplate
+   * 
+   * @param reactiveRedisConnectionFactory
+   * @param resourceLoader
+   * @return
+   */
+    @Bean
+    //TODO: replace with ReactiveStringRedisTemplate in future
+    public ReactiveRedisTemplate<String, String> stringReactiveRedisTemplate(
+            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
+            ResourceLoader resourceLoader) {
+        RedisSerializer<String> serializer = new StringRedisSerializer();
+        RedisSerializationContext<String, String> serializationContext = RedisSerializationContext
+                .<String, String>newSerializationContext()
+                .key(serializer)
+                .value(serializer)
+                .hashKey(serializer)
+                .hashValue(serializer)
+                .build();
+        return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory,
+                serializationContext);
+    }
+
+  /**
+   * RateLimiter 使用 RedisRateLimiter
+   * @param redisTemplate
+   * @param redisScript
+   * @return
+   */
+    @Bean
+    public RedisRateLimiter redisRateLimiter(ReactiveRedisTemplate<String, String> redisTemplate,
+                                             @Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript) {
+        return new RedisRateLimiter(redisTemplate, redisScript);
 
 
+    }
+}
+```
+
+#### 5.2.2 RedisRateLimiter核心方法isAllowed
+
+```
+	public Mono<Response> isAllowed(String routeId, String id) {
+		if (!this.initialized.get()) {
+			throw new IllegalStateException("RedisRateLimiter is not initialized");
+		}
+
+		Config routeConfig = loadConfiguration(routeId);
+
+		// How many requests per second do you want a user to be allowed to do?
+		int replenishRate = routeConfig.getReplenishRate();
+
+		// How much bursting do you want to allow?
+		int burstCapacity = routeConfig.getBurstCapacity();
+
+		// How many tokens are requested per request?
+		int requestedTokens = routeConfig.getRequestedTokens();
+
+		try {
+			List<String> keys = getKeys(id);
+
+			// The arguments to the LUA script. time() returns unixtime in seconds.
+			List<String> scriptArgs = Arrays.asList(replenishRate + "", burstCapacity + "", "", requestedTokens + "");
+			// allowed, tokens_left = redis.eval(SCRIPT, keys, args)
+			Flux<List<Long>> flux = this.redisTemplate.execute(this.script, keys, scriptArgs);
+			// .log("redisratelimiter", Level.FINER);
+			return flux.onErrorResume(throwable -> {
+				if (log.isDebugEnabled()) {
+					log.debug("Error calling rate limiter lua", throwable);
+				}
+				return Flux.just(Arrays.asList(1L, -1L));
+			}).reduce(new ArrayList<Long>(), (longs, l) -> {
+				longs.addAll(l);
+				return longs;
+			}).map(results -> {
+				boolean allowed = results.get(0) == 1L;
+				Long tokensLeft = results.get(1);
+
+				Response response = new Response(allowed, getHeaders(routeConfig, tokensLeft));
+
+				if (log.isDebugEnabled()) {
+					log.debug("response: " + response);
+				}
+				return response;
+			});
+		}
+		catch (Exception e) {
+			/*
+			 * We don't want a hard dependency on Redis to allow traffic. Make sure to set
+			 * an alert so you know if this is happening too much. Stripe's observed
+			 * failure rate is 0.01%.
+			 */
+			log.error("Error determining if user allowed from redis", e);
+		}
+		return Mono.just(new Response(true, getHeaders(routeConfig, -1L)));
+	}
+```
+
+#### 5.2.3 lua执行流程图
+
+lua脚本内容 两个key 3个参数
+
+
+
+```lua
+redis.replicate_commands()
+
+local tokens_key = KEYS[1]
+local timestamp_key = KEYS[2]
+--redis.log(redis.LOG_WARNING, "tokens_key " .. tokens_key)
+
+local rate = tonumber(ARGV[1])
+local capacity = tonumber(ARGV[2])
+local now = redis.call('TIME')[1]
+local requested = tonumber(ARGV[4])
+
+local fill_time = capacity/rate
+local ttl = math.floor(fill_time*2)
+
+--redis.log(redis.LOG_WARNING, "rate " .. ARGV[1])
+--redis.log(redis.LOG_WARNING, "capacity " .. ARGV[2])
+--redis.log(redis.LOG_WARNING, "now " .. now)
+--redis.log(redis.LOG_WARNING, "requested " .. ARGV[4])
+--redis.log(redis.LOG_WARNING, "filltime " .. fill_time)
+--redis.log(redis.LOG_WARNING, "ttl " .. ttl)
+
+local last_tokens = tonumber(redis.call("get", tokens_key))
+if last_tokens == nil then
+  last_tokens = capacity
+end
+--redis.log(redis.LOG_WARNING, "last_tokens " .. last_tokens)
+
+local last_refreshed = tonumber(redis.call("get", timestamp_key))
+if last_refreshed == nil then
+  last_refreshed = 0
+end
+--redis.log(redis.LOG_WARNING, "last_refreshed " .. last_refreshed)
+
+local delta = math.max(0, now-last_refreshed)
+local filled_tokens = math.min(capacity, last_tokens+(delta*rate))
+local allowed = filled_tokens >= requested
+local new_tokens = filled_tokens
+local allowed_num = 0
+if allowed then
+  new_tokens = filled_tokens - requested
+  allowed_num = 1
+end
+
+--redis.log(redis.LOG_WARNING, "delta " .. delta)
+--redis.log(redis.LOG_WARNING, "filled_tokens " .. filled_tokens)
+--redis.log(redis.LOG_WARNING, "allowed_num " .. allowed_num)
+--redis.log(redis.LOG_WARNING, "new_tokens " .. new_tokens)
+
+if ttl > 0 then
+  redis.call("setex", tokens_key, ttl, new_tokens)
+  redis.call("setex", timestamp_key, ttl, now)
+end
+
+-- return { allowed_num, new_tokens, capacity, filled_tokens, requested, new_tokens }
+return { allowed_num, new_tokens }
+```
