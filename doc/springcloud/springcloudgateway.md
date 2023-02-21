@@ -252,6 +252,8 @@ route.getMetadata(someKey);
 
 ## 4. 熔断
 
+* [Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.9) 之 HystrixGatewayFilterFactory 熔断](https://blog.csdn.net/weixin_42073629/article/details/106934699)
+
 ## 5. 限流
 
 * [Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.10) 之 RequestRateLimiterGatewayFilterFactory 请求限流](https://blog.csdn.net/weixin_42073629/article/details/106934827)
@@ -444,6 +446,12 @@ class GatewayRedisAutoConfiguration {
 lua脚本内容 两个key 3个参数
 
 
+* 第一个key ：request_rate_limiter.${id}.tokens ，令牌桶剩余令牌数
+* 第二个key ：request_rate_limiter.${id}.timestamp ，令牌桶最后填充令牌时间，单位：秒
+* 第一个参数 ：replenishRate 令牌桶每秒填充速率
+* 第二个参数 ：burstCapacity 令牌桶总容量
+* 第三个参数 ：空字符串 过去版本从 1970-01-01 00:00:00 开始的秒数 当前时间使用local now = redis.call('TIME')[1]
+* 第四个参数 ：消耗令牌数量，默认 1 ,指的是每个请求消耗多少个令牌
 
 ```lua
 redis.replicate_commands()
@@ -457,7 +465,9 @@ local capacity = tonumber(ARGV[2])
 local now = redis.call('TIME')[1]
 local requested = tonumber(ARGV[4])
 
+-- 计算令牌桶填充满令牌需要多久时间，单位：秒
 local fill_time = capacity/rate
+-- 2倍时间保证时间充足
 local ttl = math.floor(fill_time*2)
 
 --redis.log(redis.LOG_WARNING, "rate " .. ARGV[1])
@@ -467,20 +477,25 @@ local ttl = math.floor(fill_time*2)
 --redis.log(redis.LOG_WARNING, "filltime " .. fill_time)
 --redis.log(redis.LOG_WARNING, "ttl " .. ttl)
 
+-- 调用 get 命令，获得令牌桶剩余令牌数( last_tokens )
 local last_tokens = tonumber(redis.call("get", tokens_key))
 if last_tokens == nil then
   last_tokens = capacity
 end
 --redis.log(redis.LOG_WARNING, "last_tokens " .. last_tokens)
-
+-- 令牌桶最后填充令牌时间(last_refreshed)
 local last_refreshed = tonumber(redis.call("get", timestamp_key))
 if last_refreshed == nil then
   last_refreshed = 0
 end
 --redis.log(redis.LOG_WARNING, "last_refreshed " .. last_refreshed)
 
+-- 填充令牌，计算新的令牌桶剩余令牌数( filled_tokens )。填充不超过令牌桶令牌上限
 local delta = math.max(0, now-last_refreshed)
 local filled_tokens = math.min(capacity, last_tokens+(delta*rate))
+-- 获取令牌是否成功 
+-- 若成功，令牌桶剩余令牌数(new_tokens) 减消耗令牌数( requested )，并设置获取成功( allowed_num = 1 ) 
+-- 若失败，设置获取失败( allowed_num = 0 ) 
 local allowed = filled_tokens >= requested
 local new_tokens = filled_tokens
 local allowed_num = 0
@@ -494,11 +509,15 @@ end
 --redis.log(redis.LOG_WARNING, "allowed_num " .. allowed_num)
 --redis.log(redis.LOG_WARNING, "new_tokens " .. new_tokens)
 
+-- 设置令牌桶剩余令牌数( new_tokens ) ，令牌桶最后填充令牌时间(now) 
 if ttl > 0 then
   redis.call("setex", tokens_key, ttl, new_tokens)
   redis.call("setex", timestamp_key, ttl, now)
 end
 
 -- return { allowed_num, new_tokens, capacity, filled_tokens, requested, new_tokens }
+-- 返回数组结果，[是否获取令牌成功, 剩余令牌数]
 return { allowed_num, new_tokens }
 ```
+![avatar](pics/gateway/redis限流lua脚本执行流程.png)
+
