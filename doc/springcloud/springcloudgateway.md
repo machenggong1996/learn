@@ -211,6 +211,8 @@ RouteDefinitionRouteLocator#lookup
 
 * 需要通过spring.cloud.routes.filters 配置在具体路由下，只作用在当前路由上或通过spring.cloud.default-filters配置在全局，作用在所有路由上。
   ![avatar](pics/gateway/GatewayFilterFactory.png)
+  
+* HystrixGatewayFilterFactory已经不再维护，现在使用SpringCloudCircuitBreakerFilterFactory
 
 #### 自定义GatewayFilterFactory
 
@@ -250,9 +252,31 @@ route.getMetadata();
 route.getMetadata(someKey);
 ```
 
-## 4. 熔断
+## 4. 熔断 SpringCloudCircuitBreakerFilterFactory
 
-* [Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.9) 之 HystrixGatewayFilterFactory 熔断](https://blog.csdn.net/weixin_42073629/article/details/106934699)
+* spring cloud gateway 使用resilience4j进行熔断 项目引入implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
+* 现在使用SpringCloudCircuitBreakerFilterFactory
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+#        # =====================================
+        - id: circuitBreakerTest
+          uri: http://planner-class-test.inner.youdao.com
+          order: 10000
+          predicates:
+          - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+          filters:
+          - StripPrefix=4
+          - name: CircuitBreaker
+            args:
+              name: myCircuitBreaker
+              statusCodes: # 定义状态码
+                - 500
+                - "NOT_FOUND"
+              fallbackUri: /ai-planner/api/app/class/toc/class/listMyClasses # 熔断跳转路径
+```
 
 ## 5. 限流
 
