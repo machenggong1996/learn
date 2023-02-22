@@ -272,10 +272,69 @@ spring:
           - name: CircuitBreaker
             args:
               name: myCircuitBreaker
-              statusCodes: # 定义状态码
+              statusCodes: # 定义状态码 会解析出500和404两种状态
                 - 500
                 - "NOT_FOUND"
               fallbackUri: /ai-planner/api/app/class/toc/class/listMyClasses # 熔断跳转路径
+```
+
+### 4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析
+
+```java
+public abstract class SpringCloudCircuitBreakerFilterFactory
+		extends AbstractGatewayFilterFactory<SpringCloudCircuitBreakerFilterFactory.Config> {
+
+	/** CircuitBreaker component name. */
+	public static final String NAME = "CircuitBreaker";
+
+	// do not use this dispatcherHandler directly, use getDispatcherHandler() instead.
+	private volatile DispatcherHandler dispatcherHandler;
+
+	@Override
+	public GatewayFilter apply(Config config) {
+		ReactiveCircuitBreaker cb = reactiveCircuitBreakerFactory.create(config.getId());
+		Set<HttpStatus> statuses = config.getStatusCodes().stream().map(HttpStatusHolder::parse)
+				.filter(statusHolder -> statusHolder.getHttpStatus() != null).map(HttpStatusHolder::getHttpStatus)
+				.collect(Collectors.toSet());
+
+		return new GatewayFilter() {
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+			    // ReactiveCircuitBreaker#run(Mono<T> toRun, Function<Throwable, Mono<T>> fallback) 执行中抛出异常会调用fallback运行
+                // fallback代码中如果fallbackUri是空的抛出异常，否则请求fallbackUri路径，如果请求失败进入handleErrorWithoutFallback
+				return cb.run(chain.filter(exchange).doOnSuccess(v -> {
+					if (statuses.contains(exchange.getResponse().getStatusCode())) {
+						HttpStatus status = exchange.getResponse().getStatusCode();
+						throw new CircuitBreakerStatusCodeException(status);
+					}
+				}), t -> {
+					if (config.getFallbackUri() == null) {
+						return Mono.error(t);
+					}
+
+					exchange.getResponse().setStatusCode(null);
+					reset(exchange);
+
+					// TODO: copied from RouteToRequestUrlFilter
+					URI uri = exchange.getRequest().getURI();
+					// TODO: assume always?
+					boolean encoded = containsEncodedParts(uri);
+					URI requestUrl = UriComponentsBuilder.fromUri(uri).host(null).port(null)
+							.uri(config.getFallbackUri()).scheme(null).build(encoded).toUri();
+					exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, requestUrl);
+					addExceptionDetails(t, exchange);
+
+					// Reset the exchange
+					reset(exchange);
+
+					ServerHttpRequest request = exchange.getRequest().mutate().uri(requestUrl).build();
+					return getDispatcherHandler().handle(exchange.mutate().request(request).build());
+				}).onErrorResume(t -> handleErrorWithoutFallback(t, config.isResumeWithoutError()));
+			}
+		};
+	}
+
+}
 ```
 
 ## 5. 限流
