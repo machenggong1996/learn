@@ -18,6 +18,8 @@
       - [3.2.2 GatewayFilter 配置化拦截器](#322-gatewayfilter-配置化拦截器)
       - [3.2.3 spring.cloud.gateway.default-filters配置](#323-springcloudgatewaydefault-filters配置)
       - [3.2.4 自定义GatewayFilterFactory](#324-自定义gatewayfilterfactory)
+        - [3.2.4.1 NameValue 键值对类型](#3241-namevalue-键值对类型)
+        - [3.2.4.2 多参数类型](#3242-多参数类型)
     - [3.3 Metadata](#33-metadata)
   - [4. 熔断 SpringCloudCircuitBreakerFilterFactory](#4-熔断-springcloudcircuitbreakerfilterfactory)
     - [4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析](#41-springcloudcircuitbreakerfilterfactoryapply源码分析)
@@ -28,7 +30,6 @@
       - [5.2.2 RedisRateLimiter核心方法isAllowed](#522-redisratelimiter核心方法isallowed)
       - [5.2.3 lua执行流程图](#523-lua执行流程图)
     - [5.3 如何正确使用限流](#53-如何正确使用限流)
-
 
 ## 1. 网关启动&配置加载流程
 
@@ -233,7 +234,7 @@ RouteDefinitionRouteLocator#lookup
 
 #### 3.1.2 自定义RoutePredicateFactory
 
-* 优点：可以自定义对应自己业务的拦截器，对指定的路由生效。比如，有些路由需要校验权限，cookie等，可以在有需要的路由下配置权限校验，cookie校验的拦截器
+* 优点：
 
 ### 3.2 Filters
 
@@ -275,7 +276,151 @@ spring:
 
 #### 3.2.4 自定义GatewayFilterFactory
 
-1. 优点 TODO
+1. 优点: 可以自定义对应自己业务的拦截器，对指定的路由生效。比如，有些路由需要校验权限，cookie等，可以在有需要的路由下配置权限校验，cookie校验的拦截器
+
+* AbstractGatewayFilterFactory
+* AbstractNameValueGatewayFilterFactory: Config为key value键值类型
+
+##### 3.2.4.1 NameValue 键值对类型
+
+java代码
+
+```java
+public class NameValueGatewayFilterFactory extends AbstractNameValueGatewayFilterFactory {
+
+  /**
+   * 自定义过滤器名称 如果不重写name()方法 默认名称为NameValue
+   */
+  public static final String NAME = "NameValueTest";
+
+    @Override
+    public GatewayFilter apply(NameValueConfig config) {
+        return new GatewayFilter() {
+            @Override
+            public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                String value = ServerWebExchangeUtils.expand(exchange, config.getValue());
+                ServerHttpRequest request = exchange.getRequest().mutate()
+                        .headers(httpHeaders -> httpHeaders.add(config.getName(), value)).build();
+
+                return chain.filter(exchange.mutate().request(request).build());
+            }
+        };
+    }
+
+    @Override
+    public String name() {
+        return NAME;
+    }
+}
+```
+
+配置
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: circuitBreakerTest
+          uri: http://xxx.com
+          order: 10000
+          predicates:
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+          filters:
+            - StripPrefix=4
+            - NameValueTest=A,B # NameValueGatewayFilterFactory过滤器，name=A，value=B
+#            - name: NameValueTest 或者使用这种配置
+#              args:
+#                name: A
+#                value: B
+```
+
+##### 3.2.4.2 多参数类型
+
+```java
+public class ParamCheckGatewayFilterFactory extends AbstractGatewayFilterFactory<ParamCheckGatewayFilterFactory.Config> {
+
+    public ParamCheckGatewayFilterFactory() {
+        super(Config.class);
+    }
+
+  /**
+   * 快捷式配置
+   * @return
+   */
+  @Override
+    public List<String> shortcutFieldOrder() {
+        return Arrays.asList("arg1", "arg2", "arg3");
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+
+        return new GatewayFilter() {
+            @Override
+            public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                System.out.println(config);
+                return null;
+            }
+        };
+    }
+
+
+    public static class Config {
+
+        private String arg1;
+
+        private String arg2;
+
+        private String arg3;
+
+        public String getArg1() {
+            return arg1;
+        }
+
+        public void setArg1(String arg1) {
+            this.arg1 = arg1;
+        }
+
+        public String getArg2() {
+            return arg2;
+        }
+
+        public void setArg2(String arg2) {
+            this.arg2 = arg2;
+        }
+
+        public String getArg3() {
+            return arg3;
+        }
+
+        public void setArg3(String arg3) {
+            this.arg3 = arg3;
+        }
+    }
+
+}
+```
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: gateway_filter_factory
+          uri: http://xxx.com
+          order: 10000
+          predicates:
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+          filters:
+            - StripPrefix=4
+#            - name: ParamCheck
+#              args:
+#                arg1: 1
+#                arg2: 2
+#                arg3: 3
+            - ParamCheck=1,2,3 # 需要重写 shortcutFieldOrder() 方法
+```
 
 ### 3.3 Metadata
 
@@ -324,7 +469,7 @@ spring:
       routes:
         #        # =====================================
         - id: circuitBreakerTest
-          uri: http://planner-class-test.inner.youdao.com
+          uri: http://xxx.com
           order: 10000
           predicates:
             - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
@@ -449,7 +594,7 @@ spring:
       routes:
         # =====================================
         - id: default_path_to_httpbin
-          uri: http://planner-class-test.inner.youdao.com
+          uri: http://xxx.com
           order: 10000
           predicates:
             - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
