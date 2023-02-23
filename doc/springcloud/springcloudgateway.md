@@ -37,9 +37,12 @@
 
 最终服务启动的是netty服务
 
-refresh()->ReactiveWebServerApplicationContext#onRefresh->ReactiveWebServerApplicationContext#createWebServer ->
-ReactiveWebServerApplicationContext.ServerManager#get->ReactiveWebServerApplicationContext.ServerManager#ServerManager
-->NettyReactiveWebServerFactory#getWebServer
+1. refresh()
+2. ReactiveWebServerApplicationContext#onRefresh
+3. ReactiveWebServerApplicationContext#createWebServer 
+4. ReactiveWebServerApplicationContext.ServerManager#get 
+5. ReactiveWebServerApplicationContext.ServerManager#ServerManager
+6. NettyReactiveWebServerFactory#getWebServer
 
 ### 1.2 GatewayAutoConfiguration
 
@@ -175,14 +178,14 @@ org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器�
 
 ### 3.1 Predicate
 
-DispatcherHandler#handle->
-AbstractHandlerMapping#getHandler->
-RoutePredicateHandlerMapping#getHandlerInternal->
-RoutePredicateHandlerMapping#lookupRoute断言匹配 ->
-RouteDefinitionRouteLocator#getRoutes->
-RouteDefinitionRouteLocator#convertToRoute->
-RouteDefinitionRouteLocator#combinePredicates->
-RouteDefinitionRouteLocator#lookup
+1. DispatcherHandler#handle
+2. AbstractHandlerMapping#getHandler
+3. RoutePredicateHandlerMapping#getHandlerInternal
+4. RoutePredicateHandlerMapping#lookupRoute断言匹配
+5. RouteDefinitionRouteLocator#getRoutes
+6. RouteDefinitionRouteLocator#convertToRoute
+7. RouteDefinitionRouteLocator#combinePredicates
+8. RouteDefinitionRouteLocator#lookup
 
 ```
 	protected Mono<Route> lookupRoute(ServerWebExchange exchange) {
