@@ -1,6 +1,10 @@
 # Spring Cloud Gateway源码分析
 
-- [Spring Cloud Gateway源码分析](#spring-cloud-gateway)
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Spring Cloud Gateway源码分析](#spring-cloud-gateway源码分析)
   - [1. 网关启动\&配置加载流程](#1-网关启动配置加载流程)
     - [1.1 springboot reactive项目启动](#11-springboot-reactive项目启动)
     - [1.2 GatewayAutoConfiguration](#12-gatewayautoconfiguration)
@@ -20,7 +24,10 @@
       - [3.2.4 自定义GatewayFilterFactory](#324-自定义gatewayfilterfactory)
         - [3.2.4.1 NameValue 键值对类型](#3241-namevalue-键值对类型)
         - [3.2.4.2 多参数类型](#3242-多参数类型)
-    - [3.3 Metadata](#33-metadata)
+    - [3.3 ShortcutConfigurable接口](#33-shortcutconfigurable接口)
+      - [3.3.1 ShortcutConfigurable源码及注释](#331-shortcutconfigurable源码及注释)
+      - [3.3.2 ShortcutConfigurable方法调用](#332-shortcutconfigurable方法调用)
+    - [3.4 Metadata](#34-metadata)
   - [4. 熔断 SpringCloudCircuitBreakerFilterFactory](#4-熔断-springcloudcircuitbreakerfilterfactory)
     - [4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析](#41-springcloudcircuitbreakerfilterfactoryapply源码分析)
   - [5. 限流](#5-限流)
@@ -30,6 +37,11 @@
       - [5.2.2 RedisRateLimiter核心方法isAllowed](#522-redisratelimiter核心方法isallowed)
       - [5.2.3 lua执行流程图](#523-lua执行流程图)
     - [5.3 如何正确使用限流](#53-如何正确使用限流)
+
+<!-- /code_chunk_output -->
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
 
 ## 1. 网关启动&配置加载流程
 
@@ -237,7 +249,97 @@ org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器�
 
 #### 3.1.2 自定义RoutePredicateFactory
 
-* 优点：
+* 优点：可以自定义RoutePredicateFactory对ip，权限，cookie进行校验
+
+java代码
+
+```java
+@Component
+public class CustomRoutePredicateFactory extends AbstractRoutePredicateFactory<CustomRoutePredicateFactory.Config> {
+
+    public static final String NAME = "CustomPredicate";
+
+    public CustomRoutePredicateFactory() {
+        super(Config.class);
+    }
+
+    @Override
+    public List<String> shortcutFieldOrder() {
+        return Arrays.asList("arg1", "arg2", "arg3");
+    }
+
+    @Override
+    public Predicate<ServerWebExchange> apply(Config config) {
+        return new GatewayPredicate() {
+            @Override
+            public boolean test(ServerWebExchange exchange) {
+                return true;
+            }
+
+        };
+    }
+
+    @Override
+    public String name() {
+        return NAME;
+    }
+
+    public static class Config {
+
+        private String arg1;
+
+        private String arg2;
+
+        private String arg3;
+
+        public String getArg1() {
+            return arg1;
+        }
+
+        public void setArg1(String arg1) {
+            this.arg1 = arg1;
+        }
+
+        public String getArg2() {
+            return arg2;
+        }
+
+        public void setArg2(String arg2) {
+            this.arg2 = arg2;
+        }
+
+        public String getArg3() {
+            return arg3;
+        }
+
+        public void setArg3(String arg3) {
+            this.arg3 = arg3;
+        }
+
+    }
+}
+```
+
+yaml配置
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: custom_route_predicate_test
+          uri: http://xxx.com
+          predicates:
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+            - CustomPredicate=1,2,3
+#            - name: CustomPredicate 或者使用这种配置
+#              args:
+#                arg1: A
+#                arg2: B
+#                arg3: C
+          filters:
+            - StripPrefix=4
+```
 
 ### 3.2 Filters
 
@@ -279,10 +381,11 @@ spring:
 
 #### 3.2.4 自定义GatewayFilterFactory
 
-1. 优点: 可以自定义对应自己业务的拦截器，对指定的路由生效。比如，有些路由需要校验权限，cookie等，可以在有需要的路由下配置权限校验，cookie校验的拦截器
+1. 优点: 可以自定义对应自己业务的拦截器，修改请求内容 将cookie解析出的userId放入请求
 
 * AbstractGatewayFilterFactory
 * AbstractNameValueGatewayFilterFactory: Config为key value键值类型
+* GatewayFilter#filter()返回Mono.empty()或者抛出异常会被拦截住
 
 ##### 3.2.4.1 NameValue 键值对类型
 
@@ -425,7 +528,196 @@ spring:
             - ParamCheck=1,2,3 # 需要重写 shortcutFieldOrder() 方法
 ```
 
-### 3.3 Metadata
+### 3.3 ShortcutConfigurable接口
+
+[Spring gateway 源代码总结之ShortcutConfigurable详解 09](https://blog.csdn.net/louie_zhao/article/details/115409189)
+
+#### 3.3.1 ShortcutConfigurable源码及注释
+
+```java
+public interface ShortcutConfigurable {
+ 
+	/**
+	 *  程序先会生产自动生成的key: _genkey_0 -> X-Response-Default-Foo
+	 * 从随机生成的 key，转换成 普通的key，比如 name 从shortcutFieldOrder()方法中拿到
+	 * @param key _genkey_0
+	 * @param entryIdx 下标
+	 * @param argHints
+	 * @param args 参数map集合
+	 * @return
+	 */
+	static String normalizeKey(String key, int entryIdx, ShortcutConfigurable argHints,
+			Map<String, String> args) {
+		// RoutePredicateFactory has name hints and this has a fake key name
+		// replace with the matching key hint
+		if (key.startsWith(NameUtils.GENERATED_NAME_PREFIX)
+				&& !argHints.shortcutFieldOrder().isEmpty() && entryIdx < args.size()
+				&& entryIdx < argHints.shortcutFieldOrder().size()) {
+			key = argHints.shortcutFieldOrder().get(entryIdx);
+		}
+		return key;
+	}
+ 
+	/**
+	 * Spring表达式语言解析器 把一些参数化的配置，转换成真实的value
+	 *  routes:
+	 *       - id: path_route
+	 *         uri: https://example.org
+	 *         predicates:
+	 *         - Path=/red/{segment},/blue/{segment}
+	 * @param parser
+	 * @param beanFactory
+	 * @param entryValue
+	 * @return
+	 */
+	static Object getValue(SpelExpressionParser parser, BeanFactory beanFactory,
+			String entryValue) {
+		Object value;
+		String rawValue = entryValue;
+		if (rawValue != null) {
+			rawValue = rawValue.trim();
+		}
+		if (rawValue != null && rawValue.startsWith("#{") && entryValue.endsWith("}")) {
+			// assume it's spel
+			StandardEvaluationContext context = new StandardEvaluationContext();
+			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+			Expression expression = parser.parseExpression(entryValue,
+					new TemplateParserContext());
+			value = expression.getValue(context);
+		}
+		else {
+			value = entryValue;
+		}
+		return value;
+	}
+ 
+	/**
+	 * 默认类型
+	 * @return
+	 */
+	default ShortcutType shortcutType() {
+		return ShortcutType.DEFAULT;
+	}
+ 
+	/**
+	 * 因为要简写 a,b,c的形式所以需要定义属性的顺序
+	 * Returns hints about the number of args and the order for shortcut parsing.
+	 * @return the list of hints
+	 */
+	default List<String> shortcutFieldOrder() {
+		return Collections.emptyList();
+	}
+ 
+	/**
+	 * 简写的属性的prefix
+	 * @return
+	 */
+	default String shortcutFieldPrefix() {
+		return "";
+	}
+     //_genkey_0 -> X-Response-Default-Foo
+ 
+	/**
+	 * DEFAULT :按照shortcutFieldOrder顺序依次赋值
+	 *          实现类：AfterRoutePredicateFactory
+	 * GATHER_LIST：shortcutFiledOrder只能有一个值,如果参数有多个拼成一个集合
+	 *              shortcutFieldOrder接口实现返回的list，必须是size=1
+	 *              实现类：HostRoutePredicateFactory
+	 * GATHER_LIST_TAIL_FLAG：shortcutFiledOrder只能有两个值，其中最后一个值为true或者false，其余的值变成一个集合付给第一个值
+	 *                        自带的就一个实现类：PathRoutePredicateFactory  配置
+	 *        - id: order
+	 *         uri: lb://EUREKA-CLIENT
+	 *         predicates:
+	 *         - Path=/whoami/,false
+	 * shortcutFieldOrder,这个值决定了Config中配置的属性，配置的参数都会被封装到该属性当中
+	 */
+	enum ShortcutType {
+        //name -> X-Response-Default-Foo
+		DEFAULT {
+			@Override
+			public Map<String, Object> normalize(Map<String, String> args,
+					ShortcutConfigurable shortcutConf, SpelExpressionParser parser,
+					BeanFactory beanFactory) {
+				Map<String, Object> map = new HashMap<>();
+				int entryIdx = 0;
+				for (Map.Entry<String, String> entry : args.entrySet()) {
+					String key = normalizeKey(entry.getKey(), entryIdx, shortcutConf,
+							args);
+					Object value = getValue(parser, beanFactory, entry.getValue());
+ 
+					map.put(key, value);
+					entryIdx++;
+				}
+				return map;
+			}
+		},
+        //变成key是random value 是List [1,2,3]
+		GATHER_LIST {
+			@Override
+			public Map<String, Object> normalize(Map<String, String> args,
+					ShortcutConfigurable shortcutConf, SpelExpressionParser parser,
+					BeanFactory beanFactory) {
+				Map<String, Object> map = new HashMap<>();
+				// field order should be of size 1
+				List<String> fieldOrder = shortcutConf.shortcutFieldOrder();
+				Assert.isTrue(fieldOrder != null && fieldOrder.size() == 1,
+						"Shortcut Configuration Type GATHER_LIST must have shortcutFieldOrder of size 1");
+				String fieldName = fieldOrder.get(0);
+				map.put(fieldName,
+						args.values().stream()
+								.map(value -> getValue(parser, beanFactory, value))
+								.collect(Collectors.toList()));
+				return map;
+			}
+		},
+ 
+		// list is all elements except last which is a boolean flag
+		GATHER_LIST_TAIL_FLAG {
+			@Override
+			public Map<String, Object> normalize(Map<String, String> args,
+					ShortcutConfigurable shortcutConf, SpelExpressionParser parser,
+					BeanFactory beanFactory) {
+				Map<String, Object> map = new HashMap<>();
+				// field order should be of size 1
+				List<String> fieldOrder = shortcutConf.shortcutFieldOrder();
+				Assert.isTrue(fieldOrder != null && fieldOrder.size() == 2,
+						"Shortcut Configuration Type GATHER_LIST_HEAD must have shortcutFieldOrder of size 2");
+				List<String> values = new ArrayList<>(args.values());
+				if (!values.isEmpty()) {
+					// strip boolean flag if last entry is true or false
+					int lastIdx = values.size() - 1;
+					String lastValue = values.get(lastIdx);
+					if (lastValue.equalsIgnoreCase("true")
+							|| lastValue.equalsIgnoreCase("false")) {
+						values = values.subList(0, lastIdx);
+						map.put(fieldOrder.get(1),
+								getValue(parser, beanFactory, lastValue));
+					}
+				}
+				String fieldName = fieldOrder.get(0);
+				map.put(fieldName,
+						values.stream().map(value -> getValue(parser, beanFactory, value))
+								.collect(Collectors.toList()));
+				return map;
+			}
+		};
+ 
+		public abstract Map<String, Object> normalize(Map<String, String> args,
+				ShortcutConfigurable shortcutConf, SpelExpressionParser parser,
+				BeanFactory beanFactory);
+ 
+	}
+ 
+}
+```
+
+#### 3.3.2 ShortcutConfigurable方法调用
+
+1. RouteDefinitionRouteLocator::lookup ---> ShortcutType::normalize。开始调用normalize方法，最终的效果是把简化的配置转换成Config配置类。
+2. ShortcutType::normalize--> normalizeKey--> shortcutFieldOrder。(让key按照规定的顺序以此替换)
+3. shortcutFieldOrder--> getValue (参数化的参数值进行替换)
+
+### 3.4 Metadata
 
 默认的配置就两个 连接超时和响应超时，在NettyRoutingFilter过滤器中使用
 
