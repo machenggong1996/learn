@@ -15,8 +15,9 @@
       - [2.1.1 invokeHandler方法调用拦截器链](#211-invokehandler方法调用拦截器链)
   - [3. Routes配置](#3-routes配置)
     - [3.1 Predicate](#31-predicate)
-      - [3.1.1 RoutePredicateFactory](#311-routepredicatefactory)
-      - [3.1.2 自定义RoutePredicateFactory](#312-自定义routepredicatefactory)
+      - [3.1.1 方法调用链及源码解析](#311-方法调用链及源码解析)
+      - [3.1.2 RoutePredicateFactory](#312-routepredicatefactory)
+      - [3.1.3 自定义RoutePredicateFactory](#313-自定义routepredicatefactory)
     - [3.2 Filters](#32-filters)
       - [3.2.1 GlobalFilter 全局拦截器](#321-globalfilter-全局拦截器)
       - [3.2.2 GatewayFilter 配置化拦截器](#322-gatewayfilter-配置化拦截器)
@@ -40,7 +41,42 @@
 
 <!-- /code_chunk_output -->
 
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+- [Spring Cloud Gateway源码分析](#spring-cloud-gateway源码分析)
+  - [1. 网关启动\&配置加载流程](#1-网关启动配置加载流程)
+    - [1.1 springboot reactive项目启动](#11-springboot-reactive项目启动)
+    - [1.2 GatewayAutoConfiguration](#12-gatewayautoconfiguration)
+    - [GatewayReactiveLoadBalancerClientAutoConfiguration](#gatewayreactiveloadbalancerclientautoconfiguration)
+    - [GatewayNoLoadBalancerClientAutoConfiguration](#gatewaynoloadbalancerclientautoconfiguration)
+  - [2. 请求流程](#2-请求流程)
+    - [2.1 DispatcherHandler](#21-dispatcherhandler)
+      - [2.1.1 invokeHandler方法调用拦截器链](#211-invokehandler方法调用拦截器链)
+  - [3. Routes配置](#3-routes配置)
+    - [3.1 Predicate](#31-predicate)
+      - [3.1.1 方法调用链及源码解析](#311-方法调用链及源码解析)
+      - [3.1.2 RoutePredicateFactory](#312-routepredicatefactory)
+      - [3.1.3 自定义RoutePredicateFactory](#313-自定义routepredicatefactory)
+    - [3.2 Filters](#32-filters)
+      - [3.2.1 GlobalFilter 全局拦截器](#321-globalfilter-全局拦截器)
+      - [3.2.2 GatewayFilter 配置化拦截器](#322-gatewayfilter-配置化拦截器)
+      - [3.2.3 spring.cloud.gateway.default-filters配置](#323-springcloudgatewaydefault-filters配置)
+      - [3.2.4 自定义GatewayFilterFactory](#324-自定义gatewayfilterfactory)
+        - [3.2.4.1 NameValue 键值对类型](#3241-namevalue-键值对类型)
+        - [3.2.4.2 多参数类型](#3242-多参数类型)
+    - [3.3 ShortcutConfigurable接口](#33-shortcutconfigurable接口)
+      - [3.3.1 ShortcutConfigurable源码及注释](#331-shortcutconfigurable源码及注释)
+      - [3.3.2 ShortcutConfigurable方法调用](#332-shortcutconfigurable方法调用)
+    - [3.4 Metadata](#34-metadata)
+  - [4. 熔断 SpringCloudCircuitBreakerFilterFactory](#4-熔断-springcloudcircuitbreakerfilterfactory)
+    - [4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析](#41-springcloudcircuitbreakerfilterfactoryapply源码分析)
+  - [5. 限流](#5-限流)
+    - [5.1 redis限流使用](#51-redis限流使用)
+    - [5.2 redis限流源码分析](#52-redis限流源码分析)
+      - [5.2.1 配置加载](#521-配置加载)
+      - [5.2.2 RedisRateLimiter核心方法isAllowed](#522-redisratelimiter核心方法isallowed)
+      - [5.2.3 lua执行流程图](#523-lua执行流程图)
+    - [5.3 如何正确使用限流](#53-如何正确使用限流)
+
+<!-- /code_chunk_output -->
 
 
 ## 1. 网关启动&配置加载流程
@@ -190,6 +226,8 @@ org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器�
 
 ### 3.1 Predicate
 
+#### 3.1.1 方法调用链及源码解析
+
 1. DispatcherHandler#handle
 2. AbstractHandlerMapping#getHandler
 3. RoutePredicateHandlerMapping#getHandlerInternal
@@ -240,14 +278,14 @@ org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器�
 
 ![avatar](pics/gateway/断言未匹配上.png)
 
-#### 3.1.1 RoutePredicateFactory
+#### 3.1.2 RoutePredicateFactory
 
 * [路由谓词工厂 RoutePredicateFactory](https://blog.csdn.net/u010647035/article/details/84495302)
 * [SpringCloud-Gateway之RoutePredicateFactory](https://blog.csdn.net/weixin_44100910/article/details/106439122)
 
 ![avatar](pics/gateway/RoutePredicateFactory.png)
 
-#### 3.1.2 自定义RoutePredicateFactory
+#### 3.1.3 自定义RoutePredicateFactory
 
 * 优点：可以自定义RoutePredicateFactory对ip，权限，cookie进行校验
 
