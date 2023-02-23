@@ -456,6 +456,23 @@ route.getMetadata();
 route.getMetadata(someKey);
 ```
 
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: gateway_filter_factory
+          uri: http://xxx.com
+          order: 10000
+          predicates:
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+          filters:
+            - StripPrefix=4
+          metadata:
+            response-timeout: 5000
+            connect-timeout: 100
+```
+
 ## 4. 熔断 SpringCloudCircuitBreakerFilterFactory
 
 * spring cloud gateway 使用resilience4j进行熔断 项目引入implementation 'org.springframework.cloud:
