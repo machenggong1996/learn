@@ -717,6 +717,7 @@ class GatewayRedisAutoConfiguration {
 			// The arguments to the LUA script. time() returns unixtime in seconds.
 			List<String> scriptArgs = Arrays.asList(replenishRate + "", burstCapacity + "", "", requestedTokens + "");
 			// allowed, tokens_left = redis.eval(SCRIPT, keys, args)
+			// 执行lua脚本
 			Flux<List<Long>> flux = this.redisTemplate.execute(this.script, keys, scriptArgs);
 			// .log("redisratelimiter", Level.FINER);
 			return flux.onErrorResume(throwable -> {
