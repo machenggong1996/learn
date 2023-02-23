@@ -1,5 +1,35 @@
 # spring cloud gateway
 
+- [spring cloud gateway](#spring-cloud-gateway)
+  - [1. 网关启动\&配置加载流程](#1-网关启动配置加载流程)
+    - [1.1 springboot reactive项目启动](#11-springboot-reactive项目启动)
+    - [1.2 GatewayAutoConfiguration](#12-gatewayautoconfiguration)
+    - [GatewayReactiveLoadBalancerClientAutoConfiguration](#gatewayreactiveloadbalancerclientautoconfiguration)
+    - [GatewayNoLoadBalancerClientAutoConfiguration](#gatewaynoloadbalancerclientautoconfiguration)
+  - [2. 请求流程](#2-请求流程)
+    - [2.1 DispatcherHandler](#21-dispatcherhandler)
+      - [2.1.1 invokeHandler方法调用拦截器链](#211-invokehandler方法调用拦截器链)
+  - [3. Routes配置](#3-routes配置)
+    - [3.1 Predicate](#31-predicate)
+      - [3.1.1 RoutePredicateFactory](#311-routepredicatefactory)
+      - [3.1.2 自定义RoutePredicateFactory](#312-自定义routepredicatefactory)
+    - [3.2 Filters](#32-filters)
+      - [3.2.1 GlobalFilter 全局拦截器](#321-globalfilter-全局拦截器)
+      - [3.2.2 GatewayFilter 配置化拦截器](#322-gatewayfilter-配置化拦截器)
+      - [3.2.3 spring.cloud.gateway.default-filters配置](#323-springcloudgatewaydefault-filters配置)
+      - [3.2.4 自定义GatewayFilterFactory](#324-自定义gatewayfilterfactory)
+    - [3.3 Metadata](#33-metadata)
+  - [4. 熔断 SpringCloudCircuitBreakerFilterFactory](#4-熔断-springcloudcircuitbreakerfilterfactory)
+    - [4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析](#41-springcloudcircuitbreakerfilterfactoryapply源码分析)
+  - [5. 限流](#5-限流)
+    - [5.1 redis限流使用](#51-redis限流使用)
+    - [5.2 redis限流源码分析](#52-redis限流源码分析)
+      - [5.2.1 配置加载](#521-配置加载)
+      - [5.2.2 RedisRateLimiter核心方法isAllowed](#522-redisratelimiter核心方法isallowed)
+      - [5.2.3 lua执行流程图](#523-lua执行流程图)
+    - [5.3 如何正确使用限流](#53-如何正确使用限流)
+
+
 ## 1. 网关启动&配置加载流程
 
 ### 1.1 springboot reactive项目启动
@@ -136,6 +166,12 @@ org.springframework.cloud.gateway.handler.FilteringWebHandler#handle 过滤器�
 
 ## 3. Routes配置
 
+|  名称   | 作用  |
+|:----:|:----|
+|Route |一个Route模块由一个 ID，一个目标 URI，一组断言和一组过滤器定义 |
+|Predicate|匹配来自 HTTP 请求的任何内容,如果断言为真，则路由匹配，目标URI会被访问    |
+|Filter|拦截和修改请求|
+
 ### 3.1 Predicate
 
 DispatcherHandler#handle->
@@ -188,33 +224,56 @@ RouteDefinitionRouteLocator#lookup
 
 ![avatar](pics/gateway/断言未匹配上.png)
 
-#### RoutePredicateFactory
+#### 3.1.1 RoutePredicateFactory
 
 * [路由谓词工厂 RoutePredicateFactory](https://blog.csdn.net/u010647035/article/details/84495302)
 * [SpringCloud-Gateway之RoutePredicateFactory](https://blog.csdn.net/weixin_44100910/article/details/106439122)
 
 ![avatar](pics/gateway/RoutePredicateFactory.png)
 
-#### 自定义RoutePredicateFactory
+#### 3.1.2 自定义RoutePredicateFactory
 
-* 优点TODO
+* 优点：可以自定义对应自己业务的拦截器，对指定的路由生效。比如，有些路由需要校验权限，cookie等，可以在有需要的路由下配置权限校验，cookie校验的拦截器
 
 ### 3.2 Filters
 
+过滤器用来修改请求内容
+
 * [Spring Cloud GateWay-过滤器](https://blog.csdn.net/lucky_love816/article/details/124978639)
 
-#### GlobalFilter 全局拦截器
+#### 3.2.1 GlobalFilter 全局拦截器
 
 ![avatar](pics/gateway/GlobalFilter.png)
 
-#### GatewayFilter 配置化拦截器
+#### 3.2.2 GatewayFilter 配置化拦截器
 
 * 需要通过spring.cloud.routes.filters 配置在具体路由下，只作用在当前路由上或通过spring.cloud.default-filters配置在全局，作用在所有路由上。
   ![avatar](pics/gateway/GatewayFilterFactory.png)
-  
+
 * HystrixGatewayFilterFactory已经不再维护，现在使用SpringCloudCircuitBreakerFilterFactory
 
-#### 自定义GatewayFilterFactory
+#### 3.2.3 spring.cloud.gateway.default-filters配置
+
+过滤器全局生效
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - name: Retry
+          args:
+            retries: 2
+            statuses: BAD_GATEWAY
+            methods: GET,POST
+        - name: RequestRateLimiter
+          args:
+            key-resolver: '#{@pathKeyResolver}'
+            redis-rate-limiter.replenishRate: 1
+            redis-rate-limiter.burstCapacity: 5
+```
+
+#### 3.2.4 自定义GatewayFilterFactory
 
 1. 优点 TODO
 
@@ -254,85 +313,87 @@ route.getMetadata(someKey);
 
 ## 4. 熔断 SpringCloudCircuitBreakerFilterFactory
 
-* spring cloud gateway 使用resilience4j进行熔断 项目引入implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
+* spring cloud gateway 使用resilience4j进行熔断 项目引入implementation 'org.springframework.cloud:
+  spring-cloud-starter-circuitbreaker-reactor-resilience4j'
 * 现在使用SpringCloudCircuitBreakerFilterFactory
+
 ```yaml
 spring:
   cloud:
     gateway:
       routes:
-#        # =====================================
+        #        # =====================================
         - id: circuitBreakerTest
           uri: http://planner-class-test.inner.youdao.com
           order: 10000
           predicates:
-          - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
+            - Path=/ai-planner/api/admin/class/**,/ai-planner/api/app/class/**
           filters:
-          - StripPrefix=4
-          - name: CircuitBreaker
-            args:
-              name: myCircuitBreaker
-              statusCodes: # 定义状态码 会解析出500和404两种状态
-                - 500
-                - "NOT_FOUND"
-              fallbackUri: /ai-planner/api/app/class/toc/class/listMyClasses # 熔断跳转路径
+            - StripPrefix=4
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                statusCodes: # 定义状态码 会解析出500和404两种状态
+                  - 500
+                  - "NOT_FOUND"
+                fallbackUri: /ai-planner/api/app/class/toc/class/listMyClasses # 熔断跳转路径
 ```
 
 ### 4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析
 
 ```java
 public abstract class SpringCloudCircuitBreakerFilterFactory
-		extends AbstractGatewayFilterFactory<SpringCloudCircuitBreakerFilterFactory.Config> {
+        extends AbstractGatewayFilterFactory<SpringCloudCircuitBreakerFilterFactory.Config> {
 
-	/** CircuitBreaker component name. */
-	public static final String NAME = "CircuitBreaker";
+    /** CircuitBreaker component name. */
+    public static final String NAME = "CircuitBreaker";
 
-	// do not use this dispatcherHandler directly, use getDispatcherHandler() instead.
-	private volatile DispatcherHandler dispatcherHandler;
+    // do not use this dispatcherHandler directly, use getDispatcherHandler() instead.
+    private volatile DispatcherHandler dispatcherHandler;
 
-	@Override
-	public GatewayFilter apply(Config config) {
-		ReactiveCircuitBreaker cb = reactiveCircuitBreakerFactory.create(config.getId());
-		Set<HttpStatus> statuses = config.getStatusCodes().stream().map(HttpStatusHolder::parse)
-				.filter(statusHolder -> statusHolder.getHttpStatus() != null).map(HttpStatusHolder::getHttpStatus)
-				.collect(Collectors.toSet());
+    @Override
+    public GatewayFilter apply(Config config) {
+        ReactiveCircuitBreaker cb = reactiveCircuitBreakerFactory.create(config.getId());
+        Set<HttpStatus> statuses = config.getStatusCodes().stream().map(HttpStatusHolder::parse)
+                .filter(statusHolder -> statusHolder.getHttpStatus() != null).map(HttpStatusHolder::getHttpStatus)
+                .collect(Collectors.toSet());
 
-		return new GatewayFilter() {
-			@Override
-			public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-			    // ReactiveCircuitBreaker#run(Mono<T> toRun, Function<Throwable, Mono<T>> fallback) 执行中抛出异常会调用fallback运行
+        return new GatewayFilter() {
+            @Override
+            public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                // ReactiveCircuitBreaker#run(Mono<T> toRun, Function<Throwable, Mono<T>> fallback) 执行中抛出异常会调用fallback运行
                 // fallback代码中如果fallbackUri是空的抛出异常，否则请求fallbackUri路径，如果请求失败进入handleErrorWithoutFallback
-				return cb.run(chain.filter(exchange).doOnSuccess(v -> {
-					if (statuses.contains(exchange.getResponse().getStatusCode())) {
-						HttpStatus status = exchange.getResponse().getStatusCode();
-						throw new CircuitBreakerStatusCodeException(status);
-					}
-				}), t -> {
-					if (config.getFallbackUri() == null) {
-						return Mono.error(t);
-					}
+                return cb.run(chain.filter(exchange).doOnSuccess(v -> {
+                    if (statuses.contains(exchange.getResponse().getStatusCode())) {
+                        HttpStatus status = exchange.getResponse().getStatusCode();
+                        throw new CircuitBreakerStatusCodeException(status);
+                    }
+                }), t -> {
+                    if (config.getFallbackUri() == null) {
+                        return Mono.error(t);
+                    }
 
-					exchange.getResponse().setStatusCode(null);
-					reset(exchange);
+                    exchange.getResponse().setStatusCode(null);
+                    reset(exchange);
 
-					// TODO: copied from RouteToRequestUrlFilter
-					URI uri = exchange.getRequest().getURI();
-					// TODO: assume always?
-					boolean encoded = containsEncodedParts(uri);
-					URI requestUrl = UriComponentsBuilder.fromUri(uri).host(null).port(null)
-							.uri(config.getFallbackUri()).scheme(null).build(encoded).toUri();
-					exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, requestUrl);
-					addExceptionDetails(t, exchange);
+                    // TODO: copied from RouteToRequestUrlFilter
+                    URI uri = exchange.getRequest().getURI();
+                    // TODO: assume always?
+                    boolean encoded = containsEncodedParts(uri);
+                    URI requestUrl = UriComponentsBuilder.fromUri(uri).host(null).port(null)
+                            .uri(config.getFallbackUri()).scheme(null).build(encoded).toUri();
+                    exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, requestUrl);
+                    addExceptionDetails(t, exchange);
 
-					// Reset the exchange
-					reset(exchange);
+                    // Reset the exchange
+                    reset(exchange);
 
-					ServerHttpRequest request = exchange.getRequest().mutate().uri(requestUrl).build();
-					return getDispatcherHandler().handle(exchange.mutate().request(request).build());
-				}).onErrorResume(t -> handleErrorWithoutFallback(t, config.isResumeWithoutError()));
-			}
-		};
-	}
+                    ServerHttpRequest request = exchange.getRequest().mutate().uri(requestUrl).build();
+                    return getDispatcherHandler().handle(exchange.mutate().request(request).build());
+                }).onErrorResume(t -> handleErrorWithoutFallback(t, config.isResumeWithoutError()));
+            }
+        };
+    }
 
 }
 ```
@@ -340,6 +401,7 @@ public abstract class SpringCloudCircuitBreakerFilterFactory
 ## 5. 限流
 
 * [Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.10) 之 RequestRateLimiterGatewayFilterFactory 请求限流](https://blog.csdn.net/weixin_42073629/article/details/106934827)
+* [服务限流限流算法、限流策略以及该在哪里限流](https://www.cnblogs.com/jokay/p/15019249.html)
 
 ### 5.1 redis限流使用
 
@@ -411,12 +473,12 @@ spring:
 ```java
 class GatewayRedisAutoConfiguration {
 
-  /**
-   * lua脚本路径 META-INF/scripts/request_rate_limiter.lua
-   * 
-   * @return
-   */
-  @Bean
+    /**
+     * lua脚本路径 META-INF/scripts/request_rate_limiter.lua
+     *
+     * @return
+     */
+    @Bean
     @SuppressWarnings("unchecked")
     public RedisScript redisRequestRateLimiterScript() {
         DefaultRedisScript redisScript = new DefaultRedisScript<>();
@@ -425,13 +487,13 @@ class GatewayRedisAutoConfiguration {
         return redisScript;
     }
 
-  /**
-   * RedisTemplate使用ReactiveRedisTemplate
-   * 
-   * @param reactiveRedisConnectionFactory
-   * @param resourceLoader
-   * @return
-   */
+    /**
+     * RedisTemplate使用ReactiveRedisTemplate
+     *
+     * @param reactiveRedisConnectionFactory
+     * @param resourceLoader
+     * @return
+     */
     @Bean
     //TODO: replace with ReactiveStringRedisTemplate in future
     public ReactiveRedisTemplate<String, String> stringReactiveRedisTemplate(
@@ -449,12 +511,12 @@ class GatewayRedisAutoConfiguration {
                 serializationContext);
     }
 
-  /**
-   * RateLimiter 使用 RedisRateLimiter
-   * @param redisTemplate
-   * @param redisScript
-   * @return
-   */
+    /**
+     * RateLimiter 使用 RedisRateLimiter
+     * @param redisTemplate
+     * @param redisScript
+     * @return
+     */
     @Bean
     public RedisRateLimiter redisRateLimiter(ReactiveRedisTemplate<String, String> redisTemplate,
                                              @Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript) {
@@ -527,7 +589,6 @@ class GatewayRedisAutoConfiguration {
 #### 5.2.3 lua执行流程图
 
 lua脚本内容 两个key 3个参数
-
 
 * 第一个key ：request_rate_limiter.${id}.tokens ，令牌桶剩余令牌数
 * 第二个key ：request_rate_limiter.${id}.timestamp ，令牌桶最后填充令牌时间，单位：秒
@@ -602,5 +663,10 @@ end
 -- 返回数组结果，[是否获取令牌成功, 剩余令牌数]
 return { allowed_num, new_tokens }
 ```
+
 ![avatar](pics/gateway/redis限流lua脚本执行流程.png)
+
+### 5.3 如何正确使用限流
+
+* 什么场景应通过userId限流，通过路径限流，ip限流
 
