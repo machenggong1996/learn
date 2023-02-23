@@ -1,6 +1,6 @@
-# spring cloud gateway
+# Spring Cloud Gateway
 
-- [spring cloud gateway](#spring-cloud-gateway)
+- [Spring Cloud Gateway](#spring-cloud-gateway)
   - [1. 网关启动\&配置加载流程](#1-网关启动配置加载流程)
     - [1.1 springboot reactive项目启动](#11-springboot-reactive项目启动)
     - [1.2 GatewayAutoConfiguration](#12-gatewayautoconfiguration)
