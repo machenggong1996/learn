@@ -25,6 +25,7 @@
       - [3.3.1 ShortcutConfigurable源码及注释](#331-shortcutconfigurable源码及注释)
       - [3.3.2 ShortcutConfigurable方法调用](#332-shortcutconfigurable方法调用)
     - [3.4 Metadata](#34-metadata)
+    - [3.5 Predicate和Filters的使用区别](#35-predicate和filters的使用区别)
   - [4. 熔断 SpringCloudCircuitBreakerFilterFactory](#4-熔断-springcloudcircuitbreakerfilterfactory)
     - [4.1 SpringCloudCircuitBreakerFilterFactory#apply源码分析](#41-springcloudcircuitbreakerfilterfactoryapply源码分析)
   - [5. 限流](#5-限流)
@@ -761,6 +762,12 @@ spring:
             response-timeout: 5000
             connect-timeout: 100
 ```
+
+### 3.5 Predicate和Filters的使用区别
+
+* 在RoutePredicateFactory和GatewayFilterFactory中都传递了ServerWebExchange请求数据，
+  而且值传递都可以对ServerWebExchange内容进行修改。那么什么时候使用这两种配置？按照spring cloud gateway
+  自带的断言和过滤器配置来看，对路由拦截的判断路由是否符合配置则使用断言，需要修改请求内容的时候使用过滤器
 
 ## 4. 熔断 SpringCloudCircuitBreakerFilterFactory
 
