@@ -1,5 +1,8 @@
 # Hystrix结合ThreadLocal出现的问题
 
+* [更改Hystrix的线程池](https://blog.csdn.net/chinasi2012/article/details/105891435)
+* [解决feign和hystrix集成后多线程调用导致追踪链路参数丢失问题](https://blog.csdn.net/guntun8987/article/details/126520297)
+
 如果不重写Hystrix的线程策略会导致在Hystrix的线程中拿到旧的数据出现莫名其妙的bug
 
 ```java
