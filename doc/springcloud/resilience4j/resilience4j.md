@@ -192,9 +192,85 @@ public class CircuitBreakerConfig implements Serializable {
 
 ## 5. CircuitBreakerMetrics熔断器度量指标
 
+```java
+class CircuitBreakerMetrics implements CircuitBreaker.Metrics {
+    private final Metrics metrics;
+    private final float failureRateThreshold;
+    private final float slowCallRateThreshold;
+    private final long slowCallDurationThresholdInNanos;
+    // 不允许请求调用通过的数量，采用并发更加高效的LongAdder类型
+    private final LongAdder numberOfNotPermittedCalls;
+    private int minimumNumberOfCalls;
+
+    private CircuitBreakerMetrics(int slidingWindowSize,
+                                  CircuitBreakerConfig.SlidingWindowType slidingWindowType,
+                                  CircuitBreakerConfig circuitBreakerConfig,
+                                  Clock clock) {
+        // 使用不同的滑动窗口
+        if (slidingWindowType == CircuitBreakerConfig.SlidingWindowType.COUNT_BASED) {
+            this.metrics = new FixedSizeSlidingWindowMetrics(slidingWindowSize);
+            this.minimumNumberOfCalls = Math
+                    .min(circuitBreakerConfig.getMinimumNumberOfCalls(), slidingWindowSize);
+        } else {
+            this.metrics = new SlidingTimeWindowMetrics(slidingWindowSize, clock);
+            this.minimumNumberOfCalls = circuitBreakerConfig.getMinimumNumberOfCalls();
+        }
+        this.failureRateThreshold = circuitBreakerConfig.getFailureRateThreshold();
+        this.slowCallRateThreshold = circuitBreakerConfig.getSlowCallRateThreshold();
+        this.slowCallDurationThresholdInNanos = circuitBreakerConfig.getSlowCallDurationThreshold()
+                .toNanos();
+        this.numberOfNotPermittedCalls = new LongAdder();
+    }
+}
+```
+* 滑动窗口算法接口
+```java
+public interface Metrics {
+
+    /**
+     * Records a call. 记录调用 生成快照
+     *
+     * @param duration     the duration of the call
+     * @param durationUnit the time unit of the duration
+     * @param outcome      the outcome of the call
+     */
+    Snapshot record(long duration, TimeUnit durationUnit, Outcome outcome);
+
+    /**
+     * Returns a snapshot. 
+     *
+     * @return a snapshot
+     */
+    Snapshot getSnapshot();
+
+    enum Outcome {
+        SUCCESS, ERROR, SLOW_SUCCESS, SLOW_ERROR
+    }
+
+}
+```
+固定大小滑动窗口
+```java
+public class FixedSizeSlidingWindowMetrics implements Metrics {
+
+    private final int windowSize;
+    /**
+     * 全部数据 完整统计 进行加减运算
+     */
+    private final TotalAggregation totalAggregation;
+    /**
+     * 数组记录请求信息 每一个都是一次调用的数据
+     */
+    private final Measurement[] measurements;
+    int headIndex;
+
+}
+```
+
 ## 6. CircuitBreakerEvent熔断器事件
 
 ![avatar](pics/CircuitBreakerEvent类图.png)
+
 * CircuitBreakerOnErrorEvent: 请求调用失败时发布的事件
 * CircuitBreakerOnSuccessEvent：请求调用成功时发布的事件
 * CircuitBreakerOnStateTransitionEvent：熔断器状态转换时发布的事件
@@ -207,8 +283,13 @@ public class CircuitBreakerConfig implements Serializable {
 ![avatar](pics/创建流程及协同工作.png)
 
 * ClosedState ==> OpenState 状态的转换过程
-![img.png](pics/熔断器状态转换.png)
+  ![img.png](pics/熔断器状态转换.png)
 
 
+## 8. 请求流程
 
+1. io.github.resilience4j.circuitbreaker.CircuitBreaker#decorateCheckedSupplier
+2. 调用获取结果
+  * 2.1 成功 io.github.resilience4j.circuitbreaker.internal.CircuitBreakerStateMachine#onResult
+  * 2.2 失败 io.github.resilience4j.circuitbreaker.internal.CircuitBreakerStateMachine#onError
 
