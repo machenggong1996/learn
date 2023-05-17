@@ -1,5 +1,25 @@
 # springcloud-resilience4j 使用
 
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [springcloud-resilience4j 使用](#springcloud-resilience4j-使用)
+  - [1. CircuitBreakerRegistry创建](#1-circuitbreakerregistry创建)
+  - [2. CircuitBreaker模块(熔断器)模块总体介绍](#2-circuitbreaker模块熔断器模块总体介绍)
+    - [2.1 CircuitBreakerRegistry注册器](#21-circuitbreakerregistry注册器)
+  - [3. CircuitBreakerConfig 配置](#3-circuitbreakerconfig-配置)
+  - [4. CircuitBreakerStateMachine有限状态机](#4-circuitbreakerstatemachine有限状态机)
+  - [5. CircuitBreakerMetrics熔断器度量指标](#5-circuitbreakermetrics熔断器度量指标)
+  - [6. CircuitBreakerEvent熔断器事件](#6-circuitbreakerevent熔断器事件)
+  - [7. 创建流程](#7-创建流程)
+  - [8. 请求流程](#8-请求流程)
+
+<!-- /code_chunk_output -->
+
+
+
 * [熔断器配置](https://blog.csdn.net/hataksumo/article/details/128854295)
 * [resilience4j源码分析](https://www.cnblogs.com/hama1993/p/12019485.html)
 * [Resilience4j 源码解析](https://www.iocoder.cn/categories/Resilience4j/)
