@@ -2,11 +2,7 @@
 
 * [熔断器配置](https://blog.csdn.net/hataksumo/article/details/128854295)
 * [resilience4j源码分析](https://www.cnblogs.com/hama1993/p/12019485.html)
-* [Resilience4j 源码解析-1 介绍及环境搭建](https://www.iocoder.cn/Resilience4j/coding/build-debugging-environment/)
-* [Resilience4j 源码解析-2.1 CircuitBreaker模块](https://www.iocoder.cn/Resilience4j/coding/CircuitBreaker-21/)
-* [Resilience4j 源码解析-2.2 CircuitBreaker模块之配置](https://www.iocoder.cn/Resilience4j/coding/CircuitBreaker-Config/)
-* [Resilience4j 源码解析-2.3.1 CircuitBreaker模块之有限状态机](https://www.iocoder.cn/Resilience4j/coding/CircuitBreaker-231/)
-* [Resilience4j 源码解析-2.3.2 CircuitBreaker模块之有限状态机](https://www.iocoder.cn/Resilience4j/coding/CircuitBreaker-232/)
+* [Resilience4j 源码解析](https://www.iocoder.cn/categories/Resilience4j/)
 
 ## 1. CircuitBreakerRegistry创建
 
@@ -223,7 +219,9 @@ class CircuitBreakerMetrics implements CircuitBreaker.Metrics {
     }
 }
 ```
+
 * 滑动窗口算法接口
+
 ```java
 public interface Metrics {
 
@@ -249,7 +247,9 @@ public interface Metrics {
 
 }
 ```
+
 固定大小滑动窗口
+
 ```java
 public class FixedSizeSlidingWindowMetrics implements Metrics {
 
@@ -283,13 +283,176 @@ public class FixedSizeSlidingWindowMetrics implements Metrics {
 ![avatar](pics/创建流程及协同工作.png)
 
 * ClosedState ==> OpenState 状态的转换过程
-  ![img.png](pics/熔断器状态转换.png)
-
+  ![avatar](pics/熔断器状态转换.png)
 
 ## 8. 请求流程
 
-1. io.github.resilience4j.circuitbreaker.CircuitBreaker#decorateCheckedSupplier
-2. 调用获取结果
-  * 2.1 成功 io.github.resilience4j.circuitbreaker.internal.CircuitBreakerStateMachine#onResult
-  * 2.2 失败 io.github.resilience4j.circuitbreaker.internal.CircuitBreakerStateMachine#onError
+![avatar](pics/CircuitBreaker请求流程.png)
+
+```java
+enum Result {
+    /**
+     * 低于阈值                                           
+     */
+    BELOW_THRESHOLDS,
+    /**
+     * 失败率高于阈值
+     */
+    FAILURE_RATE_ABOVE_THRESHOLDS,
+    /**
+     * 慢调用率超出阈值
+     */
+    SLOW_CALL_RATE_ABOVE_THRESHOLDS,
+    /**
+     * 失败率和慢调用率都超过阈值
+     */
+    ABOVE_THRESHOLDS,
+    /**
+     * 低于最小调用阈值
+     */
+    BELOW_MINIMUM_CALLS_THRESHOLD;
+
+    /**
+     * 判断是否超出阈值
+     * @param result
+     * @return
+     */
+    public static boolean hasExceededThresholds(Result result) {
+        return hasFailureRateExceededThreshold(result) ||
+                hasSlowCallRateExceededThreshold(result);
+    }
+
+    public static boolean hasFailureRateExceededThreshold(Result result) {
+        return result == ABOVE_THRESHOLDS || result == FAILURE_RATE_ABOVE_THRESHOLDS;
+    }
+
+    public static boolean hasSlowCallRateExceededThreshold(Result result) {
+        return result == ABOVE_THRESHOLDS || result == SLOW_CALL_RATE_ABOVE_THRESHOLDS;
+    }
+}
+```
+
+```java
+/**
+ * 统计调用信息
+ */
+class AbstractAggregation {
+
+    long totalDurationInMillis = 0;
+    int numberOfSlowCalls = 0;
+    int numberOfSlowFailedCalls = 0;
+    int numberOfFailedCalls = 0;
+    int numberOfCalls = 0;
+
+    void record(long duration, TimeUnit durationUnit, Metrics.Outcome outcome) {
+        this.numberOfCalls++;
+        this.totalDurationInMillis += durationUnit.toMillis(duration);
+        switch (outcome) {
+            case SLOW_SUCCESS:
+                numberOfSlowCalls++;
+                break;
+
+            case SLOW_ERROR:
+                numberOfSlowCalls++;
+                numberOfFailedCalls++;
+                numberOfSlowFailedCalls++;
+                break;
+
+            case ERROR:
+                numberOfFailedCalls++;
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+```
+
+* 通过快照获取检查结果
+
+```
+    private Result checkIfThresholdsExceeded(Snapshot snapshot) {
+        float failureRateInPercentage = getFailureRate(snapshot);
+        float slowCallsInPercentage = getSlowCallRate(snapshot);
+
+        if (failureRateInPercentage == -1 || slowCallsInPercentage == -1) {
+            return Result.BELOW_MINIMUM_CALLS_THRESHOLD;
+        }
+        if (failureRateInPercentage >= failureRateThreshold
+            && slowCallsInPercentage >= slowCallRateThreshold) {
+            return Result.ABOVE_THRESHOLDS;
+        }
+        if (failureRateInPercentage >= failureRateThreshold) {
+            return Result.FAILURE_RATE_ABOVE_THRESHOLDS;
+        }
+
+        if (slowCallsInPercentage >= slowCallRateThreshold) {
+            return Result.SLOW_CALL_RATE_ABOVE_THRESHOLDS;
+        }
+        return Result.BELOW_THRESHOLDS;
+    }
+```
+
+![avatar](pics/三种状态转换.png)
+
+全开到半开是使用 ScheduledFuture<?> transitionToHalfOpenFuture 线程池来自动转换的
+
+```java
+private class OpenState implements CircuitBreakerState {
+
+    private final int attempts;
+    private final Instant retryAfterWaitDuration;
+    private final CircuitBreakerMetrics circuitBreakerMetrics;
+    private final AtomicBoolean isOpen;
+
+    @Nullable
+    private final ScheduledFuture<?> transitionToHalfOpenFuture;
+
+    OpenState(final int attempts, final long waitDurationInMillis, final Instant retryAfterWaitDuration,
+              CircuitBreakerMetrics circuitBreakerMetrics) {
+        this.attempts = attempts;
+        this.retryAfterWaitDuration = retryAfterWaitDuration;
+        this.circuitBreakerMetrics = circuitBreakerMetrics;
+
+        if (circuitBreakerConfig.isAutomaticTransitionFromOpenToHalfOpenEnabled()) {
+            ScheduledExecutorService scheduledExecutorService = schedulerFactory.getScheduler();
+            transitionToHalfOpenFuture = scheduledExecutorService
+                    .schedule(this::toHalfOpenState, waitDurationInMillis, TimeUnit.MILLISECONDS);
+        } else {
+            transitionToHalfOpenFuture = null;
+        }
+        isOpen = new AtomicBoolean(true);
+    }
+
+
+    /**
+     * Should never be called when tryAcquirePermission returns false.
+     */
+    @Override
+    public void onError(long duration, TimeUnit durationUnit, Throwable throwable) {
+        //当线程1在状态为CLOSED时调用acquirePermission时可以调用，但同时另一个
+        //线程2调用onError，在线程1调用onError之前，状态从CLOSED变为OPEN。
+        //但是onError事件仍然应该被记录，即使它发生在状态转换之后。
+        // Could be called when Thread 1 invokes acquirePermission when the state is CLOSED, but in the meantime another
+        // Thread 2 calls onError and the state changes from CLOSED to OPEN before Thread 1 calls onError.
+        // But the onError event should still be recorded, even if it happened after the state transition.
+        circuitBreakerMetrics.onError(duration, durationUnit);
+    }
+
+    /**
+     * Should never be called when tryAcquirePermission returns false.
+     */
+    @Override
+    public void onSuccess(long duration, TimeUnit durationUnit) {
+        // Could be called when Thread 1 invokes acquirePermission when the state is CLOSED, but in the meantime another
+        // Thread 2 calls onError and the state changes from CLOSED to OPEN before Thread 1 calls onSuccess.
+        // But the onSuccess event should still be recorded, even if it happened after the state transition.
+        circuitBreakerMetrics.onSuccess(duration, durationUnit);
+    }
+
+}
+```
+
+
 
