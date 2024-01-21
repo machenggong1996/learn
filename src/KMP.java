@@ -51,18 +51,19 @@ public class KMP {
     }
 
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        while (scan.hasNextLine()) {
-            String s = scan.nextLine();
-            String t = scan.nextLine();
-            char[] ss = s.toCharArray();
-            char[] tt = t.toCharArray();
-            if (kmp_Index(tt, ss) == -1) {
-                System.out.println("NO");
-            } else {
-                System.out.println("YES");
-            }
-        }
+//        Scanner scan = new Scanner(System.in);
+//        while (scan.hasNextLine()) {
+//            String s = scan.nextLine();
+//            String t = scan.nextLine();
+//            char[] ss = s.toCharArray();
+//            char[] tt = t.toCharArray();
+//            if (kmp_Index(tt, ss) == -1) {
+//                System.out.println("NO");
+//            } else {
+//                System.out.println("YES");
+//            }
+//        }
+        System.out.println(~7);
 
     }
 
