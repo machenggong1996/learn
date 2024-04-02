@@ -5,7 +5,17 @@
 public class Test {
 
     public static void main(String[] args) {
-        System.out.println(shengxiao(1995));
+//        System.out.println(shengxiao(1995));
+        for (int i = 4 ;i > 0; i--){
+            int j = 0;
+            do{
+                j++;
+                if(j == 2){
+                    break;
+                }
+            }while (j <= i);
+            System.out.println(j);
+        }
     }
 
     public static String shengxiao(int year){
