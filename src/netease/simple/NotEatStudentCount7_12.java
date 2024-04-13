@@ -40,6 +40,7 @@ public class NotEatStudentCount7_12 {
             if (student.equals(sandwich)) {
                 return true;
             }
+            // 学生没吃到要回到队尾
             students.add(student);
         }
         return false;

@@ -45,9 +45,11 @@ public class MinNumber7_6 {
         StringBuilder sb = new StringBuilder();
         Arrays.stream(arr).sorted((o1, o2) -> {
             if (o1.charAt(0) == '-') {
+                // 如果o1是负数，o2是正数，o1应该排在o2前面
                 return -1;
             }
             if (o2.charAt(0) == '-') {
+                // o2是负数，o1是正数，o2应该排在o1前面
                 return 1;
             } else {
                 String s1 = o1 + o2;
@@ -56,6 +58,36 @@ public class MinNumber7_6 {
             }
         }).forEach(sb::append);
         System.out.println(sb);
+    }
+
+    public static void main1(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String[] strs = sc.nextLine().split(" ");
+        boolean hasFu = false;
+        for(String str : strs){
+            if(str.contains("-")){
+                hasFu = true;
+            }
+        }
+        final boolean finalhasFu = hasFu;
+        StringBuilder sb = new StringBuilder();
+        Arrays.stream(strs).sorted((o1,o2) ->{
+            if(o1.charAt(0) == '-'){
+                return -1;
+            }
+            if(o2.charAt(0) == '-'){
+                return 1;
+            }else{
+                String s1 = o1 + o2;
+                String s2 = o2 + o1;
+                if(finalhasFu){
+                    return s2.compareTo(s1);
+                }else {
+                    return s1.compareTo(s2);
+                }
+            }
+        }).forEach(sb::append);
+        System.out.print(sb.toString());
     }
 
 }

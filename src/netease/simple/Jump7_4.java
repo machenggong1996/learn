@@ -66,8 +66,9 @@ public class Jump7_4 {
                 return true;
             }
             // 可以向前或者向后跳跃
-            int[] ints = {position + nums[position], position - nums[position]};
-            for (int step : ints) {
+            // 从当前位置可以跳到的位置
+            int[] positions = {position + nums[position], position - nums[position]};
+            for (int step : positions) {
                 if (step >= 0 && step < n && !visited[step]) {
                     visited[step] = true;
                     queue.add(step);

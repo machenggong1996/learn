@@ -3,9 +3,7 @@ package netease.medium;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author machenggong
@@ -34,6 +32,40 @@ public class ReverseKGroup7_8_2 {
             list.add(node);
             node = node.next;
         }
+
+//        int listSize = list.size();
+//        List<List<Node>> allSublist = new ArrayList<>();
+//        for (int i = 0; i < listSize; i += k) {
+//            // 确定要反转的子列表的起始和结束索引
+//            int endIndex = Math.min(i + k - 1, listSize - 1);
+//            int startIndex = i;
+//            // 反转子列表
+//            List<Node> subList = list.subList(startIndex, endIndex + 1);
+//            if(subList.size() == k){
+//                Collections.reverse(subList);
+//            }
+//            allSublist.add(subList);
+//        }
+//        int i = 0;
+//        for (List<Node> sublist : allSublist){
+//            int j = 0;
+//            for (Node subNode : sublist){
+//                String nextAddress;
+//                if(j < k-1 && j < sublist.size() - 1){
+//                    nextAddress = sublist.get(j + 1).address;
+//                }else {
+//                    if(i < allSublist.size() - 1){
+//                        nextAddress = allSublist.get(i + 1).get(0).address;
+//                    }else {
+//                        nextAddress = "-1";
+//                    }
+//                }
+//                System.out.println(subNode.address + " " + subNode.data + " " + nextAddress);
+//                j++;
+//            }
+//            i++;
+//        }
+
         int i = 0;
         for(; i*k<=list.size(); i++) {
             if(i==0) continue;

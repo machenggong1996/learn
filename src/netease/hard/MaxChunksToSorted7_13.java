@@ -38,6 +38,7 @@ public class MaxChunksToSorted7_13 {
                 stack.push(num);
             } else {
                 int mx = stack.pop();
+                // 1 2 3 4 3 2 不能分成 [1] [2] [3] [4,3,2] 2小于3 排序之后不是有序的 可以最多分成[1] [2] [3,4,3,2]
                 while (!stack.isEmpty() && stack.peek() > num) {
                     // 从后向前“穿越”一部分块，直至遇到一个块比这个元素小（或等于），被穿越的块合并为一个
                     stack.pop();

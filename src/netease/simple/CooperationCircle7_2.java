@@ -73,6 +73,32 @@ public class CooperationCircle7_2 {
         }
     }
 
+    public static int get(int[][] nn){
+        int count = 0;
+        for(int i = 0; i < nn.length; i++){
+            for(int j = 0; j < nn.length; j++){
+                if(nn[i][j] == 1){
+                    dfs(nn,i,j);
+                    count++;
+                }
+
+            }
+
+        }
+        return count;
+    }
+
+    public static void dfs(int[][] nn,int i, int j){
+        if(i >= nn.length || j >= nn.length || i < 0 || j < 0 || nn[i][j] == 0){
+            return;
+        }
+        nn[i][j] = 0;
+        dfs(nn,i + 1, j);
+        dfs(nn,i -1, j);
+        dfs(nn,i, j + 1);
+        dfs(nn,i, j - 1);
+    }
+
     public static int findCircleNum(int[][] M) {
         int n = M.length;
         UnionFindSet ufs = new UnionFindSet(n);

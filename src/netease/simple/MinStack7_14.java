@@ -23,7 +23,7 @@ public class MinStack7_14 {
         public void push(int val) {
             s1.push(val);
             // 如果栈2为空或者元素小于最小值，那么需要压入栈2
-            if(s2.isEmpty() || val < getMin()) {
+            if(s2.isEmpty() || val <= getMin()) {
                 s2.push(val);
             }
         }

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 /**
+ * 7-4 最长递增子序列
+ *
  * @author machenggong
  * @since 2024/3/12
  */

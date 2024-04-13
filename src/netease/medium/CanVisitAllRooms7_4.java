@@ -26,6 +26,24 @@ public class CanVisitAllRooms7_4 {
         }
     }
 
+    public static boolean room(List<List<Integer>> rooms){
+        Set<Integer> v = new HashSet<>();
+        dfs(0, v, rooms);
+        return rooms.size() == v.size();
+    }
+
+    public static void dfs(int roomIndex, Set<Integer> v, List<List<Integer>> rooms){
+        if(v.contains(roomIndex)){
+            return;
+        }
+        v.add(roomIndex);
+        for(int r : rooms.get(roomIndex)){
+            if(!v.contains(r)){
+                dfs(r, v, rooms);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         String input = in.nextLine();
@@ -34,6 +52,7 @@ public class CanVisitAllRooms7_4 {
 
         // 初始化rooms
         for (String keys : inputArr) {
+            // 没这段代码 case全错
             if ("[]".equals(keys)) {
                 rooms.add(new ArrayList<Integer>());
                 continue;
@@ -47,8 +66,19 @@ public class CanVisitAllRooms7_4 {
             rooms.add(keyList);
         }
 
-        boolean b = canVisitAllRooms(rooms);
+        boolean b = room(rooms);
         System.out.println(b);
+        List<List<Integer>> rooms1 = new ArrayList<>();
+        String[] A1 =  input.replaceAll("\\[","").replaceAll("\\]","").split(";");
+        for(String a1 :A1){
+            List<Integer> ro = new ArrayList<>();
+            String[] A2 = a1.split(",");
+            for(String a2:A2){
+                ro.add(Integer.parseInt(a2));
+            }
+            rooms1.add(ro);
+        }
+        System.out.print(room(rooms1));
     }
 
 }
