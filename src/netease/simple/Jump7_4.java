@@ -56,6 +56,7 @@ public class Jump7_4 {
      */
     public static boolean canEscape(int[] nums, int start) {
         int n = nums.length;
+        // 没有这个记录会运行超时 内存超限
         boolean[] visited = new boolean[n];
         Queue<Integer> queue = new ArrayDeque<>();
         queue.add(start);
@@ -67,8 +68,10 @@ public class Jump7_4 {
             }
             // 可以向前或者向后跳跃
             // 从当前位置可以跳到的位置
+            // 不要写反了
             int[] positions = {position + nums[position], position - nums[position]};
             for (int step : positions) {
+                // 记录跳过
                 if (step >= 0 && step < n && !visited[step]) {
                     visited[step] = true;
                     queue.add(step);

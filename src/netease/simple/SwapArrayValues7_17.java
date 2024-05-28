@@ -3,6 +3,7 @@ package netease.simple;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class SwapArrayValues7_17 {
 
 // 本题有：aCount - a + b = bCount - b + a 所以，只需要对每个a找对应的b就行
 
-    public static void main(String[] args) throws IOException{
+    public static void main1(String[] args) throws IOException{
         Scanner scanner = new Scanner(System.in);
         String[] aStrs = scanner.nextLine().split(" ");
         int[] a = new int[aStrs.length];
@@ -53,6 +54,47 @@ public class SwapArrayValues7_17 {
             }
         }
 
+    }
+
+    /**
+     * 不会全对了
+     * @param args
+     */
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        String[] str1 = in.nextLine().split(" ");
+        int[] arr1 = new int[str1.length];
+        int ta = 0;
+        for(int i = 0; i< str1.length; i++){
+            arr1[i] = Integer.parseInt(str1[i]);
+            ta = ta + arr1[i];
+        }
+        int tb = 0;
+        String[] str2 = in.nextLine().split(" ");
+        int[] arr2 = new int[str2.length];
+        for(int i = 0; i< str2.length; i++){
+            arr2[i] = Integer.parseInt(str2[i]);
+            tb = tb + arr2[i];
+        }
+        int diff = ta - tb;
+        if((diff%2) != 0){
+            return;
+        }
+        diff = diff/2;
+        Arrays.sort(arr1);
+        Set<Integer> filterA = new HashSet<>();
+        for(int i = 0; i< arr1.length; i++){
+            for(int j = 0; j< arr2.length; j++){
+                if(arr1[i] - arr2[j] == diff){
+                    if(filterA.contains(arr1[i])){
+                        continue;
+                    }
+                    // 去重
+                    filterA.add(arr1[i]);
+                    System.out.println(arr1[i] + " " + arr2[j]);
+                }
+            }
+        }
     }
 }
 

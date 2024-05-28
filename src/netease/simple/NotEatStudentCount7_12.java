@@ -27,6 +27,7 @@ public class NotEatStudentCount7_12 {
                 sandwichs.poll();
                 continue;
             } else {
+                // 这个过程会一直持续到队列里所有学生都不喜欢栈顶的三明治为止。 注意这里是break
                 break;
             }
         }

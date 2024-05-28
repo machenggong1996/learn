@@ -17,6 +17,7 @@ public class LongestPalindromeSubstring7_18 {
             int len1 = expandAroundCenter(s, i, i);
             int len2 = expandAroundCenter(s, i, i + 1);
             int len = Math.max(len1, len2);
+            // 和历史最大做对比
             if (len > end - start) {
                 start = i - (len - 1) / 2;
                 end = i + len / 2;
@@ -30,6 +31,7 @@ public class LongestPalindromeSubstring7_18 {
             left--;
             right++;
         }
+        // 这里是减1
         return right - left - 1;
     }
 

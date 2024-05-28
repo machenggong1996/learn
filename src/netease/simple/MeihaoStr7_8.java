@@ -1,5 +1,6 @@
 package netease.simple;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -45,11 +46,32 @@ public class MeihaoStr7_8 {
         return lowerStr.equals(upperStr);
     }
 
+    public static boolean isBeautyStr1(String str) {
+        String[] lower = new String[26];
+        Arrays.fill(lower, "0");
+        String[] upper = new String[26];
+        Arrays.fill(upper, "0");
+        for(int i = 0; i< str.length(); i++){
+            char c = str.charAt(i);
+            if(c >= 'a' && c <= 'z'){
+                int x = (int)c - (int)'a';
+                lower[x] = "1";
+            }
+            if(c >= 'A' && c <= 'Z'){
+                int x = (int)c - (int)'A';
+                upper[x] = "1";
+            }
+        }
+        return String.join(",",lower).equals(String.join(",",upper));
+
+    }
+
     public static void main(String[] args) throws Exception {
         Scanner in = new Scanner(System.in);
         String inputStr = in.nextLine();
         String longestBeautyStr = "";
         for (int i = 0; i < inputStr.length(); i++) {
+            // 下面这块截取容易写错
             for (int j = i + 1; j <= inputStr.length(); j++) {
                 String tmp = inputStr.substring(i, j);
                 if (isBeautyStr(tmp) && tmp.length() > longestBeautyStr.length()) {

@@ -31,6 +31,7 @@ public class LastStoneWeight7_13 {
         for (int stone : stones) {
             pq.offer(stone);
         }
+        // 这个条件是pq.size() > 1 不是!isEmpty()
         while (pq.size() > 1) {
             int a = pq.poll();
             int b = pq.poll();

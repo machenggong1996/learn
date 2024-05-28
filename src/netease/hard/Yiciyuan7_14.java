@@ -10,18 +10,67 @@ public class Yiciyuan7_14 {
     public static void main(String[] args) {
         // 求解最长回文子串长度 需要判断奇数偶数
         // 纯数字不行
-        try {
-            Scanner sc = new Scanner(System.in);
-            while (sc.hasNext()) {
-                String line = sc.nextLine();
-                int result = solve(line);
-                System.out.println(result);
-            }
-
-            // System.out.println(solve("00A00"));
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
+        Scanner sc = new Scanner(System.in);
+        while (sc.hasNext()) {
+            String line = sc.nextLine();
+            int result = solve1(line);
+            System.out.println(result);
         }
+    }
+
+    static int solve1(String line) {
+        int max = 0;
+        for (int i = 0; i < line.length(); i++) {
+            {
+                int left = i;
+                int right = i;
+                boolean hasA = false;
+                int length = 1;
+                // 注意是大于等于0
+                while (left >= 0 && right < line.length()) {
+                    if (line.charAt(left) != line.charAt(right)) {
+                        break;
+                    }
+                    if (!hasA) {
+                        if ((line.charAt(left) >= 'a' && line.charAt(left) <= 'z') || (line.charAt(left) >= 'A' && line.charAt(left) <= 'Z')) {
+                            hasA = true;
+                        }
+                    }
+                    if (hasA) {
+                        max = Math.max(max, length);
+                    }
+                    left--;
+                    right++;
+                    length += 2;
+                }
+            }
+            {
+                int left = i;
+                int right = i + 1;
+                boolean hasA = false;
+                int length = 2;
+                while (left >= 0 && right < line.length()) {
+                    if (line.charAt(left) != line.charAt(right)) {
+                        break;
+                    }
+                    if (!hasA) {
+                        if ((line.charAt(left) >= 'a' && line.charAt(left) <= 'z') || (line.charAt(left) >= 'A' && line.charAt(left) <= 'Z')) {
+                            hasA = true;
+                        }
+                    }
+                    if (hasA) {
+                        max = Math.max(max, length);
+                    }
+                    left--;
+                    right++;
+                    length += 2;
+                }
+            }
+        }
+        if (max < 3) {
+            return 0;
+        }
+        return max;
     }
 
     static int solve(String line) {

@@ -1,9 +1,11 @@
 package netease.simple;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
- * 7-7 数字拆分求和 TODO 这道题需要好好看看
+ * 7-7 数字拆分求和 TODO 这道题需要好好看看 需要再写一遍
  *
  * @author machenggong
  * @since 2024/2/26
@@ -46,6 +48,46 @@ public class NumberSplitCount7_7 {
                 }
             }
         }
+        handle(k);
+    }
+
+    public static void handle(int k){
+        int[] countk = new int[k];
+        int t = 0;
+        for(int i = 0;i<k;i++){
+            t = t + i;
+            if(i!=0){
+                countk[i] = t + countk[i-1];
+            }else {
+                countk[i] = 0;
+            }
+
+        }
+        for(int x = 1; x < k;x++){
+            for(int n = 1; n < k;n++){
+                int result = x*(n+1)+countk[n];
+                if(result == k){
+                    printResult1(n,x,countk);
+                }else if(result > k){
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void printResult1(int n,int x, int[] countk){
+        List<String> resultList = new ArrayList();
+        for(int i = 0;i<n+1;i++){
+            int temp = 0;
+            if(i == 0){
+                temp = 0;
+            }else {
+                temp = countk[i] - countk[i -1];
+            }
+            int result = x+temp;
+            resultList.add(String.valueOf(result));
+        }
+        System.out.println(String.join(",",resultList));
     }
 
     public static void printResult(int x, int n, int[] nCount) {

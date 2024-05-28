@@ -18,7 +18,7 @@ public class MinRemoveToMakeValid7_3 {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '(') {
-                // 栈里存放的是需要删除的括号的下标
+                // 栈里存放的是需要删除的括号的下标 上次写成stack.push(i);导致错误
                 stack.push(result.length());
                 result.append(c);
             } else if (c == ')') {

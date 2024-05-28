@@ -14,7 +14,7 @@ public class Huiwen7_5 {
         Scanner in  = new Scanner(System.in);
         String input  = in.nextLine();
 
-        input = input.replaceAll("[^a-z^A-Z^0-9]", "").toLowerCase();
+        input = input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
         StringBuilder builder = new StringBuilder(input);
         if(input.equals(builder.reverse().toString())) {
             System.out.println("1");

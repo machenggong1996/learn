@@ -52,6 +52,7 @@ public class CountBeautifulString7_10 {
             for (int j = i; j < s.length(); j++) {
                 int vowCount;
                 int conCount;
+                // TODO 是i==0 不是j==0
                 if (i == 0) {
                     vowCount = counts[j][0];
                     conCount = counts[j][1];

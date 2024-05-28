@@ -27,6 +27,7 @@ public class CheckSubArraySum7_1 {
      */
     public static int checkSubArraySum(int[] nums, int k) {
         Map<Integer, Integer> map = new HashMap<>();
+        // 可以没有
         map.put(0, -1);
         int sum = 0;
         for (int i = 0; i < nums.length; i++) {

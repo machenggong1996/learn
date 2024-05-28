@@ -61,7 +61,8 @@ public class LargestComponentSize7_2_2 {
             this.rank = new int[n];
             for (int i = 0; i < n; i++) {
                 this.parent[i] = i;
-                this.rank[i] = 1;
+                // 0 1都可以
+                this.rank[i] = 0;
             }
         }
 
