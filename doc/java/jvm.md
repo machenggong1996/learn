@@ -1,6 +1,7 @@
 # jvm
 
 * [JVM参数设置、分析](https://www.cnblogs.com/redcreen/archive/2011/05/04/2037057.html)
+* [Full GC和Minor GC、Major GC](https://blog.csdn.net/qq_42392981/article/details/131954218)
 
 ## 1. java虚拟机介绍
 

@@ -553,3 +553,14 @@ final boolean transferForSignal(Node node) {
 当调用signal()方法时，将等待队列中的首节点拿出来，加入到同步队列中，此时该节点不会立刻被唤醒因为就算被唤醒也是需要重新去获取同步状态的，而是在调用lock.unlock()方法释放锁以后将其唤醒获取同步状态。
 
 ![avatar](pics/signal唤醒流程总结.png)
+
+
+
+
+
+
+
+
+
+
+

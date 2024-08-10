@@ -75,3 +75,7 @@ https://www.bilibili.com/video/BV1TC4y1Q7Ym
 
 两种死锁情况
 使用 show engine innodb status 查看最新一条死锁信息
+
+[案例分析](https://www.cnblogs.com/yuanfy008/p/15920718.html)
+
+间隙锁可以重复加锁
