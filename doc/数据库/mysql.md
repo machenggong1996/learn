@@ -128,3 +128,16 @@ next lock = record lock + gap lock
 
 * [mysql联合索引的生效规则](https://www.cnblogs.com/mintsd/p/13062308.html)
 * [Mysql最左匹配原则](https://blog.csdn.net/sinat_41917109/article/details/88944290)
+
+## mysql深分页
+
+* [mysql深分页](https://blog.csdn.net/qq_43686863/article/details/135673673)
+
+延迟关联 减少回表
+
+```sql
+select *
+      from wide_table
+      inner join (select id from wide_table limit 80000, 100) as wt
+      on wide_table.id = wt.id;
+```

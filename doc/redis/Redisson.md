@@ -7,7 +7,7 @@
 加锁lua脚本 org.redisson.RedissonLock#tryLockInnerAsync
 解锁使用lua脚本 发布订阅 org.redisson.RedissonLock#unlockInnerAsync
 
-1. RedissonRedLock 红锁 基于RedissonMultiLock实现 [红锁实现原理](https://way2j.com/a/1338)
+1. RedissonRedLock 红锁 基于RedissonMultiLock实现 [红锁实现原理](https://way2j.com/a/1338) AP模式
 2. RedissonMultiLock 联锁
 
 ### 看门狗
@@ -34,6 +34,9 @@ protected CompletionStage<Boolean> renewExpirationAsync(long threadId) {
     }
 ```
 
+## zookeeper
+
+顺序节点形式的分布式锁 CA强一致性 性能不如redis
 
 
 

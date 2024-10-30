@@ -5,7 +5,6 @@
 public class Ntest {
 
     public static void main(String[] args) {
-        Object
         // 输入
         int num = 18;
         int n = 2;
