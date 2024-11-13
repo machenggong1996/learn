@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 /**
  * 7-9最长超赞子字符串 TODO 还没看懂 输入1 会有20分
- *
+ * 状态压缩
  * @author machenggong
  * @since 2024/3/13
  */
@@ -14,8 +14,7 @@ public class Chaozan7_9 {
 
     public static void main(String[] args) {
         try {
-            Scanner sc = new Scanner(System.in);
-            String line = sc.nextLine();
+            String line = "3242415";
             int result = longestAwesome(line);
             System.out.println(result);
         } catch (Throwable e) {
@@ -33,6 +32,10 @@ public class Chaozan7_9 {
      * 对于每个可能的奇数状态 odd_state（即将当前数字的奇偶性取反），检查是否在哈希表中出现过，同样更新最长超赞子字符串的长度。
      * 返回最长超赞子字符串的长度。
      * 这个算法利用位运算和哈希表快速计算出现次数的奇偶性，从而找到最长的符合条件的子字符串。
+     * 时间复杂度：O(n∣Σ∣)，其中 n 是字符串 s 的长度，Σ 表示字符集，在本题中字符串只包含 10 个数字字符，∣Σ∣=10。
+     *
+     * 空间复杂度：O(min{n,2∣Σ∣})，即为哈希映射使用的空间。哈希映射中的每个键值对使用的空间为 O(1)，而键值对的总数目由字符串 s 的前缀串个数 n+1 以及 0−1 序列的总数目 2∣Σ∣
+     *   共同决定。
      *
      * @param s
      * @return
@@ -46,16 +49,26 @@ public class Chaozan7_9 {
             int digit = Character.getNumericValue(s.charAt(i));
             // 这行代码是将 state 中对应数字位置上的比特位取反。具体来说，1 << digit 是将 1 左移 digit 位，
             // 然后使用异或操作符 ^ 将 state 的对应位置上的比特位进行翻转。这样可以有效地表示每个数字出现的奇偶性状态。
-            state ^= 1 << digit;
+            // 3242415
+            // digit=3 state = 8 (00001000),digit=2 state = 12 (0001100),digit=4 state = 28(00011100)
+            // digit=2 state = 24 (00011000)
+            state = state ^ (1 << digit);
             if (seen.containsKey(state)) {
                 max_length = Math.max(max_length, i - seen.get(state));
             } else {
                 seen.put(state, i);
             }
+            // 这段代码的意思是，对于每个数字，计算其奇数状态（即将当前数字的奇偶性取反），
             for (int j = 0; j < 10; j++) {
+                // odd_state的意思是，处理奇数位
+                // 一个数字出现奇数次 其他数字出现偶数次
+                // 32424 3这个数字出现奇数次 其余出现偶数次 0-9按个试
                 int odd_state = state ^ (1 << j);
                 if (seen.containsKey(odd_state)) {
                     max_length = Math.max(max_length, i - seen.get(odd_state));
+                    if(max_length == 5){
+                        System.out.println(max_length);
+                    }
                 }
             }
         }

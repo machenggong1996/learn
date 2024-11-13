@@ -6,6 +6,8 @@ import java.util.Scanner;
 import java.util.Stack;
 
 /**
+ * 用两个栈实现队列
+ *
  * @author machenggong
  * @since 2024/2/20
  */

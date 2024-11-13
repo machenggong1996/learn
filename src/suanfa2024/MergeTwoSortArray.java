@@ -18,7 +18,7 @@ public class MergeTwoSortArray {
         System.out.println(Arrays.toString(nums1));
     }
 
-    // 双指针
+    // 双指针 新建一个数组 对这个数组赋值 需要开辟额外空间
     public static void merge2(int[] nums1, int m, int[] nums2, int n) {
         // p1指向nums1  p2指向nums2
         int p1 = 0, p2 = 0;
