@@ -62,7 +62,7 @@ public class DajiajiesheHomeRobber {
 
     public static void main(String[] args) {
         int[] arr = {2,1,1,2};
-        System.out.println(rob1(arr));
+        System.out.println(rob(arr));
     }
 
 }

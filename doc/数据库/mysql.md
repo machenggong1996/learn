@@ -16,12 +16,28 @@ Union All：对两个结果集进行并集操作，包括重复行，不进行�
 
 [班级成绩前三名](https://blog.csdn.net/qq_35119422/article/details/81941696?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v28-2-81941696.nonecase&utm_term=mysql%E7%8F%AD%E7%BA%A7%E6%88%90%E7%BB%A9%E6%9F%A5%E8%AF%A2&spm=1000.2123.3001.4430)
 
+https://blog.csdn.net/weixin_39634985/article/details/115927239
+
 ```sql
 SELECT e1.*
 FROM student e1
 WHERE (SELECT count(1) FROM student e2 WHERE e2.cno = e1.cno AND e2.score >= e1.score) <= 3
 ORDER BY cno,
          score DESC;
+```
+
+考虑并列情况
+
+```sql
+select a.class, a.name, a.score
+from sc a
+where EXISTS (select count(*)
+              from (select distinct class, score from sc) b
+              where a.class = b.class
+                and a.score <= b.score
+              group by b.class
+              HAVING COUNT(*) <= 3)
+order by a.class, a.score desc;
 ```
 
 采用自关联查询 e2中大于等于85的为1个 e2中大于等于80的为两个
@@ -135,9 +151,13 @@ next lock = record lock + gap lock
 
 延迟关联 减少回表
 
+从回表80100条数据变成回表100条数据
+
 ```sql
 select *
       from wide_table
       inner join (select id from wide_table limit 80000, 100) as wt
       on wide_table.id = wt.id;
 ```
+https://blog.csdn.net/weixin_44700876/article/details/135517676 四种方法
+

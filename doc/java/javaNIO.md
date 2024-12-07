@@ -82,7 +82,7 @@ public class BufferTest{
 }
 ```
 
-### 直接缓冲区和直接缓冲区
+### 直接缓冲区和非直接缓冲区
 
 1. 非直接缓冲区 通过allocate() 方法分配缓冲区，建立在jvm的内存中
  * 应用程序read 物理磁盘-> 内核地址空间 -> copy到用户地址空间 -> 应用程序
@@ -244,7 +244,7 @@ public class TestChannel{
         
         //3. 分散读取
         
-        java.nio.ByteBuffer[] bufs = {buf1buf2};
+        java.nio.ByteBuffer[] bufs = {buf1,buf2};
         channel1.read(bufs);
         for(java.nio.ByteBuffer byteBuffer : bufs){
             byteBuffer.flip();

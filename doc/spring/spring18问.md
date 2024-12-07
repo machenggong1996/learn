@@ -21,7 +21,15 @@ getEarlyBeanReference处理动态代理 二级缓存不能对动态代理对象�
 SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference的实现类有AbstractAutoProxyCreator
 会对动态代理进行判断
 
+#### 循环依赖方法调用链
 
-
-
-
+* preInstantiateSingletons
+* getBean
+* doGetBean
+* org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBean
+* doCreateBean
+* populateBean
+* org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#applyPropertyValues
+* org.springframework.beans.factory.support.BeanDefinitionValueResolver#resolveValueIfNecessary
+* org.springframework.beans.factory.support.BeanDefinitionValueResolver#resolveReference
+* org.springframework.beans.factory.support.AbstractBeanFactory#getBean(java.lang.String)

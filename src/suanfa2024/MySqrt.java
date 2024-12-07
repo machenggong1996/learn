@@ -14,7 +14,7 @@ public class MySqrt {
         int l = 0, r = x, ans = -1;
         while (l <= r) {
             int mid = l + (r - l) / 2;
-            if ((long) mid * mid <= x) {
+            if (mid * mid <= x) {
                 ans = mid;
                 l = mid + 1;
             } else {

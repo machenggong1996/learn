@@ -15,7 +15,7 @@ public class ProducerConsumer {
 
     private static final int CAPACITY = 5;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws InterruptedException {
         Queue<Integer> queue = new LinkedList<Integer>();
 
         Thread producer1 = new Producer("P-1", queue, CAPACITY);
@@ -33,6 +33,8 @@ public class ProducerConsumer {
 
     /**
      * 生产者
+     * https://blog.csdn.net/qq_65501447/article/details/134939956
+     * https://blog.csdn.net/qq_45702658/article/details/120709336
      */
     public static class Producer extends Thread {
         private Queue<Integer> queue;
@@ -50,7 +52,9 @@ public class ProducerConsumer {
         @Override
         public void run() {
             while (true) {
+                System.out.println();
                 synchronized (queue) {
+                    // 为什么要while而不是if ? 因为有可能在wait的时候被唤醒了，但是此时队列还是满的
                     while (queue.size() == maxSize) {
                         try {
                             System.out.println("Queue is full, Producer[" + name + "] thread waiting for " + "consumer to take something from queue.");
@@ -62,9 +66,8 @@ public class ProducerConsumer {
                     System.out.println("[" + name + "] Producing value : +" + i);
                     queue.offer(i++);
                     queue.notifyAll();
-
                     try {
-                        Thread.sleep(new Random().nextInt(1000));
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -92,7 +95,10 @@ public class ProducerConsumer {
         @Override
         public void run() {
             while (true) {
+                System.out.println();
                 synchronized (queue) {
+                    // 为什么要while而不是if? 因为有可能在wait的时候被唤醒了，但是此时队列还是满的
+                    // queue.isEmpty()是空的 可能P1放完数据之后被C1消费了，但是C2也唤醒了，但是此时队列还是空的 会空指针，所以得用while
                     while (queue.isEmpty()) {
                         try {
                             System.out.println("Queue is empty, Consumer[" + name + "] thread is waiting for Producer");
@@ -104,9 +110,8 @@ public class ProducerConsumer {
                     int x = queue.poll();
                     System.out.println("[" + name + "] Consuming value : " + x);
                     queue.notifyAll();
-
                     try {
-                        Thread.sleep(new Random().nextInt(1000));
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

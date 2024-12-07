@@ -18,8 +18,9 @@ public class ChampagneTower {
      */
     public static double champagneTower(int poured, int query_row, int query_glass) {
         // 首先将所有的 poured 杯香槟全部倒到 row=0 的这个杯子中
+        // 第一行
         double[] row = {poured};
-        // i是层数
+        // i是层数 i=1但是从第二层开始
         for (int i = 1; i <= query_row; i++) {
             double[] nextRow = new double[i + 1];
             // j是这一层第几个杯子
@@ -35,6 +36,23 @@ public class ChampagneTower {
             row = nextRow;
         }
         return Math.min(1, row[query_glass]);
+    }
+
+    public static double champagneTower1(int poured, int query_row, int query_glass) {
+        double[] row = {poured};
+        for(int i = 1;i<=query_row;i++){
+            double[] row1 = new double[i+1];
+            for(int j = 0;j<i;j++){
+                double v = row[j];
+                if(v>1){
+                    // 累加
+                    row1[j] += (v - 1)/2;
+                    row1[j+1] += (v - 1)/2;
+                }
+            }
+            row = row1;
+        }
+        return Math.min(1,row[query_glass]);
     }
 
     public static void main(String[] args) {

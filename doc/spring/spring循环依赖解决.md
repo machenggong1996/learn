@@ -72,6 +72,28 @@ populateBean方法中使用的递归解决循环依赖，A类引用了B类，在
 创建bean-A -> 将A放入正在创建过程中singletonsCurrentlyInCreation-> 满足三个条件放入singletonFactories
 -> populateBean填充属性发现依赖B -> 创建B发现引用A A已经实例化 B先创建成功 getSingleton(String beanName, ObjectFactory<?> singletonFactory)这个方法中将B创建成功-> B成功之后继续创建A
 
+### 为什么使用三级缓存
+
+* [Spring 为何需要三级缓存解决循环依赖，而不是二级缓存？](https://blog.csdn.net/weixin_45727359/article/details/114696668)
+
+getEarlyBeanReference处理动态代理 二级缓存不能对动态代理对象进行处理
+
+SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference的实现类有AbstractAutoProxyCreator
+会对动态代理进行判断
+
+#### 循环依赖方法调用链
+
+* preInstantiateSingletons
+* getBean
+* doGetBean
+* org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBean
+* doCreateBean
+* populateBean
+* org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#applyPropertyValues
+* org.springframework.beans.factory.support.BeanDefinitionValueResolver#resolveValueIfNecessary
+* org.springframework.beans.factory.support.BeanDefinitionValueResolver#resolveReference
+* org.springframework.beans.factory.support.AbstractBeanFactory#getBean(java.lang.String)
+
 ## 总结
 
 1. 使用context.getBean(A.class)，旨在获取容器内的单例A(若A不存在，就会走A这个Bean的创建流程)，显然初次获取A是不存在的，因此走A的创建之路~

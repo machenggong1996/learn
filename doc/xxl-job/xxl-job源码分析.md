@@ -246,5 +246,10 @@ public class  ExecutorRouteConsistentHash extends ExecutorRouter {
 
 ## 客户端项目启动流程
 
+## 时间轮优化项目中的每秒扫库任务
 
+5秒一次扫库线程，1秒一次时间轮线程
 
+扫库数据根据前后三个五秒分片判断是否需要立即执行，以及放入时间轮中
+
+核心代码参考JobScheduleHelper类

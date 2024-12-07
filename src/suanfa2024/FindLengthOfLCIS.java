@@ -10,6 +10,9 @@ public class FindLengthOfLCIS {
 
     // 贪心算法
     public static int findLengthOfLCIS(int[] nums) {
+        if(nums.length == 1){
+            return 1;
+        }
         int ans = 0;
         int n = nums.length;
         int start = 0;

@@ -42,17 +42,17 @@ public class ReverseList {
         head.next = node1;
         node1.next = node2;
         node2.next = node3;
-//        ListNode node = reverseList(head);
-//
-//        while (node != null) {
-//            System.out.println(node.val);
-//            node = node.next;
-//        }
-        ListNode nodeX1 = reverseList1(head);
-        while (nodeX1 != null) {
-            System.out.println(nodeX1.val);
-            nodeX1 = nodeX1.next;
+        ListNode node = reverseList(head);
+
+        while (node != null) {
+            System.out.println(node.val);
+            node = node.next;
         }
+//        ListNode nodeX1 = reverseList1(head);
+//        while (nodeX1 != null) {
+//            System.out.println(nodeX1.val);
+//            nodeX1 = nodeX1.next;
+//        }
     }
 
 
