@@ -19,8 +19,19 @@ public class MaxChunksToSorted7_13 {
             arr[i] = Integer.parseInt(parts[i]);
         }
         // 分隔后的排序和不分隔的排序结果相同
-        int result = maxChunksToSorted1(arr);
+        int result = maxChunksToSorted2(arr);
         System.out.println(result);
+    }
+
+    public static int maxChunksToSorted2(int[] arr) {
+        int m = 0, res = 0;
+        for (int i = 0; i < arr.length; i++) {
+            m = Math.max(m, arr[i]);
+            if (m == i) {
+                res++;
+            }
+        }
+        return res;
     }
 
     /**

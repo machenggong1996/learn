@@ -15,7 +15,7 @@ public class MaxSubArray {
         int[] dp = new int[N];
         dp[0] = nums[0];
         int max = nums[0];
-
+        // dp[i] 以i为结尾的最大子数组和
         for (int i = 1; i < N; i++) {
             dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
             max = Math.max(max, dp[i]);

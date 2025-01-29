@@ -52,6 +52,11 @@ public class SpiralOrder {
         return res;
     }
 
+    /**
+     * 学会这种方式
+     * @param matrix
+     * @return
+     */
     public static List<Integer> spiralOrder1(int[][] matrix) {
         List<Integer> order = new ArrayList<Integer>();
         if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
@@ -66,6 +71,7 @@ public class SpiralOrder {
             for (int row = top + 1; row <= bottom; row++) {
                 order.add(matrix[row][right]);
             }
+            // 判断边界 可能好就一行或者一列
             if (left < right && top < bottom) {
                 for (int column = right - 1; column > left; column--) {
                     order.add(matrix[bottom][column]);
@@ -123,7 +129,8 @@ public class SpiralOrder {
 
 
     public static void main(String[] args) {
-        int[][] arr = new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+        // int[][] arr = new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+        int[][] arr = new int[][]{{3}, {2}};
         System.out.println(Arrays.toString(spiralOrder(arr)));
         System.out.println(spiralOrder1(arr));
         System.out.println(Arrays.toString(spiralOrder2(arr)));

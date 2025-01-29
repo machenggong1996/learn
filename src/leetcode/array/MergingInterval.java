@@ -19,12 +19,7 @@ public class MergingInterval {
         List<int[]> list = new ArrayList<>();
         //Arrays.sort(arr,(a,b)->a[0]-b[0]);
         //按照左区间先排序
-        Arrays.sort(arr, new Comparator<int[]>() {
-            @Override
-            public int compare(int[] a, int[] b) {
-                return a[0] - b[0];
-            }
-        });
+        Arrays.sort(arr, (a, b) -> a[0] - b[0]);
         int i = 0;
         int n = arr.length;
         while (i < n) {

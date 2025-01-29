@@ -1,6 +1,7 @@
 package leetcode.string;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author machenggong
@@ -59,9 +60,14 @@ public class GroupAnagrams {
         return new ArrayList<List<String>>(map.values());
     }
 
+    public static List<List<String>> groupAnagrams2(String[] strs) {
+        return new ArrayList<>(Arrays.stream(strs)
+                .collect(Collectors.groupingBy(s -> Arrays.toString(s.codePoints().sorted().toArray()))).values());
+    }
+
     public static void main(String[] args) {
         String[] strArr = new String[]{"eat", "tea", "tan", "ate", "nat", "bat"};
-        System.out.println(groupAnagrams1(strArr));
+        System.out.println(groupAnagrams2(strArr));
     }
 
 

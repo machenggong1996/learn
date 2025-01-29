@@ -3,6 +3,8 @@ package leetcode.array;
 import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 
 /**
+ * https://leetcode.cn/problems/search-in-rotated-sorted-array/
+ * 搜索旋转排序数组
  * @author machenggong
  * @date 2020/04/27
  */

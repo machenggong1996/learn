@@ -56,6 +56,18 @@ public class ReverseKGroup7_8 {
         return last;
     }
 
+    private ListNode reverse(ListNode head) {
+        ListNode curr = head;
+        ListNode pre = null;
+        while(curr != null){
+            ListNode next = curr.next;
+            curr.next = pre;
+            pre = curr;
+            curr = next;
+        }
+        return pre;
+    }
+
     public static void printLinkedList(ListNode head) {
         while (head != null) {
             if(head.next != null){

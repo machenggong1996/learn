@@ -21,10 +21,21 @@ public class SwapPairs {
             ListNode node2 = temp.next.next;
             temp.next = node2;
             node1.next = node2.next;
+            // 会更新temp.next的值
             node2.next = node1;
             temp = node1;
         }
         return dummyHead.next;
+    }
+
+    public static ListNode swapPairs1(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode newHead = head.next;
+        head.next = swapPairs1(newHead.next);
+        newHead.next = head;
+        return newHead;
     }
 
     public static void main(String[] args) {

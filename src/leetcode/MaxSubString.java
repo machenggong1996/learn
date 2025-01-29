@@ -14,6 +14,7 @@ public class MaxSubString {
         String str = "pwwkew";
         System.out.println(lengthOfLongestSubstringTest(str));
         System.out.println(lengthOfLongestSubstring1(str));
+        System.out.println(lols(str));
     }
 
     /**
@@ -35,6 +36,23 @@ public class MaxSubString {
             map.put(s.charAt(end), end + 1);
         }
         return ans;
+    }
+
+    public static int lols(String s) {
+        // key 字符，value 出现次数
+        HashMap<Character, Integer> map = new HashMap<>();
+        int left = 0, right = 0;
+        int res = 0;
+        while (right < s.length()) {
+            char c = s.charAt(right++);
+            map.put(c, map.getOrDefault(c, 0) + 1);
+            while (map.get(c) > 1) {
+                char l = s.charAt(left++);
+                map.put(l, map.getOrDefault(l, 0) - 1);
+            }
+            res = Math.max(res, right - left);
+        }
+        return res;
     }
 
     public static int lengthOfLongestSubstring2(String s) {

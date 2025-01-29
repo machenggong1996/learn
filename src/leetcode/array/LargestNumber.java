@@ -30,6 +30,7 @@ public class LargestNumber {
             while (sy <= y) {
                 sy *= 10;
             }
+            // 两个拼接数作差 小于0 要从小到大排列
             return (int) (-sy * x - y + sx * y + x);
         });
 

@@ -1,4 +1,4 @@
-package leetcode;
+package leetcode.dp;
 
 /**
  * Created by machenggong on 2020/3/14.

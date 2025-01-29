@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * 插入区间
+ *
  * @author machenggong
  * @date 2020/11/04
  */

@@ -12,11 +12,12 @@ import java.util.Scanner;
 public class LongestIncreasingSubsequence7_4 {
 
     public static void main(String[] args) {
-        // 10 9 2 5 3 7 101 18
-        Scanner scanner = new Scanner(System.in);
-        String[] input = scanner.nextLine().split(" ");
-        int[] nums = Arrays.stream(input).mapToInt(Integer::parseInt).toArray();
-        int length = lengthOfLIS(nums);
+//        // 10 9 2 5 3 7 101 18
+//        Scanner scanner = new Scanner(System.in);
+//        String[] input = scanner.nextLine().split(" ");
+//        int[] nums = Arrays.stream(input).mapToInt(Integer::parseInt).toArray();
+        int[] nums = {10,9,2,5,3,7,101,18}; // 4 [2,3,7,101]
+        int length = lengthOfLIS1(nums);
         System.out.println(length);
     }
 
@@ -44,6 +45,26 @@ public class LongestIncreasingSubsequence7_4 {
             }
         }
         return len;
+    }
+
+    public static int lengthOfLIS1(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+        // dp[i] 为考虑前 i 个元素，以第 i 个数字结尾的最长上升子序列的长度
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        int maxans = 1;
+        for (int i = 1; i < nums.length; i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+            maxans = Math.max(maxans, dp[i]);
+        }
+        return maxans;
     }
 
 }

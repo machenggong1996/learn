@@ -88,6 +88,10 @@ public class Solution7_7 {
             }
         }
         Solution7_7 solution = new Solution7_7();
+        // 4 3
+        // 0 1
+        // 0 2
+        // 1 2
         System.out.println(solution.makeConnected(n, connections));
     }
 

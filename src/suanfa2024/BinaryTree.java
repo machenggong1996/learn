@@ -46,6 +46,7 @@ public class BinaryTree {
         queue.offer(root);
         while (!queue.isEmpty()) {
             List<Integer> level = new ArrayList<>();
+            // 获取当前层的节点个数
             int currentLevelSize = queue.size();
             // 遍历当前层的每个节点
             for (int i = 0; i < currentLevelSize; i++) {

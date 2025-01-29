@@ -1,6 +1,8 @@
-package leetcode.array;
+package leetcode.binarysearch;
 
 /**
+ * 33. 搜索旋转排序数组
+ *
  * Created by machenggong on 2020/3/18.
  */
 public class SearchArray {
@@ -9,7 +11,7 @@ public class SearchArray {
 
         int left = 0, right = nums.length - 1;
         while (left <= right) {
-            int mid = left + (right - left + 1) / 2;
+            int mid = (right + left) / 2;
             if (nums[mid] == target) {
                 return mid;
             }
@@ -28,6 +30,47 @@ public class SearchArray {
             }
         }
         return -1;
+    }
+
+    /**
+     * 搜索旋转数组II 有重复元素
+     *
+     * @param nums
+     * @param target
+     * @return
+     */
+    public static boolean searchII(int[] nums, int target) {
+        int n = nums.length;
+        if (n == 0) {
+            return false;
+        }
+        if (n == 1) {
+            return nums[0] == target;
+        }
+        int l = 0, r = n - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (nums[mid] == target) {
+                return true;
+            }
+            if (nums[l] == nums[mid] && nums[mid] == nums[r]) {
+                ++l;
+                --r;
+            } else if (nums[l] <= nums[mid]) {
+                if (nums[l] <= target && target < nums[mid]) {
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            } else {
+                if (nums[mid] < target && target <= nums[n - 1]) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            }
+        }
+        return false;
     }
 
     public static int searchTest(int[] nums, int target) {

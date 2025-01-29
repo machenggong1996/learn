@@ -50,7 +50,7 @@ public class Main7_8 {
         // perm数组是 1-5 的排列，所以 perm[0] 一定是 1-5 中的一个
         int[] perm = new int[encoded.length+1];
         // 第二关键步骤
-        // encoded[0] = perm[0] ^ perm[1]
+        // encoded[0] = [0] ^ perm[1]
         //encoded[1] = perm[1] ^ perm[2]
         //encoded[2] = perm[2] ^ perm[3]
         //encoded[3] = perm[3] ^ perm[4]
@@ -66,6 +66,7 @@ public class Main7_8 {
         perm[0] = all;
 
         // 求 perm 其他元素
+        // a xor x = b，则也成立 x = a xor b
         for(int i=1; i<perm.length; i++) {
             perm[i] = perm[i-1] ^ encoded[i-1];
         }

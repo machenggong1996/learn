@@ -35,6 +35,7 @@ public class SameStruct7_6 {
     }
 
     public static void main(String[] args) throws Exception {
+        // badc,baba 不符合
         Scanner in  = new Scanner(System.in);
         String inputStr = in.nextLine();
         String[] arr = inputStr.split(",");

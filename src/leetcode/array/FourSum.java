@@ -18,7 +18,7 @@ public class FourSum {
      * @param target
      * @return
      */
-    public List<List<Integer>> fourSum(int[] nums, int target) {
+    public static List<List<Integer>> fourSum(int[] nums, int target) {
         List<List<Integer>> quadruplets = new ArrayList<List<Integer>>();
         if (nums == null || nums.length < 4) {
             return quadruplets;
@@ -67,6 +67,10 @@ public class FourSum {
             }
         }
         return quadruplets;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(fourSum(new int[]{1, 0, -1, 0, -2, 2}, 0));
     }
 
 }

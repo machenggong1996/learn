@@ -1,5 +1,8 @@
 package leetcode;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 /**
  * Created by machenggong on 2020/3/11.
  */
@@ -20,37 +23,62 @@ public class TrapRain {
      */
 
     public static int trap(int[] height) {
-        int length = height.length;
-        int[] left = new int[length];//保存从左往右遍历时，每一个下标位置当前的最高柱子高度
-        int[] right = new int[length];//保存从右往左遍历时，每一个下标位置当前的最高柱子高度
-        int leftMax = 0;
-        int rightMax = 0;
-        int sum = 0;
-
-        //计算left和right数组
-        for (int i = 0; i < length; i++) {
-            if (height[i] > leftMax) {
-                leftMax = height[i];
-            }
-            left[i] = leftMax;
-            if (height[length - 1 - i] > rightMax) {
-                rightMax = height[length - 1 - i];
-            }
-            right[length - 1 - i] = rightMax;
+        int n = height.length;
+        if (n == 0) {
+            return 0;
         }
 
-        //遍历，只有当前柱子往左看、往右看的最高柱子都比当前柱子高，才能接住雨水
-        for (int j = 0; j < length; j++) {
-            if (height[j] < left[j] && height[j] < right[j]) {
-                sum = sum + Math.min(left[j], right[j]) - height[j];
-            }
+        int[] leftMax = new int[n];
+        leftMax[0] = height[0];
+        for (int i = 1; i < n; ++i) {
+            leftMax[i] = Math.max(leftMax[i - 1], height[i]);
         }
-        return sum;
+
+        int[] rightMax = new int[n];
+        rightMax[n - 1] = height[n - 1];
+        for (int i = n - 2; i >= 0; --i) {
+            rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+        }
+
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            ans += Math.min(leftMax[i], rightMax[i]) - height[i];
+        }
+        return ans;
+    }
+
+    /**
+     * 单调栈
+     * @param height
+     * @return
+     */
+    public static int trap1(int[] height) {
+        int ans = 0;
+        // 存储柱子索引下标
+        Deque<Integer> stack = new LinkedList<Integer>();
+        int n = height.length;
+        for (int i = 0; i < n; ++i) {
+            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
+                int top = stack.pop();
+                // 栈为空，没有左边界，无法接雨水
+                if (stack.isEmpty()) {
+                    break;
+                }
+                int left = stack.peek();
+                int currWidth = i - left - 1;
+                // 计算当前柱子和栈顶柱子之间的水的高度
+                int currHeight = Math.min(height[left], height[i]) - height[top];
+                ans += currWidth * currHeight;
+            }
+            stack.push(i);
+        }
+        return ans;
     }
 
     public static void main(String[] args) {
         int[] arr = new int[]{0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1};
         System.out.println(trap(arr));
+        System.out.println(trap1(arr));
     }
 
 }

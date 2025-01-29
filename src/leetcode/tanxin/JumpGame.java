@@ -21,8 +21,24 @@ public class JumpGame {
         return lastPos == 0;
     }
 
+    public static boolean canJump1(int[] nums) {
+        int n = nums.length;
+        // 能到达的最远位置
+        int rightmost = 0;
+        for (int i = 0; i < n; ++i) {
+            // 如果当前位置可达 则更新最远位置
+            if (i <= rightmost) {
+                rightmost = Math.max(rightmost, i + nums[i]);
+                if (rightmost >= n - 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
-        System.out.println(canJump(new int[] { 3, 2, 0, 1, 4 }));
+        System.out.println(canJump1(new int[] { 3,2,1,0,4 }));
     }
 
 }
