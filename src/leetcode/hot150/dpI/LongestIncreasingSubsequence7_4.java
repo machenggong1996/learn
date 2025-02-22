@@ -1,7 +1,6 @@
-package netease.hard;
+package leetcode.hot150.dpI;
 
 import java.util.Arrays;
-import java.util.Scanner;
 
 /**
  * 7-4 最长递增子序列

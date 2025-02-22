@@ -34,7 +34,7 @@ public class HelloWorld {
 
   public static void example(){
     ExecutorService executorPool = Executors.newFixedThreadPool(3);
-    ExecutorService executorService = new ThreadPoolExecutor(
+    ThreadPoolExecutor executorService = new ThreadPoolExecutor(
             2,
             2,
             0,
@@ -42,6 +42,7 @@ public class HelloWorld {
             new ArrayBlockingQueue<>(2),
             new ThreadPoolExecutor.CallerRunsPolicy()
     );
+    executorService.getLargestPoolSize();
     List<CompletableFuture<Void>> fatherCFList = new ArrayList<>();
     // 任务1 -> 执行两次
     for (int i = 0; i < 2; i++) {

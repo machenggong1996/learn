@@ -71,9 +71,12 @@ Kafka还支持对消息集合进行压缩，Producer可以通过GZIP或Snappy格
 
 * [Kafka 重平衡 全流程解析](https://blog.csdn.net/q322625/article/details/101461087)
 * [Kafka详解（八）消费者组重平衡全流程](https://blog.csdn.net/fedorafrog/article/details/104099674)
-* [Kafka重平衡机制](https://www.cnblogs.com/weifeng1463/p/13333912.html)
+* [Kafka重平衡机制]( https://www.cnblogs.com/weifeng1463/p/13333912.html)
 
 * 给消费组每个消费者分配消费任务的过程，
+
+joinGroup: 所有组内成员上报自己订阅的主题 选出领导者，领导者做新的分配方案
+syncGroup：领导者消费者同步分配方案 开始消费
 
 ### 1. kafka重平衡的时机
 
